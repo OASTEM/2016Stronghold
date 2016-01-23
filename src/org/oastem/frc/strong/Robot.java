@@ -53,8 +53,9 @@ public class Robot extends SampleRobot {
      */
     public void operatorControl() {
         while (isOperatorControl() && isEnabled()) {
-            myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
+            //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
+        	doArcadeDrive();
         }
     }
 
@@ -64,7 +65,7 @@ public class Robot extends SampleRobot {
     public void test() {
     }
     
-    private void doArcadeDrive(boolean hasAccel) {
+    private void doArcadeDrive() {
 		double leftMove = 0.0;
 		double rightMove = 0.0;
 		double zone = 0.04;
