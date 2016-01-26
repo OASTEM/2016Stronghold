@@ -56,6 +56,7 @@ public class Robot extends SampleRobot {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
+        	// This is a change on the encoder branch
         }
     }
 
