@@ -1,8 +1,8 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -33,15 +33,21 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-
+    // I COPIED THIS FROM GANTRYBOT
+	private static final int RIGHT_ENC_A = 5;
+	private static final int RIGHT_ENC_B = 3;
+	private static final int LEFT_ENC_A = 2;
+	private static final int LEFT_ENC_B = 0;
+	private static final int DRIVE_ENC_CPR = 2048;
     
     public Robot() {
-    	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
+    	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE);
         stickLeft = new Joystick(0);
         stickRight = new Joystick(1);
     }
     
     public void robotInit() {
+    	myRobot.initializeEncoders(RIGHT_ENC_A, RIGHT_ENC_B, true, LEFT_ENC_A, LEFT_ENC_B, false, DRIVE_ENC_CPR);
     	chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
@@ -51,19 +57,19 @@ public class Robot extends SampleRobot {
     /**
      * Runs the motors with arcade steering.
      */
-    public void operatorControl() {
+    @SuppressWarnings("deprecation")
+	public void operatorControl() {
+    	myRobot.resetEncoders();
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
-        	// This is a change on the encoder branch
+        	SmartDashboard.putDouble("Right Encoder", myRobot.getRightEnc());
+        	SmartDashboard.putDouble("Left Encoder", myRobot.getLeftEnc());
+        	SmartDashboard.putDouble("Right Encoder Rate", myRobot.getRateRightEnc());
+        	SmartDashboard.putDouble("Left Encoder Rate", myRobot.getRateLeftEnc());
+        	
         }
-    }
-
-    /**
-     * Runs during test mode
-     */
-    public void test() {
     }
     
     private void doArcadeDrive() {
@@ -107,4 +113,10 @@ public class Robot extends SampleRobot {
 		}
 		return val;
 	}
+	
+	 /**
+     * Runs during test mode
+     */
+    public void test() {
+    }
 }
