@@ -86,8 +86,8 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-    	String stateOfSolenoid = "Off";
-        while (isOperatorControl() && isEnabled()) {
+    	String solenoidState = "Off";
+    	while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
@@ -109,18 +109,26 @@ public class Robot extends SampleRobot {
         		solenoid.set(false);
         }*/
         
-        if (stickLeft.getRawButton(3))
+        if (stickLeft.getRawButton(3)){
 			ds.set(DoubleSolenoid.Value.kForward);
-		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff))
-			ds.set(DoubleSolenoid.Value.kOff);//Reverse);
-		else
+        	solenoidState = "On";
+        }
+		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff)){
+			ds.set(DoubleSolenoid.Value.kOff);//Reverse
+        	solenoidState = "Off";
+		}
+		else{
 			ds.set(DoubleSolenoid.Value.kReverse);
-		
+			solenoidState = "Reverse";
+		}
+        
 		if (stickLeft.getRawButton(2))
 			solenoid.set(true);
 		else// if (joyjoyLeft.getRawButton(SECOND_SOLENOID_REVERSE))
 			solenoid.set(false);
         }
+    	
+    	dash.putString("Pneumatics State", solenoidState);
     }
 
     /**
