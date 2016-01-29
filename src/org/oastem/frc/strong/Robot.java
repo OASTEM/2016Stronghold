@@ -75,7 +75,7 @@ public class Robot extends SampleRobot {
     }
     
     public void robotInit() {
-
+    	myRobot = DriveSystem.getInstance();
     	chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
