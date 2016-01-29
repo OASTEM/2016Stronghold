@@ -5,7 +5,6 @@ import org.oastem.frc.sensor.QuadratureEncoder;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -52,7 +51,7 @@ public class Robot extends SampleRobot {
     private Joystick stickRight;
     private SendableChooser chooser;
     private QuadratureEncoder pEncoder;
-    
+	
 	//JOYSTICK
 	private static double joyScale = 1.0;
     
@@ -87,11 +86,12 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-    	String solenoidState = "Off";
+    	String stateOfSolenoid = "Off";
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
+        	
         	//Testing Pneumatics
         	/*if(stickLeft.getRawButton(3)){
         		ds.set(DoubleSolenoid.Value.kForward);
@@ -109,22 +109,13 @@ public class Robot extends SampleRobot {
         		solenoid.set(false);
         }*/
         
-        if (stickLeft.getRawButton(3)){
+        if (stickLeft.getRawButton(3))
 			ds.set(DoubleSolenoid.Value.kForward);
-			solenoidState = "On";
-			dash.putString("Pneumatics State", solenoidState);
-        }
-		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff)){
+		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff))
 			ds.set(DoubleSolenoid.Value.kOff);//Reverse);
-			solenoidState ="Off";
-			dash.putString("Pneumatics State", solenoidState);
-		}
-		else{
+		else
 			ds.set(DoubleSolenoid.Value.kReverse);
-        	solenoidState = "Reverse";
-        	dash.putString("Pneumatics State", solenoidState);
-		}
-        	
+		
 		if (stickLeft.getRawButton(2))
 			solenoid.set(true);
 		else// if (joyjoyLeft.getRawButton(SECOND_SOLENOID_REVERSE))
