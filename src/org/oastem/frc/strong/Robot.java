@@ -93,7 +93,7 @@ public class Robot extends SampleRobot {
         	doArcadeDrive();
         	
         	//Testing Pneumatics
-        	if(stickLeft.getRawButton(3)){
+        	/*if(stickLeft.getRawButton(3)){
         		ds.set(DoubleSolenoid.Value.kForward);
         	}
         	else if (stickLeft.getRawButton(4)){
@@ -107,6 +107,19 @@ public class Robot extends SampleRobot {
         		solenoid.set(true);
         	else
         		solenoid.set(false);
+        }*/
+        
+        if (stickLeft.getRawButton(3))
+			ds.set(DoubleSolenoid.Value.kForward);
+		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff))
+			ds.set(DoubleSolenoid.Value.kOff);//Reverse);
+		else
+			ds.set(DoubleSolenoid.Value.kReverse);
+		
+		if (stickLeft.getRawButton(2))
+			solenoid.set(true);
+		else// if (joyjoyLeft.getRawButton(SECOND_SOLENOID_REVERSE))
+			solenoid.set(false);
         }
     }
 
