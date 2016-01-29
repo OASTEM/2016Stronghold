@@ -1,6 +1,10 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
+import org.oastem.frc.sensor.ADXL345Accelerometer;
+
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,12 +37,21 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
+    private ADXL345Accelerometer acc;
+    private PowerDistributionPanel pdp;
+    private static double xAverage = 0.0;
+    private static double yAverage = 0.0;
+    private static double zAverage = 0.0;
+    private static double[] accAverage2 = new double[50];
+    private SmartDashboard dash;
 
     
     public Robot() {
     	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
         stickLeft = new Joystick(0);
         stickRight = new Joystick(1);
+        pdp = new PowerDistributionPanel();
+        dash = new SmartDashboard();
     }
     
     public void robotInit() {
@@ -46,19 +59,32 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
+        acc = new ADXL345Accelerometer(I2C.Port.kOnboard);
     }
 
     /**
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
+       	pdp.clearStickyFaults();
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
+        	
+        	dash.putNumber("X", acc.getX());
+        	dash.putNumber("Y", acc.getY());
+        	dash.putNumber("Z", acc.getZ());
+        	
+        	dash.putNumber("X Average", averageXValue(acc.getX())); 
+        	dash.putNumber("Y Average", averageXValue(acc.getY()));
+        	dash.putNumber("Z Average", averageXValue(acc.getZ())); //Vertical Axis Rotation
+        	
         }
     }
-
+    
+    
+    
     /**
      * Runs during test mode
      */
@@ -105,5 +131,20 @@ public class Robot extends SampleRobot {
 			return -1.0;
 		}
 		return val;
+	}
+	
+	private double averageXValue(double xValue){
+		xAverage = (xAverage * 99 + xValue) / 100;
+		return xAverage;
+	}
+	
+	private double averageYValue(double yValue){
+		yAverage = (yAverage * 99 + yValue) / 100;
+		return yAverage;
+	}
+	
+	private double averageZValue(double zValue){
+		zAverage = (zAverage * 99 + zValue) / 100;
+		return zAverage;
 	}
 }
