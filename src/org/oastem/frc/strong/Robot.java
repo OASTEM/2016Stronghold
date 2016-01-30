@@ -109,28 +109,29 @@ public class Robot extends SampleRobot {
         		solenoid.set(false);
         }*/
         
+        	// Solenoids require pressure to work
         if (stickLeft.getRawButton(3)){
 			ds.set(DoubleSolenoid.Value.kForward);
         	solenoidState = "On";
         }
-		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff)){
-			ds.set(DoubleSolenoid.Value.kOff);//Reverse
+		else if (ds.get().equals(DoubleSolenoid.Value.kReverse) || ds.get().equals(DoubleSolenoid.Value.kOff)){	
+        	ds.set(DoubleSolenoid.Value.kOff);//Reverse
         	solenoidState = "Off";
 		}
-		else{
+		else {
 			ds.set(DoubleSolenoid.Value.kReverse);
 			solenoidState = "Reverse";
 		}
         
-		if (stickLeft.getRawButton(2))
+		if (stickLeft.getRawButton(4))
 			solenoid.set(true);
-		else// if (joyjoyLeft.getRawButton(SECOND_SOLENOID_REVERSE))
+		else
 			solenoid.set(false);
-        }
+      
     	
     	dash.putString("Pneumatics State", solenoidState);
+    	}
     }
-
     /**
      * Runs during test mode
      */
