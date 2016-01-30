@@ -6,6 +6,15 @@ import edu.wpi.first.wpilibj.Joystick;
 /**
  * @author mduong15
  *
+ * Handle input from Logitech Gaming Pad devices connected to the Driver Station.
+ * This class handles standard input that comes from the Driver Station. Each time
+ * a value is requested, the most recent value is returned. There is a single class
+ * instance for each Logitech Gaming Pad and the mapping of ports to hardware
+ * buttons is already configured in the class by using the correct methods.
+ * 
+ * The Logitech Gaming Pad must be set to XInput (the back of the controller
+ * should be switched to the 'X'/left side). DirectInput (or the right side)
+ * requires additional software that is unnecessary.
  */
 
 public class LogitechGamingPad extends GenericHID{
@@ -24,6 +33,143 @@ public class LogitechGamingPad extends GenericHID{
 	}
 
 	
+	// The following methods are get methods specific to the Logitech Gaming Pad.
+	// Use these methods to get button values.
+	
+	public double getLeftAnalogX()
+	{
+		return getX(Hand.kLeft);
+	}
+	
+	public double getLeftAnalogY()
+	{
+		return getY(Hand.kLeft);
+	}
+	
+	public boolean getLeftAnalogButton()
+	{
+		return gamepad.getRawButton(9);
+	}
+	
+	public boolean getLeftBumper()
+	{
+		return getBumper(Hand.kLeft);
+	}
+	
+	public boolean getLeftTrigger()
+	{
+		return getTrigger(Hand.kLeft);
+	}
+	
+	public double getLeftTriggerValue()
+	{
+		return gamepad.getRawAxis(2);
+	}
+	
+	
+	
+	public double getRightAnalogX()
+	{
+		return getX(Hand.kRight);
+	}
+	
+	public double getRightAnalogY()
+	{
+		return getY(Hand.kRight);
+	}
+	
+	public boolean getRightAnalogButton()
+	{
+		return gamepad.getRawButton(10);
+	}
+	
+	public boolean getRightBumper()
+	{
+		return getBumper(Hand.kRight);
+	}
+	
+	public boolean getRightTrigger()
+	{
+		return getTrigger(Hand.kRight);
+	}
+	
+	public double getRightTriggerValue()
+	{
+		return gamepad.getRawAxis(3);
+	}
+	
+	
+	
+	public boolean getAButton()
+	{
+		return gamepad.getRawButton(1);
+	}
+	
+	public boolean getBButton()
+	{
+		return gamepad.getRawButton(2);
+	}
+	
+	public boolean getXButton()
+	{
+		return gamepad.getRawButton(3);
+	}
+	
+	public boolean getYButton()
+	{
+		return gamepad.getRawButton(4);
+	}
+	
+	public boolean getBackButton()
+	{
+		return gamepad.getRawButton(7);
+	}
+	
+	public boolean getStartButton()
+	{
+		return gamepad.getRawButton(8);
+	}
+	
+	public boolean checkDPad(int index)
+	{
+		if (0 <= index && index <= 7)
+			return (index * 45) == gamepad.getPOV(0);
+		else
+			return false;
+	}
+	
+	public boolean checkDPad(double angle, boolean inDegrees)
+	{
+		if (!inDegrees)
+			angle = Math.toDegrees(angle);
+		return angle == gamepad.getPOV(0); 
+	}
+	
+	public int getDPad()
+	{
+		int pov = gamepad.getPOV(0);
+		if (pov == -1)
+			return pov;
+		else
+			return pov/45;
+	}
+	
+	public double getDPad(boolean inDegrees)
+	{
+		if (inDegrees)
+			return gamepad.getPOV(0);
+		else
+			return Math.toRadians(gamepad.getPOV(0));
+	}
+	
+	public boolean dPadIsPressed()
+	{
+		return gamepad.getPOV(0) != -1;
+	}
+	
+	
+	// The following methods are generic methods required by the abstract class.
+	// The above methods should be used to get the gamepad inputs. 
 	/**
 	 * Get the value of the x-axis of a specific analog.
 	 * 
