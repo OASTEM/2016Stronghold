@@ -5,7 +5,9 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
 
 /**
+ * @author OA STEM
  * @author mduong15
+ * @version Beta 1.0
  *
  * Handle input from Logitech Gaming Pad devices connected to the Driver Station.
  * This class handles standard input that comes from the Driver Station. Each time
@@ -244,7 +246,7 @@ public class LogitechGamingPad extends GenericHID{
 	
 	
 	/**
-	 * Check the state of the D-pad. The index is a value [0, 7] that corresponds
+	 * Check the state of the D-pad. The {@code index} is a value [0, 7] that corresponds
 	 * to the combinations on the D-pad. 0 represents just 'UP' being pressed,
 	 * 1 is 'UP-RIGHT', 2 is just 'RIGHT', 3 is 'RIGHT-DOWN', and so on.
 	 * 
@@ -264,11 +266,11 @@ public class LogitechGamingPad extends GenericHID{
 	/**
 	 * Check the state of the D-pad. The method compares the angle measurement
 	 * and returns if the angle returned by the D-pad is equivalent. The angle
-	 * can be in either degrees or radians depending on the boolean.
+	 * can be in either degrees or radians depending on {@code inDegrees}.
 	 * 
 	 * Note: The D-pad can only return measurements in increments of 45 starting
 	 * at 0, and -1 if it is not pressed. 0 is just the 'UP' button pressed, 45
-	 * is 'UP-RIGHT', 90 is just 'RIGHT', and so on until 315.
+	 * is 'UP-RIGHT', 90 is just 'RIGHT', 135 is 'RIGHT-DOWN', and so on until 315.
 	 * 
 	 * This method can be used to see if an angle measurement of a component is at
 	 * the one specified by the D-pad.
@@ -306,11 +308,11 @@ public class LogitechGamingPad extends GenericHID{
 	
 	/**
 	 * Get the state of the D-pad. The value is returned in degrees or radians
-	 * depending on the boolean. 
+	 * depending on {@code inDegrees}.
 	 * 
 	 * Note: The D-pad can only return measurements in increments of 45 starting
 	 * at 0, and -1 if it is not pressed. 0 is just the 'UP' button pressed, 45
-	 * is 'UP-RIGHT', 90 is just 'RIGHT', and so on until 315.
+	 * is 'UP-RIGHT', 90 is just 'RIGHT', 135 is 'RIGHT-DOWN', and so on until 315.
 	 * 
 	 * @param inDegrees If the returned angle should be in degrees or radians.
 	 * @return The D-pad's angle in either degrees or radians.
