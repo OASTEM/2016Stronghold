@@ -2,6 +2,7 @@ package org.oastem.frc;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Joystick.RumbleType;
 
 /**
  * @author mduong15
@@ -333,6 +334,22 @@ public class LogitechGamingPad extends GenericHID{
 	{
 		return gamepad.getPOV() != -1;
 	}
+	
+	/**
+	 * Sets the rumble output for the Logitech Gaming Pad. The method will
+	 * set the same rumble value to both sides.
+	 * 
+	 * THIS IS NOT TESTED AS OF 1/30/2016.
+	 * 
+	 * @param amount The normalized value (0 to 1) to set the rumble to.
+	 */
+	public void setRumble(float amount)
+	{
+		gamepad.setRumble(RumbleType.kLeftRumble, amount);
+		gamepad.setRumble(RumbleType.kRightRumble, amount);
+	}
+	
+	
 	
 	
 	// The following methods are generic methods required by the abstract class.
