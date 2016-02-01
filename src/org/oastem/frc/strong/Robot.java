@@ -1,7 +1,9 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
+import org.oastem.frc.sensor.ADW22307Gyro;
+import org.oastem.frc.sensor.ADXL345Accelerometer;
 
-import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -34,7 +36,9 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-    AnalogGyro gyro; 
+    ADW22307Gyro gyro; 
+    SmartDashboard dash;
+    ADXL345Accelerometer accel;
 
     
     public Robot() {
@@ -48,7 +52,10 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
-        gyro = new AnalogGyro(1);
+        dash = new SmartDashboard();
+        gyro = new ADW22307Gyro(0);
+        accel = new ADXL345Accelerometer(I2C.Port.kOnboard);
+       
     }
 
     /**
@@ -59,6 +66,10 @@ public class Robot extends SampleRobot {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
+        	dash.putNumber("Gyroscope value: ", gyro.getAngle());
+        	dash.putNumber("Accelerometer X Value: ", accel.getX());
+        	dash.putNumber("Accelerometer Y Value: ", accel.getY());
+        	dash.putNumber("Accelerometer Z Value: ", accel.getZ());
         }
     }
 
