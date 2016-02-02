@@ -4,7 +4,6 @@
  * and open the template in the editor.
  */
 package org.oastem.frc.sensor;
-
 import edu.wpi.first.wpilibj.CounterBase;
 import edu.wpi.first.wpilibj.Encoder;
 
@@ -14,13 +13,10 @@ import edu.wpi.first.wpilibj.Encoder;
  */
 public class QuadratureEncoder {
     private final Encoder enc;
-    
     //This is different depending on encoder and motors (account for gear ratio).
     //This must be figured out by using docs and specs.
     //(If desperate, just have the motor spin one rotation and see how many pulses it is.)
     private double pulsesPerRevolution;
-    
-    
     /**
      * Creates an encoder using the two SIG inputs (A and B).
      * Default to use to just get encoder readings and not use getDistance().
@@ -31,7 +27,6 @@ public class QuadratureEncoder {
     {
         enc = new Encoder(channelA, channelB);
     }
-    
     /**
      * Creates an encoder using the two SIG inputs (A and B) and index.
      * Default to use to just get encoder readings and not use getDistance().
@@ -43,7 +38,6 @@ public class QuadratureEncoder {
     {
         enc = new Encoder(channelA, channelB, index);
     }
-    
     /**
      * Creates an encoder using the two SIG inputs (A and B) .
      * pulsesPerRev is used for getDistance() methods.
@@ -56,7 +50,6 @@ public class QuadratureEncoder {
         enc = new Encoder(channelA, channelB);
         pulsesPerRevolution = pulsesPerRev;
     }
-    
     /**
      * Creates an encoder using the two SIG inputs (A and B).
      * Also allows the encoder to be reversed.
@@ -71,7 +64,6 @@ public class QuadratureEncoder {
         enc = new Encoder(channelA, channelB, isReversed);
         pulsesPerRevolution = pulsesPerRev;
     }
-    
     /**
      * Creates an encoder using the two SIG inputs (A and B).
      * Also allows the encoder to be reversed.

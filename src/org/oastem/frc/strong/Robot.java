@@ -1,22 +1,16 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.Dashboard;
 import org.oastem.frc.control.DriveSystem;
-<<<<<<< HEAD
-
 import edu.wpi.first.wpilibj.AnalogGyro;
-=======
 import org.oastem.frc.sensor.QuadratureEncoder;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
->>>>>>> 573434c0dbc95530834570f6dc33de4f36f4d24e
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
-<<<<<<< HEAD
-=======
+
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
->>>>>>> 573434c0dbc95530834570f6dc33de4f36f4d24e
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -66,14 +60,7 @@ public class Robot extends SampleRobot {
     
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
-<<<<<<< HEAD
-    SendableChooser chooser;
-    AnalogGyro gyro; 
-=======
-    private static final int DRIVE_ENC_CPR = 2048;
-    
->>>>>>> 573434c0dbc95530834570f6dc33de4f36f4d24e
-
+	private static final int DRIVE_ENC_CPR = 2048;
     
     public Robot() {
     	myRobot = DriveSystem.getInstance();
@@ -93,12 +80,13 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
-        gyro = new AnalogGyro(1);
+        //gyro = new AnalogGyro(1);
     }
 
     /**
      * Runs the motors with arcade steering.
      */
+
     public void operatorControl() {
     	String solenoidState = "Off";
     	while (isOperatorControl() && isEnabled()) {
@@ -146,10 +134,13 @@ public class Robot extends SampleRobot {
     	dash.putString("Pneumatics State", solenoidState);
     	}
     }
+
     /**
      * Runs during test mode
      */
     public void test() {
+	
+
     }
     
     private void doArcadeDrive() {
@@ -193,4 +184,6 @@ public class Robot extends SampleRobot {
 		}
 		return val;
 	}
+	
+	 
 }
