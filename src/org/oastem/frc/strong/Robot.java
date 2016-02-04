@@ -1,8 +1,8 @@
 package org.oastem.frc.strong;
-import org.oastem.frc.control.DriveSystem;
+import org.oastem.frc.sensor.ImageProcessingLines;
+
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,12 +30,13 @@ public class Robot extends SampleRobot {
     SendableChooser chooser;
     SmartDashboard swag;
     
-    private NetworkTable table;
+    ImageProcessingLines process;
+    
     
     public Robot() {
     	stickLeft = new Joystick(0);
     	stickLeft = new Joystick(1);
-        table = NetworkTable.getTable("GRIP/myLinesReport");
+        process = new ImageProcessingLines("GRIP/myLinesReport");
     }
     
     public void robotInit() {
@@ -51,26 +52,15 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-        double[] defaultValue = new double[0];
         while (isOperatorControl() && isEnabled()) {
+        	//double[] angles = process.getAngles();
+        	//double[] lengths = process.getLengths();
+        	double[][] points = process.getPoints();
         	
-            double[] angle = table.getNumberArray("angle", defaultValue);
-            double[] length = table.getNumberArray("length", defaultValue);
-            double[][] points = new double[4][0];
-            
-            points[0] = table.getNumberArray("x1", defaultValue);
-            points[1] = table.getNumberArray("x2", defaultValue);
-            points[2] = table.getNumberArray("y1", defaultValue);
-            points[3] = table.getNumberArray("y2", defaultValue);
-            
-            for (int i = 0; i < points[0].length; i++){
-            	swag.putNumber("Angle " + (i + 1) + ":", angle[i]);
-            	swag.putString("Point " + (i + 1) + ":", points[0][i] + ", " + points[1][i] + ", " + points[2][i] + ", " + points[3][i] + ", ");
-            	swag.putNumber("Length " + (i + 1) + ":", length[i]);
+            for (int i = 0; i < points.length; i++){
+            	swag.putString("Point " + (i + 1), points[i][0] + ", " + points[i][1]);
             }
             
-            
-            //swag.
         }
     }
 
