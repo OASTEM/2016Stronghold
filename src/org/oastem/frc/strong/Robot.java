@@ -1,5 +1,5 @@
 package org.oastem.frc.strong;
-import org.oastem.frc.sensor.ImageProcessingLines;
+import org.oastem.frc.sensor.ImageProcessing;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
@@ -30,13 +30,13 @@ public class Robot extends SampleRobot {
     SendableChooser chooser;
     SmartDashboard dash;
     
-    ImageProcessingLines process;
+    ImageProcessing process;
     
     
     public Robot() {
     	stickLeft = new Joystick(0);
     	stickLeft = new Joystick(1);
-        process = new ImageProcessingLines("GRIP/myLinesReport");
+        process = new ImageProcessing("GRIP/myLinesReport");
     }
     
     public void robotInit() {

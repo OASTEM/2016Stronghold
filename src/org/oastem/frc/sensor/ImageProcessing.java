@@ -7,7 +7,7 @@ import java.util.ArrayList;
  * @author mandarker
  */
 
-public class ImageProcessingLines{
+public class ImageProcessing{
 	
 	private NetworkTable table;
 	
@@ -20,7 +20,7 @@ public class ImageProcessingLines{
 	 * operation flowchart.
 	 * @param address The address for the Network Table that can be found in the Outline Viewer.
 	 */
-	public ImageProcessingLines(String address){
+	public ImageProcessing(String address){
 		table = NetworkTable.getTable(address);
         defaultValue = new double[0];
 	}
