@@ -28,7 +28,7 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-    SmartDashboard swag;
+    SmartDashboard dash;
     
     ImageProcessingLines process;
     
@@ -44,7 +44,7 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         
-        swag = new SmartDashboard();
+        dash = new SmartDashboard();
         SmartDashboard.putData("Auto modes", chooser);
     }
 
@@ -58,7 +58,7 @@ public class Robot extends SampleRobot {
         	double[][] points = process.getPoints();
         	
             for (int i = 0; i < points.length; i++){
-            	swag.putString("Point " + (i + 1), points[i][0] + ", " + points[i][1]);
+            	dash.putString("Point " + (i + 1), points[i][0] + ", " + points[i][1]);
             }
             
         }
