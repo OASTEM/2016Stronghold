@@ -3,6 +3,7 @@ import org.oastem.frc.control.DriveSystem;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -22,29 +23,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * this system. Use IterativeRobot or Command-Based instead if you're new.
  */
 public class Robot extends SampleRobot {
-	private final int FRONT_LEFT_DRIVE = 1;
-	private final int FRONT_RIGHT_DRIVE = 3;
-	private final int BACK_LEFT_DRIVE = 0;
-	private final int BACK_RIGHT_DRIVE = 2;
-	private static double joyScale = 1.0;
-    DriveSystem myRobot = DriveSystem.getInstance();
     Joystick stickLeft;
     Joystick stickRight;
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-
+    SmartDashboard swag;
+    
+    private NetworkTable table;
     
     public Robot() {
-    	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
-        stickLeft = new Joystick(0);
-        stickRight = new Joystick(1);
+    	stickLeft = new Joystick(0);
+    	stickLeft = new Joystick(1);
+        table = NetworkTable.getTable("GRIP/myLinesReport");
     }
     
     public void robotInit() {
     	chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
+        
+        swag = new SmartDashboard();
         SmartDashboard.putData("Auto modes", chooser);
     }
 
@@ -52,10 +51,26 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
+        double[] defaultValue = new double[0];
         while (isOperatorControl() && isEnabled()) {
-            //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
-            //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
-        	doArcadeDrive();
+        	
+            double[] angle = table.getNumberArray("angle", defaultValue);
+            double[] length = table.getNumberArray("length", defaultValue);
+            double[][] points = new double[4][0];
+            
+            points[0] = table.getNumberArray("x1", defaultValue);
+            points[1] = table.getNumberArray("x2", defaultValue);
+            points[2] = table.getNumberArray("y1", defaultValue);
+            points[3] = table.getNumberArray("y2", defaultValue);
+            
+            for (int i = 0; i < points[0].length; i++){
+            	swag.putNumber("Angle " + (i + 1) + ":", angle[i]);
+            	swag.putString("Point " + (i + 1) + ":", points[0][i] + ", " + points[1][i] + ", " + points[2][i] + ", " + points[3][i] + ", ");
+            	swag.putNumber("Length " + (i + 1) + ":", length[i]);
+            }
+            
+            
+            //swag.
         }
     }
 
@@ -65,45 +80,4 @@ public class Robot extends SampleRobot {
     public void test() {
     }
     
-    private void doArcadeDrive() {
-		double leftMove = 0.0;
-		double rightMove = 0.0;
-		double zone = 0.04;
-
-		joyScale = scaleZ(stickLeft.getZ());
-
-		double x = stickLeft.getX();
-		double y = stickLeft.getY() * -1;
-
-		if (Math.abs(y) > zone) 
-		{
-			leftMove = y;
-			rightMove = y;
-		}
-
-		if (Math.abs(x) > zone) 
-		{
-			leftMove = correct(leftMove + x);
-			rightMove = correct(rightMove - x);
-		}
-
-		leftMove *= joyScale * -1;
-		rightMove *= joyScale * -1;
-
-		myRobot.tankDrive(leftMove, rightMove);
-	}
-
-	private double scaleZ(double rawZ) {
-		return Math.min(1.0, 0.5 - 0.5 * rawZ);
-	}
-
-	private double correct(double val) {
-		if (val > 1.0) {
-			return 1.0;
-		}
-		if (val < -1.0) {
-			return -1.0;
-		}
-		return val;
-	}
 }
