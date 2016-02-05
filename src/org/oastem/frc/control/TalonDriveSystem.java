@@ -76,17 +76,25 @@ public class TalonDriveSystem extends DriveSystem {
     	backLeftDrive.enable();
     }
     
-    public void speedTankDrive(double leftInchesPerMin, double rightInchesPerMin)
+    public void speedTankDrive(double leftValuePerMin, double rightValuePerMin,
+    							boolean isInInches)
     {
-    	double leftRPM = leftInchesPerMin/wheelDiamter;
-    	double rightRPM = rightInchesPerMin/wheelDiamter;
+    	double leftRPM = leftValuePerMin;
+    	double rightRPM = rightValuePerMin;
+    	if (isInInches)
+    	{
+    		leftRPM /= wheelDiamter;
+    		rightRPM /= wheelDiamter;
+    	}
     	backLeftDrive.set(leftRPM);
     	if (frontLeftDrive != null)
     		frontLeftDrive.set(leftRPM);
     	backRightDrive.set(rightRPM);
     	if (frontRightDrive != null)
     		frontRightDrive.set(rightRPM);
+    	
     }
+
     
     
 }
