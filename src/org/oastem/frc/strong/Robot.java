@@ -49,28 +49,80 @@ public class Robot extends SampleRobot {
 
 		stickLeft = new Joystick(0);
 		stickLeft = new Joystick(1);
-		process = new ImageProcessing("GRIP/myContoursReport", "GRIP/myLinesReport", "GRIP/myBlobsReport",
-				ProcessingType.Lines);
+		process = new ImageProcessing("GRIP/myContoursReport", "GRIP/myLinesReport", "GRIP/myBlobsReport");
 
 	}
 
 	public void operatorControl() {
-		dash.putString("wtf", "why");
+		int kek = 0;
+		double[][] lol;
+		ArrayList<ArrayList<Double>> points;
 		while (isOperatorControl() && isEnabled()) {
-			//double[][] points = process.getPoints();
-			//dash.putNumber("length", points.length);
-			
+			// double[][] points = process.getPoints();
+			// dash.putNumber("length", points.length);
+
+			points = process.getRawPoints();
 			ArrayList<Double> swag = process.getAngles();
-			
+
 			for (int i = 0; i < swag.size(); i++) {
-				dash.putNumber("Angle " + (i + 1),  swag.get(i));
-				//dash.putString("Point " + (i + 1), points[i][0] + ", " + points[i][1]);
-			
+				dash.putString("Angle " + (i + 1), swag.get(i) + "");
+				// dash.putString("Angle " + (i + 1), "lol");
+				// dash.putString("Point " + (i + 1), points[i][0] + ", " +
+				// points[i][1]);
+
 			}
 
+			if (swag.size() > kek)
+				kek = swag.size();
+			else {
+				for (int i = swag.size(); i < kek; i++)
+					dash.putString("Angle " + (i + 1), "BASE IS NOT FOUND");
+			}
+			
+			print2d(points, "points");
+
+			
 			// 182.2 inches
 			// 15 ft 2 in
 
+		}
+	}
+
+	public void print(double[] set, String key) {
+		for (int i = 0; i < set.length; i++)
+			dash.putNumber(key + " " + (i + 1) + ":", set[i]);
+	}
+
+	public void print2d(double[][] set, String key) {
+		String ret = "";
+
+		for (int i = 0; i < set.length; i++) {
+			for (int j = 0; j < set[0].length; j++) {
+				if (j != set[0].length - 1)
+					ret += set[i][j] + ", ";
+				else
+					ret += set[i][j];
+			}
+			dash.putString(key + " " + (i + 1) + ":", ret);
+		}
+	}
+
+	public void print(ArrayList<Double> set, String key) {
+		for (int i = 0; i < set.size(); i++)
+			dash.putNumber(key + " " + (i + 1) + ":", set.get(i));
+	}
+
+	public void print2d(ArrayList<ArrayList<Double>> set, String key) {
+		String ret = "";
+
+		for (int i = 0; i < set.size(); i++) {
+			for (int j = 0; j < set.get(0).size(); j++) {
+				if (j != set.get(0).size() - 1)
+					ret += set.get(i).get(j) + ", ";
+				else
+					ret += set.get(i).get(j);
+			}
+			dash.putString(key + " " + (i + 1) + ":", ret);
 		}
 	}
 
