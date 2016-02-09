@@ -2,6 +2,8 @@ package org.oastem.frc.strong;
 import org.oastem.frc.Dashboard;
 import org.oastem.frc.control.DriveSystem;
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.CANTalon;
+
 import org.oastem.frc.sensor.QuadratureEncoder;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
@@ -10,7 +12,10 @@ import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
 
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.Victor;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -53,6 +58,7 @@ public class Robot extends SampleRobot {
     private Joystick stickRight;
     private SendableChooser chooser;
     private QuadratureEncoder pEncoder;
+    CANTalon winch;
 	
 	//JOYSTICK
 	private static double joyScale = 1.0;
@@ -69,9 +75,12 @@ public class Robot extends SampleRobot {
     	//myRobot.initializeEncoders(RIGHT_ENC_A, RIGHT_ENC_B, false, LEFT_ENC_A, LEFT_ENC_B, false, DRIVE_ENC_CPR);
         stickLeft = new Joystick(0);
         stickRight = new Joystick(1);
-        ds = new DoubleSolenoid(0,1); //CHANGE THIS LATER
-        solenoid = new Solenoid(2);
+        //ds = new DoubleSolenoid(0,1); //CHANGE THIS LATER
+        //solenoid = new Solenoid(2);
         dash = new Dashboard();
+        winch = new CANTalon(0);
+        winch.changeControlMode(TalonControlMode.PercentVbus);
+        winch.enable();
     }
     
     public void robotInit() {
@@ -90,12 +99,13 @@ public class Robot extends SampleRobot {
     public void operatorControl() {
     	String solenoidState = "Off";
     	while (isOperatorControl() && isEnabled()) {
-            //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
+    		winch.set(stickLeft.getY());
+          /*  //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
         	
         	//Testing Pneumatics
-        	/*if(stickLeft.getRawButton(3)){
+        	if(stickLeft.getRawButton(3)){
         		ds.set(DoubleSolenoid.Value.kForward);
         	}
         	else if (stickLeft.getRawButton(4)){
@@ -109,7 +119,7 @@ public class Robot extends SampleRobot {
         		solenoid.set(true);
         	else
         		solenoid.set(false);
-        }*/
+        }
         
         	// Solenoids require pressure to work
         if (stickLeft.getRawButton(3)){
@@ -131,7 +141,7 @@ public class Robot extends SampleRobot {
 			solenoid.set(false);
       
     	
-    	dash.putString("Pneumatics State", solenoidState);
+    	dash.putString("Pneumatics State", solenoidState);*/
     	}
     }
 
