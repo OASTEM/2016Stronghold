@@ -2,6 +2,7 @@ package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
 import org.oastem.frc.sensor.ADW22307Gyro;
 import org.oastem.frc.sensor.ADXL345Accelerometer;
+import org.oastem.frc.sensor.FRCGyroAccelerometer;
 
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.AnalogGyro;
@@ -38,8 +39,7 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-    ADW22307Gyro gyro;
-    ADXRS450_Gyro gyro2;
+    FRCGyroAccelerometer gyro;
     SmartDashboard dash;
     ADXL345Accelerometer accel;
 
@@ -56,21 +56,20 @@ public class Robot extends SampleRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
         dash = new SmartDashboard();
-        gyro = new ADW22307Gyro(1);
         accel = new ADXL345Accelerometer(I2C.Port.kOnboard);
-        gyro2 = new ADXRS450_Gyro();
-       
+        gyro = new FRCGyroAccelerometer();
     }
 
     /**
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
+    	gyro.resetGyro();
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
-        	dash.putNumber("Gyro Value:", gyro2.getAngle());
+        	dash.putNumber("Gyro Value:", gyro.getGyroAngle());
         	dash.putNumber("Accelerometer X Value: ", accel.getX());
         	dash.putNumber("Accelerometer Y Value: ", accel.getY());
         	dash.putNumber("Accelerometer Z Value: ", accel.getZ());
