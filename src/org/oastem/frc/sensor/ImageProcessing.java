@@ -27,13 +27,19 @@ public class ImageProcessing {
 
 	/**
 	 * Initializes a Network Table that retrieves line values from the GRIP
-	 * image processor. Make sure GRIP is deployed to the robot to reduce camera lag. 
-	 * Add empty Strings for the vision processing types (contours, lines, blobs) 
-	 * for those that are not published by GRIP onto the Network Table.
+	 * image processor. Make sure GRIP is deployed to the robot to reduce camera
+	 * lag. Add empty Strings for the vision processing types (contours, lines,
+	 * blobs) for those that are not published by GRIP onto the Network Table.
 	 * 
-	 * @param contours The address for the Network Table of contours data published by GRIP. 
-	 * @param lines The address for the Network Table of lines data published by GRIP.
-	 * @param blobs The address for the Network Table of blobs data published by GRIP.
+	 * @param contours
+	 *            The address for the Network Table of contours data published
+	 *            by GRIP.
+	 * @param lines
+	 *            The address for the Network Table of lines data published by
+	 *            GRIP.
+	 * @param blobs
+	 *            The address for the Network Table of blobs data published by
+	 *            GRIP.
 	 */
 	public ImageProcessing(String contours, String lines, String blobs) {
 		this.contours = contours;
@@ -45,7 +51,8 @@ public class ImageProcessing {
 	/**
 	 * Switches between the three types of vision processing.
 	 * 
-	 * @param type The enum of the type of vision processing intended to be used.
+	 * @param type
+	 *            The enum of the type of vision processing intended to be used.
 	 */
 	public void switchType(ProcessingType type) {
 		switch (type) {
@@ -64,8 +71,8 @@ public class ImageProcessing {
 	/**
 	 * Gets the angle of each line detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the angle of each line retrieved from the Network Table 
-	 * 		   published by the "Publish LinesReport" operation.
+	 * @return An ArrayList of the angle of each line retrieved from the Network
+	 *         Table published by the "Publish LinesReport" operation.
 	 */
 	public ArrayList<Double> getAngles() {
 		switchType(ProcessingType.Lines);
@@ -77,8 +84,8 @@ public class ImageProcessing {
 	/**
 	 * Gets the length of each line detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the length of each line retrieved from the Network Table
-	 *         published by the "Publish LinesReport" operation.
+	 * @return An ArrayList of the length of each line retrieved from the
+	 *         Network Table published by the "Publish LinesReport" operation.
 	 */
 	public ArrayList<Double> getLengths() {
 		switchType(ProcessingType.Lines);
@@ -89,10 +96,12 @@ public class ImageProcessing {
 
 	/**
 	 * Gets the raw values of the two points creating each line, straight from
-	 * the Network Table.
+	 * the Network Table. SOMETIMES THE X VALUES DO NOT MATCH UP WITH THE Y
+	 * VALUES WTF.
 	 * 
-	 * @return A 2d ArrayList of the points of each line retrieved straight from the Network Table
-	 *         published by the "Publish LinesReport" operation.
+	 * @return A 2d ArrayList of the points of each line retrieved straight from
+	 *         the Network Table published by the "Publish LinesReport"
+	 *         operation.
 	 */
 	public ArrayList<ArrayList<Double>> getRawPoints() {
 		switchType(ProcessingType.Lines);
@@ -102,15 +111,25 @@ public class ImageProcessing {
 		pointValues[2] = table.getNumberArray("y1", defaultValue);
 		pointValues[3] = table.getNumberArray("y2", defaultValue);
 
-		return convert(pointValues);
+		double[][] actualPointValues = new double[4][Math.min(Math.min(pointValues[0].length, pointValues[1].length),
+				Math.min(pointValues[2].length, pointValues[3].length))];
+
+		for (int i = 0; i < actualPointValues.length; i++){
+			for (int j = 0; j < actualPointValues[i].length; j++){
+				actualPointValues[i][j] = pointValues[i][j];
+			}
+		}
+
+		return convert(actualPointValues);
 	}
 
 	/**
-	 * Gets the raw points and turns them into a more manageable 2d ArrayList, where the
-	 * first ArrayList is the x value and the second ArrayList is the y value.
+	 * Gets the raw points and turns them into a more manageable 2d ArrayList,
+	 * where the first ArrayList is the x value and the second ArrayList is the
+	 * y value.
 	 * 
-	 * @return A 2d ArrayList of the points of each line retrieved from the Network Table
-	 *         published by the "Publish LinesReport" operation.
+	 * @return A 2d ArrayList of the points of each line retrieved from the
+	 *         Network Table published by the "Publish LinesReport" operation.
 	 */
 	public ArrayList<ArrayList<Double>> getPoints() {
 		switchType(ProcessingType.Lines);
@@ -121,89 +140,100 @@ public class ImageProcessing {
 
 		for (int i = 0; i < rawValues.get(0).size(); i++) {
 			x.add(rawValues.get(0).get(i));
-			y.add(rawValues.get(2).get(i));
-			x.add(rawValues.get(1).get(i));
+			x.add(rawValues.get(2).get(i));
+			y.add(rawValues.get(1).get(i));
 			y.add(rawValues.get(3).get(i));
 		}
+		
+		re.add(x);
+		re.add(y);
 
 		return re;
 	}
-	
+
 	/**
-	 * Gets the largest polygon with intended sides created from a group of points.
-	 *  
-	 * @param points A 2d ArrayList of a set of points, where the first ArrayList 
-	 * 				 is the x value and the second ArrayList is the y value. 
-	 * @param sides The amount of sides the intended polygon has.
-	 * @return A 2d array of the set of points of the polygon with the largest area,
-	 * 		   where the first column is the x value and the second column is the y value.
+	 * Gets the largest polygon with intended sides created from a group of
+	 * points.
+	 * 
+	 * @param points
+	 *            A 2d ArrayList of a set of points, where the first ArrayList
+	 *            is the x value and the second ArrayList is the y value.
+	 * @param sides
+	 *            The amount of sides the intended polygon has.
+	 * @return A 2d array of the set of points of the polygon with the largest
+	 *         area, where the first column is the x value and the second column
+	 *         is the y value.
 	 */
-	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int sides) {
-		shape = new double[sides][2];
+	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int point) {
+		shape = new double[point][2];
 		area = 0;
 		double[][] largest = shape;
-		this.point = sides;
+		this.point = point;
 		this.points = points;
-		
+
 		for (int i = 0; i < points.get(0).size(); i++)
-			permutation(i, sides);
-		
+			permutation(i, point);
+
 		return largest;
 	}
-	
-	// These are global variables used for the recursive function that finds the polygon
+
+	// These are global variables used for the recursive function that finds the
+	// polygon
 	// with the largest area.
 	private double[][] shape;
 	private double area;
 	private int point;
 	private ArrayList<ArrayList<Double>> points;
-	
+
 	/**
-	 * Creates all configurations of polygons recursively and finds the area of the largest polygon.
+	 * Creates all configurations of polygons recursively and finds the area of
+	 * the largest polygon.
 	 * 
-	 * @param index The index going to be used in the global shape array.
-	 * @param sides The current amount of points inside the global shape array.
+	 * @param index
+	 *            The index going to be used in the global shape array.
+	 * @param point
+	 *            The current amount of points inside the global shape array.
 	 */
-	private void permutation(int index, int point){
-		if (point == 0){
+	private void permutation(int index, int point) {
+		if (point == 0) {
 			if (getArea(shape) > area)
 				area = getArea(shape);
-		}
-		else {
+		} else {
 			shape[this.point - point][0] = points.get(0).get(index);
 			shape[this.point - point][1] = points.get(1).get(index);
 			for (int i = 0; i < points.get(0).size(); i++)
-				permutation(i, point--);
+				permutation(i, point - 1);
 		}
 	}
 
 	/**
 	 * Gets the area of a polygon, given the set of points.
 	 * 
-	 * @param The 2d array of the set of points the polygon has, where the first column is the x-value
-	 * 		  and the second column is the y-value.
+	 * @param The
+	 *            2d array of the set of points the polygon has, where the first
+	 *            column is the x-value and the second column is the y-value.
 	 * @return A double of the area from those points.
 	 */
 	private double getArea(double[][] points) {
 		double area = 0;
-		
-		for (int i = 0; i < points.length - 1; i++){
+
+		for (int i = 0; i < points.length - 1; i++) {
 			area += points[i][0] * points[i + 1][1];
 			area -= points[i + 1][0] * points[i - 1][1];
 		}
-		
+
 		area += points[points.length - 1][0] * points[0][1];
 		area -= points[0][0] * points[points.length - 1][1];
-		
-		return Math.abs(area/2);
+
+		return Math.abs(area / 2);
 	}
 
 	/**
 	 * Gets the center of all the points based on the average x and y values.
 	 * 
-	 * @return An array of the center of all the points detected in the Network Table
-	 *         published by the "Publish LinesReport" operation, where the first number
-	 *         is an x-value and the second number is the y-value.
+	 * @return An array of the center of all the points detected in the Network
+	 *         Table published by the "Publish LinesReport" operation, where the
+	 *         first number is an x-value and the second number is the y-value.
 	 */
 	public double[] getAveCenter() {
 		switchType(ProcessingType.Lines);
@@ -226,10 +256,12 @@ public class ImageProcessing {
 	}
 
 	/**
-	 * Gets the proportion of solidity from 0 to 1 from the contours detected by the GRIP image processor.
+	 * Gets the proportion of solidity from 0 to 1 from the contours detected by
+	 * the GRIP image processor.
 	 * 
-	 * @return An ArrayList of proportion of solidity from the contours retrieved 
-	 * 		   from the Network Table published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of proportion of solidity from the contours
+	 *         retrieved from the Network Table published by the
+	 *         "Publish ContoursReport" operation.
 	 */
 	public ArrayList<Double> solidities() {
 		switchType(ProcessingType.Contours);
@@ -241,8 +273,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the centers from the contours detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of centers from the contours retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of centers from the contours retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<ArrayList<Double>> centers() {
 		switchType(ProcessingType.Contours);
@@ -261,8 +294,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the widths of the contours detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the widths of the contours retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the widths of the contours retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<Double> widths() {
 		switchType(ProcessingType.Contours);
@@ -274,8 +308,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the heights of the contours detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the heights of the contours retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the heights of the contours retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<Double> heights() {
 		switchType(ProcessingType.Contours);
@@ -287,8 +322,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the areas of the contours detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the areas of the contours retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the areas of the contours retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<Double> areas() {
 		switchType(ProcessingType.Contours);
@@ -300,8 +336,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the x-values of the blobs detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the x-values of the blobs retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the x-values of the blobs retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<Double> xValues() {
 		switchType(ProcessingType.Blobs);
@@ -313,8 +350,9 @@ public class ImageProcessing {
 	/**
 	 * Gets the y-values of the blobs detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the y-values of the blobs retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the y-values of the blobs retrieved from the
+	 *         Network Table published by the "Publish ContoursReport"
+	 *         operation.
 	 */
 	public ArrayList<Double> yValues() {
 		switchType(ProcessingType.Blobs);
@@ -326,8 +364,8 @@ public class ImageProcessing {
 	/**
 	 * Gets the sizes of the blobs detected by the GRIP image processor.
 	 * 
-	 * @return An ArrayList of the sizes of the blobs retrieved from the Network Table 
-	 * 		   published by the "Publish ContoursReport" operation.
+	 * @return An ArrayList of the sizes of the blobs retrieved from the Network
+	 *         Table published by the "Publish ContoursReport" operation.
 	 */
 	public ArrayList<Double> sizes() {
 		switchType(ProcessingType.Blobs);
@@ -339,7 +377,8 @@ public class ImageProcessing {
 	/**
 	 * Converts an array of doubles to an ArrayList of doubles.
 	 * 
-	 * @param values An array of doubles.
+	 * @param values
+	 *            An array of doubles.
 	 * @return An ArrayList of doubles.
 	 */
 	public ArrayList<Double> convert(double[] values) {
@@ -354,7 +393,8 @@ public class ImageProcessing {
 	/**
 	 * Converts a 2d array of doubles to a 2d ArrayList of doubles.
 	 * 
-	 * @param values A 2d array of doubles.
+	 * @param values
+	 *            A 2d array of doubles.
 	 * @return A 2d ArrayList of doubles.
 	 */
 	public ArrayList<ArrayList<Double>> convert(double[][] values) {
@@ -365,7 +405,7 @@ public class ImageProcessing {
 
 			for (int j = 0; j < values[0].length; j++)
 				current.add(values[i][j]);
-			
+
 			re.add(current);
 		}
 

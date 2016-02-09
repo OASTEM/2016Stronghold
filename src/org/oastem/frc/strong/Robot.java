@@ -56,35 +56,36 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		int kek = 0;
 		double[][] lol;
+		double[][] gg;
 		ArrayList<ArrayList<Double>> points;
+		int mismatchCount = 0;
+		int i = 0;
 		while (isOperatorControl() && isEnabled()) {
 			// double[][] points = process.getPoints();
 			// dash.putNumber("length", points.length);
 
-			points = process.getRawPoints();
-			ArrayList<Double> swag = process.getAngles();
+			// points = process.getRawPoints();
+			// ArrayList<Double> swag = process.getAngles();
+			points = process.getPoints();
 
-			for (int i = 0; i < swag.size(); i++) {
-				dash.putString("Angle " + (i + 1), swag.get(i) + "");
-				// dash.putString("Angle " + (i + 1), "lol");
-				// dash.putString("Point " + (i + 1), points[i][0] + ", " +
-				// points[i][1]);
-
-			}
-
-			if (swag.size() > kek)
-				kek = swag.size();
-			else {
-				for (int i = swag.size(); i < kek; i++)
-					dash.putString("Angle " + (i + 1), "BASE IS NOT FOUND");
-			}
+			gg = process.getPolygon(points, 4);
 			
-			print2d(points, "points");
-
-			
-			// 182.2 inches
-			// 15 ft 2 in
-
+			dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
+			dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);
+			dash.putString("Point 3: ", gg[2][0] + ", " + gg[2][1]);
+			dash.putString("Point 4: ", gg[3][0] + ", " + gg[3][1]);
+			/*
+			 * for (int i = 0; i < swag.size(); i++) { dash.putString("Angle " +
+			 * (i + 1), swag.get(i) + ""); // dash.putString("Angle " + (i + 1),
+			 * "lol"); // dash.putString("Point " + (i + 1), points[i][0] + ", "
+			 * + // points[i][1]);
+			 * 
+			 * }
+			 * 
+			 * if (swag.size() > kek) kek = swag.size(); else { for (int i =
+			 * swag.size(); i < kek; i++) dash.putString("Angle " + (i + 1),
+			 * "BASE IS NOT FOUND"); }
+			 */
 		}
 	}
 
@@ -94,16 +95,10 @@ public class Robot extends SampleRobot {
 	}
 
 	public void print2d(double[][] set, String key) {
-		String ret = "";
-
 		for (int i = 0; i < set.length; i++) {
-			for (int j = 0; j < set[0].length; j++) {
-				if (j != set[0].length - 1)
-					ret += set[i][j] + ", ";
-				else
-					ret += set[i][j];
+			for (int j = 0; j < set[i].length; j++) {
+				dash.putNumber(i + ", " + j, set[i][j]);
 			}
-			dash.putString(key + " " + (i + 1) + ":", ret);
 		}
 	}
 
@@ -113,16 +108,10 @@ public class Robot extends SampleRobot {
 	}
 
 	public void print2d(ArrayList<ArrayList<Double>> set, String key) {
-		String ret = "";
-
 		for (int i = 0; i < set.size(); i++) {
-			for (int j = 0; j < set.get(0).size(); j++) {
-				if (j != set.get(0).size() - 1)
-					ret += set.get(i).get(j) + ", ";
-				else
-					ret += set.get(i).get(j);
+			for (int j = 0; j < set.get(i).size(); j++) {
+				dash.putNumber(i + ", " + j, set.get(i).get(j));
 			}
-			dash.putString(key + " " + (i + 1) + ":", ret);
 		}
 	}
 
