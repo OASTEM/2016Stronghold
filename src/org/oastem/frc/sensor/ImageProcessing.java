@@ -114,8 +114,8 @@ public class ImageProcessing {
 		double[][] actualPointValues = new double[4][Math.min(Math.min(pointValues[0].length, pointValues[1].length),
 				Math.min(pointValues[2].length, pointValues[3].length))];
 
-		for (int i = 0; i < actualPointValues.length; i++){
-			for (int j = 0; j < actualPointValues[i].length; j++){
+		for (int i = 0; i < actualPointValues.length; i++) {
+			for (int j = 0; j < actualPointValues[i].length; j++) {
 				actualPointValues[i][j] = pointValues[i][j];
 			}
 		}
@@ -144,7 +144,7 @@ public class ImageProcessing {
 			y.add(rawValues.get(1).get(i));
 			y.add(rawValues.get(3).get(i));
 		}
-		
+
 		re.add(x);
 		re.add(y);
 
@@ -191,35 +191,68 @@ public class ImageProcessing {
 	 * 
 	 * @param index
 	 *            The index going to be used in the global shape array.
-	 * @param point
+	 * @param number
 	 *            The current amount of points inside the global shape array.
 	 */
-	private void permutation(int index, int point) {
-		if (point == 0) {
+	private void permutation(int index, int number) {
+		if (number == 0) {
 			if (getArea(shape) > area)
 				area = getArea(shape);
 		} else {
-			shape[this.point - point][0] = points.get(0).get(index);
-			shape[this.point - point][1] = points.get(1).get(index);
+			shape[point - number][0] = points.get(0).get(index);
+			shape[point - number][1] = points.get(1).get(index);
 			for (int i = 0; i < points.get(0).size(); i++)
-				permutation(i, point - 1);
+				permutation(i, number - 1);
 		}
 	}
 
 	/**
 	 * Gets the area of a polygon, given the set of points.
 	 * 
-	 * @param The
-	 *            2d array of the set of points the polygon has, where the first
-	 *            column is the x-value and the second column is the y-value.
+	 * @param points
+	 *            The 2d array of the set of points the polygon has, where the
+	 *            first column is the x-value and the second column is the
+	 *            y-value.
 	 * @return A double of the area from those points.
 	 */
 	private double getArea(double[][] points) {
 		double area = 0;
+		double[][] curr = points;
+		double[] angles = new double[curr.length];
+
+		double centerX = 0;
+		double centerY = 0;
+
+		for (int i = 0; i < points.length; i++) {
+			centerX += points[i][0];
+			centerY += points[i][1];
+		}
+
+		centerX /= 2;
+		centerY /= 2;
+
+		for (int i = 0; i < angles.length; i++)
+			angles[i] = Math.atan((points[i][1] - centerY) / (points[i][0] - centerX));
+
+		boolean swapped = true;
+		int j = 0;
+		double tmp;
+		while (swapped) {
+			swapped = false;
+			j++;
+			for (int i = 0; i < angles.length - j; i++) {
+				if (angles[i] > angles[i + 1]) {
+					tmp = angles[i];
+					angles[i] = angles[i + 1];
+					angles[i + 1] = tmp;
+					swapped = true;
+				}
+			}
+		}
 
 		for (int i = 0; i < points.length - 1; i++) {
 			area += points[i][0] * points[i + 1][1];
-			area -= points[i + 1][0] * points[i - 1][1];
+			area -= points[i + 1][0] * points[i][1];
 		}
 
 		area += points[points.length - 1][0] * points[0][1];
