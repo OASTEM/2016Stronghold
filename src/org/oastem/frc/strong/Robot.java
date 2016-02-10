@@ -81,8 +81,8 @@ public class Robot extends SampleRobot {
 			// ArrayList<Double> swag = process.getAngles();
 			points = process.getPoints();
 
-			dash.putNumber("area", process.getArea(gg));
-			// gg = process.getPolygon(points, 4);
+			gg = process.getPolygon(points, 4);
+			print2d(gg, "point");
 
 			// dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
 			// dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);
