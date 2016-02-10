@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
 public class FRCGyroAccelerometer {
-	private static final double DRIFT_PER_SECOND =0;// 0.333/60;
+	private static final double DRIFT_PER_SECOND = .011;// 0.333/60;
 	private long lastUpdateTime = 0;
 	private double gyroAverage = 0;
 
@@ -28,7 +28,7 @@ public class FRCGyroAccelerometer {
 	public double getGyroAngle() {
 		long currentTime = System.currentTimeMillis();
 
-		double value = gyro.getAngle() - DRIFT_PER_SECOND * (currentTime - lastUpdateTime) / 1000.0;
+		double value = gyro.getAngle()- DRIFT_PER_SECOND * (currentTime - lastUpdateTime) / 1000.0;
 		
 		return value;// averageGyroValue(value);
 	}
