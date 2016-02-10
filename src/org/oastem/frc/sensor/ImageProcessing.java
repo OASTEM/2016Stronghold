@@ -215,7 +215,7 @@ public class ImageProcessing {
 	 *            y-value.
 	 * @return A double of the area from those points.
 	 */
-	private double getArea(double[][] points) {
+	public double getArea(double[][] points) {
 		double area = 0;
 		double[][] curr = points;
 		double[] angles = new double[curr.length];
@@ -228,24 +228,49 @@ public class ImageProcessing {
 			centerY += points[i][1];
 		}
 
-		centerX /= 2;
-		centerY /= 2;
+		centerX /= curr.length;
+		centerY /= curr.length;
 
-		for (int i = 0; i < angles.length; i++)
-			angles[i] = Math.atan((points[i][1] - centerY) / (points[i][0] - centerX));
+		double currentAngle;
+		for (int i = 0; i < angles.length; i++){
+			currentAngle = Math.atan((points[i][1] - centerY) / (points[i][0] - centerX));
+			
+			if (points[i][0] < centerX){
+				if (points[i][1] < centerY){
+					currentAngle += Math.PI;
+				}
+				else if (points[i][1] > centerY){
+					currentAngle += Math.PI;
+				}
+			}
+			else if (points[i][0] > centerX){
+				if (points[i][1] < centerY){
+					currentAngle += 2 * Math.PI;
+				}
+			}
+			
+			angles[i] = currentAngle;
+		}
+		boolean sorted = true;
 
-		boolean swapped = true;
 		int j = 0;
-		double tmp;
-		while (swapped) {
-			swapped = false;
+		while (sorted) {
+			sorted = false;
 			j++;
 			for (int i = 0; i < angles.length - j; i++) {
 				if (angles[i] > angles[i + 1]) {
-					tmp = angles[i];
+					double temp = angles[i];
 					angles[i] = angles[i + 1];
-					angles[i + 1] = tmp;
-					swapped = true;
+					angles[i + 1] = temp;
+					
+					temp = curr[i][0];
+					curr[i][0] = curr[i + 1][0];
+					curr[i + 1][0] = temp;
+					
+					temp = curr[i][1];
+					curr[i][1] = curr[i + 1][1];
+					curr[i + 1][1] = temp;
+					sorted = true;
 				}
 			}
 		}

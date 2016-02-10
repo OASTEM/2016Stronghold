@@ -60,6 +60,19 @@ public class Robot extends SampleRobot {
 		ArrayList<ArrayList<Double>> points;
 		int mismatchCount = 0;
 		int i = 0;
+		double[] shit = new double[5];
+
+		gg = new double[4][2];
+		gg[0][0] = 2;
+		gg[0][1] = 0;
+		gg[1][0] = 0;
+		gg[1][1] = 4;
+		gg[2][0] = 4;
+		gg[2][1] = 4;
+		gg[3][0] = 4;
+		gg[3][1] = 0;
+
+		dash.putString("list", shit[0] + "" + shit[1] + "" + shit[2]);
 		while (isOperatorControl() && isEnabled()) {
 			// double[][] points = process.getPoints();
 			// dash.putNumber("length", points.length);
@@ -68,12 +81,13 @@ public class Robot extends SampleRobot {
 			// ArrayList<Double> swag = process.getAngles();
 			points = process.getPoints();
 
-			gg = process.getPolygon(points, 4);
-			
-			dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
-			dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);
-			dash.putString("Point 3: ", gg[2][0] + ", " + gg[2][1]);
-			dash.putString("Point 4: ", gg[3][0] + ", " + gg[3][1]);
+			dash.putNumber("area", process.getArea(gg));
+			// gg = process.getPolygon(points, 4);
+
+			// dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
+			// dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);
+			// dash.putString("Point 3: ", gg[2][0] + ", " + gg[2][1]);
+			// dash.putString("Point 4: ", gg[3][0] + ", " + gg[3][1]);
 			/*
 			 * for (int i = 0; i < swag.size(); i++) { dash.putString("Angle " +
 			 * (i + 1), swag.get(i) + ""); // dash.putString("Angle " + (i + 1),
