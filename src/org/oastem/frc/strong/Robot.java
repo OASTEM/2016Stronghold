@@ -60,6 +60,9 @@ public class Robot extends SampleRobot {
         test.setFeedbackDevice(FeedbackDevice.QuadEncoder);
         test.configEncoderCodesPerRev(2048);
         test.enable();
+        test.setP(0);
+        test.setI(0);
+        test.setD(0);
     }
     
     public void robotInit() {
