@@ -33,6 +33,9 @@ public class Robot extends SampleRobot {
 	private final int BACK_LEFT_DRIVE = 0;
 	private final int BACK_RIGHT_DRIVE = 2;
 	private static double joyScale = 1.0;
+	private double[] accelXAverage = new double [100];
+	private double[] accelYAverage = new double [100];
+	private double[] accelZAverage = new double [100];
     DriveSystem myRobot = DriveSystem.getInstance();
     Joystick stickLeft;
     Joystick stickRight;
@@ -41,7 +44,7 @@ public class Robot extends SampleRobot {
     SendableChooser chooser;
     FRCGyroAccelerometer gyro;
     SmartDashboard dash;
-    ADXL345Accelerometer accel;
+    
 
     
     public Robot() {
@@ -56,7 +59,6 @@ public class Robot extends SampleRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
         dash = new SmartDashboard();
-        accel = new ADXL345Accelerometer(I2C.Port.kOnboard);
         gyro = new FRCGyroAccelerometer();
     }
 
@@ -65,14 +67,37 @@ public class Robot extends SampleRobot {
      */
     public void operatorControl() {
     	gyro.resetGyro();
+    	//gyro.freeAccel();
+    	double accelX = gyro.getAccelX();
+    	double accelY = gyro.getAccelY();
+    	double accelZ = gyro.getAccelZ();
+    	
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	doArcadeDrive();
         	dash.putNumber("Gyro Value:", gyro.getGyroAngle());
-        	dash.putNumber("Accelerometer X Value: ", accel.getX());
-        	dash.putNumber("Accelerometer Y Value: ", accel.getY());
-        	dash.putNumber("Accelerometer Z Value: ", accel.getZ());
+        	dash.putNumber("Accelerometer X Value: ",returnXAverage());
+        	dash.putNumber("Accelerometer Y Value: ", returnYAverage());
+        	dash.putNumber("Accelerometer Z Value: ", returnZAverage());
+        	
+        	for (int i = 99; i >= 0 ; i--)
+        	{
+        		accelXAverage[i] = accelXAverage [i-1];
+        	}
+        	accelXAverage[0] = gyro.getAccelX()-accelX;
+        	
+        	for (int i = 99; i >= 0 ; i--)
+        	{
+        		accelYAverage[i] = accelYAverage [i-1];
+        	}
+        	accelYAverage[0] = gyro.getAccelY()-accelY;
+        	
+        	for (int i = 99; i >= 0 ; i--)
+        	{
+        		accelZAverage[i] = accelZAverage [i-1];
+        	}
+        	accelZAverage[0] = gyro.getAccelZ()-accelZ;
         }
     }
 
@@ -123,4 +148,35 @@ public class Robot extends SampleRobot {
 		}
 		return val;
 	}
+	
+	private double returnXAverage ()
+	{
+		double sum = 0;
+		for (int i = 0; i < accelXAverage.length; i++)
+		{
+			sum += accelXAverage[i];
+		}
+		return sum/accelXAverage.length;
+	}
+	
+	private double returnYAverage ()
+	{
+		double sum = 0;
+		for (int i = 0; i < accelYAverage.length; i++)
+		{
+			sum += accelYAverage[i];
+		}
+		return sum/accelYAverage.length;
+	}
+	
+	private double returnZAverage ()
+	{
+		double sum = 0;
+		for (int i = 0; i < accelZAverage.length; i++)
+		{
+			sum += accelZAverage[i];
+		}
+		return sum/accelZAverage.length;
+	}
+	
 }

@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 
 public class FRCGyroAccelerometer {
-	private static final double DRIFT_PER_SECOND = .011;// 0.333/60;
+	private static final double DRIFT_PER_SECOND = .0161803398875;// 0.333/60; 
 	private long lastUpdateTime = 0;
 	private double gyroAverage = 0;
 
@@ -33,11 +33,28 @@ public class FRCGyroAccelerometer {
 		return value;// averageGyroValue(value);
 	}
 	
-	private double averageGyroValue (double gyroValue)
+	public double getAccelX()
 	{
-		gyroAverage = (gyroAverage*99 + gyroValue)/100;
-		return gyroAverage;
-		
+		return accel.getX();
 	}
+	
+	public double getAccelY()
+	{
+		return accel.getY();
+	}
+	
+	public double getAccelZ()
+	{
+		return accel.getZ();
+	}
+	
+	public void freeAccel()
+	{
+		accel.free();
+	}
+	/*private double averageGyroValue (double gyroValue)
+	{
+		
+	}*/
 
 }
