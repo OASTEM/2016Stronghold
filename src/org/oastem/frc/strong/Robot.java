@@ -80,11 +80,11 @@ public class Robot extends SampleRobot {
 		xCoor.add(0.0);
 		yCoor.add(0.0);	
 		xCoor.add(0.0);
-		yCoor.add(5.0);
-		xCoor.add(5.0);
+		yCoor.add(2.0);
+		xCoor.add(2.0);
 		yCoor.add(0.0);
-		xCoor.add(5.0);
-		yCoor.add(5.0);
+		xCoor.add(2.0);
+		yCoor.add(2.0);
 		originPoints.add(xCoor);
 		originPoints.add(yCoor);
 		double[][] finalPoints = process.getPolygon(originPoints, 4); //Doesn't get appropriate polygon
@@ -93,22 +93,12 @@ public class Robot extends SampleRobot {
 			dash.putNumber("Point " + (x+1) + "Y", finalPoints[x][1]);
 		}
 		
-		double[][] square = new double[][] {{0,0},
-							 		{0,5},
-							 		{5,5},
-							 		{5,0}};
-		dash.putNumber("Area", process.getArea(square)); // Area is correct
-		
 		while (isOperatorControl() && isEnabled()) {
 			// double[][] points = process.getPoints();
 			// dash.putNumber("length", points.length);
 
 			// points = process.getRawPoints();
 			// ArrayList<Double> swag = process.getAngles();
-			points = process.getPoints();
-
-			gg = process.getPolygon(points, 4);
-			print2d(gg, "point");
 
 			// dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
 			// dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);

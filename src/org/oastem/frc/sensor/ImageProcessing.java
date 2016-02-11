@@ -158,7 +158,7 @@ public class ImageProcessing {
 	 * @param points
 	 *            A 2d ArrayList of a set of points, where the first ArrayList
 	 *            is the x value and the second ArrayList is the y value.
-	 * @param sides
+	 * @param point
 	 *            The amount of sides the intended polygon has.
 	 * @return A 2d array of the set of points of the polygon with the largest
 	 *         area, where the first column is the x value and the second column
@@ -169,10 +169,15 @@ public class ImageProcessing {
 		area = 0;
 		this.point = point;
 		this.points = points;
-
+		
+		largest = new double[point][2];
+		
 		for (int i = 0; i < points.get(0).size(); i++)
 			permutation(i, point);
 
+		for (int r = 0; r < largest.length; r++)
+			System.out.println(largest[r][0] + "\t" + largest[r][1]);
+		
 		return largest;
 	}
 
@@ -197,8 +202,15 @@ public class ImageProcessing {
 	private void permutation(int index, int number) {
 		if (number == 0) {
 			if (getArea(shape) > area){
-				area = getArea(shape);
-				largest = shape;
+				area = getArea(shape);				
+				for (int r = 0; r < shape.length; r++)
+				{
+					System.out.println(shape[r][0] + "\t" + shape[r][1]);
+					largest[r][0] = shape[r][0];
+					largest[r][1] = shape[r][1];
+				}
+				System.out.println(area);
+				//largest = new double[4][2];
 			}
 		} else {
 			shape[point - number][0] = points.get(0).get(index);
