@@ -73,6 +73,32 @@ public class Robot extends SampleRobot {
 		gg[3][1] = 0;
 
 		dash.putString("list", shit[0] + "" + shit[1] + "" + shit[2]);
+		
+		ArrayList<ArrayList<Double>> originPoints = new ArrayList<ArrayList<Double>>();
+		ArrayList<Double> xCoor = new ArrayList<Double>();
+		ArrayList<Double> yCoor = new ArrayList<Double>();
+		xCoor.add(0.0);
+		yCoor.add(0.0);	
+		xCoor.add(0.0);
+		yCoor.add(5.0);
+		xCoor.add(5.0);
+		yCoor.add(0.0);
+		xCoor.add(5.0);
+		yCoor.add(5.0);
+		originPoints.add(xCoor);
+		originPoints.add(yCoor);
+		double[][] finalPoints = process.getPolygon(originPoints, 4); //Doesn't get appropriate polygon
+		for(int x = 0; x < finalPoints.length; x++){
+			dash.putNumber("Point " + (x+1) + "X", finalPoints[x][0]);
+			dash.putNumber("Point " + (x+1) + "Y", finalPoints[x][1]);
+		}
+		
+		double[][] square = new double[][] {{0,0},
+							 		{0,5},
+							 		{5,5},
+							 		{5,0}};
+		dash.putNumber("Area", process.getArea(square)); // Area is correct
+		
 		while (isOperatorControl() && isEnabled()) {
 			// double[][] points = process.getPoints();
 			// dash.putNumber("length", points.length);
@@ -100,6 +126,7 @@ public class Robot extends SampleRobot {
 			 * swag.size(); i < kek; i++) dash.putString("Angle " + (i + 1),
 			 * "BASE IS NOT FOUND"); }
 			 */
+		
 		}
 	}
 

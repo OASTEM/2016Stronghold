@@ -164,10 +164,9 @@ public class ImageProcessing {
 	 *         area, where the first column is the x value and the second column
 	 *         is the y value.
 	 */
-	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int point) {
+	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int point) { //FIX THIS SHIT SPRING
 		shape = new double[point][2];
 		area = 0;
-		double[][] largest = shape;
 		this.point = point;
 		this.points = points;
 
@@ -180,6 +179,7 @@ public class ImageProcessing {
 	// These are global variables used for the recursive function that finds the
 	// polygon
 	// with the largest area.
+	private double[][] largest;
 	private double[][] shape;
 	private double area;
 	private int point;
@@ -196,8 +196,10 @@ public class ImageProcessing {
 	 */
 	private void permutation(int index, int number) {
 		if (number == 0) {
-			if (getArea(shape) > area)
+			if (getArea(shape) > area){
 				area = getArea(shape);
+				largest = shape;
+			}
 		} else {
 			shape[point - number][0] = points.get(0).get(index);
 			shape[point - number][1] = points.get(1).get(index);
