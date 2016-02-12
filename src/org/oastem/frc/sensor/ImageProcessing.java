@@ -175,10 +175,65 @@ public class ImageProcessing {
 		for (int i = 0; i < points.get(0).size(); i++)
 			permutation(i, point);
 
-		for (int r = 0; r < largest.length; r++)
-			System.out.println(largest[r][0] + "\t" + largest[r][1]);
-		
 		return largest;
+	}
+	
+	public double[][] getPolywhirl(ArrayList<ArrayList<Double>> points, int point){
+		double centerX = 0;
+		double centerY = 0;
+
+		for (int i = 0; i < points.size(); i++) {
+			centerX += points.get(0).get(i);
+			centerY += points.get(1).get(i);
+		}
+		centerX /= points.get(0).size();
+		centerY /= points.get(0).size();
+		
+		double[] lengths = new double[points.get(0).size()];
+		double[][] curr = new double[points.get(0).size()][2];
+		
+		for (int i = 0; i < points.get(0).size(); i++){
+			curr[i][0] = points.get(0).get(i);
+			curr[i][1] = points.get(1).get(i);
+			lengths[i] = Math.hypot(curr[i][1] - centerY, curr[i][0] - centerX);
+		}
+		
+		for (int r = 0; r < points.size(); r++)
+			System.out.println(curr[r][0] + "\t" + curr[r][1]);
+		
+		boolean sorted = true;
+		
+		int j = 0;
+		while (sorted) {
+			sorted = false;
+			j++;
+			for (int i = 0; i < lengths.length - j; i++) {
+				if (lengths[i] < lengths[i + 1]) {
+					double temp = lengths[i];
+					lengths[i] = lengths[i + 1];
+					lengths[i + 1] = temp;
+					
+					temp = curr[i][0];
+					curr[i][0] = curr[i + 1][0];
+					curr[i + 1][0] = temp;
+					
+					temp = curr[i][1];
+					curr[i][1] = curr[i + 1][1];
+					curr[i + 1][1] = temp;
+					sorted = true;
+				}
+			}
+		}
+		
+		double [][] re = new double[point][2];
+		
+		for (int i = 0; i > point; i++){
+			re[i][0] = curr[i][0];
+			re[i][1] = curr[i][1];
+		}
+		
+		return re;
+
 	}
 
 	// These are global variables used for the recursive function that finds the
@@ -205,18 +260,21 @@ public class ImageProcessing {
 				area = getArea(shape);				
 				for (int r = 0; r < shape.length; r++)
 				{
-					System.out.println(shape[r][0] + "\t" + shape[r][1]);
 					largest[r][0] = shape[r][0];
 					largest[r][1] = shape[r][1];
 				}
-				System.out.println(area);
-				//largest = new double[4][2];
 			}
 		} else {
 			shape[point - number][0] = points.get(0).get(index);
 			shape[point - number][1] = points.get(1).get(index);
-			for (int i = 0; i < points.get(0).size(); i++)
-				permutation(i, number - 1);
+			for (int i = 0; i < points.get(0).size(); i++){
+				boolean match = false;
+				for (int j = 0; j < point - number - 1; j++){
+					match = (points.get(0).get(i) == shape[j][0] && points.get(1).get(i) == shape[j][1]);
+				}
+				if (!match)
+					permutation(i, number - 1);
+			}
 		}
 	}
 
@@ -265,6 +323,7 @@ public class ImageProcessing {
 			
 			angles[i] = currentAngle;
 		}
+		
 		boolean sorted = true;
 
 		int j = 0;
