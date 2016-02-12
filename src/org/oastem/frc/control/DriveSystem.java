@@ -7,9 +7,6 @@ import edu.wpi.first.wpilibj.RobotDrive.MotorType;
 
 import org.oastem.frc.sensor.*;
 
-import java.util.Hashtable;
-
-import javax.crypto.EncryptedPrivateKeyInfo;
 
 /**
  * Class to control the entirety of the drive train of an FRC robot.
@@ -22,9 +19,10 @@ public class DriveSystem {
     // Constants.
     protected static final int NUM_ITEMS = 12;
     protected static final double DISTANCE_PER_REVOLUTION = 6 * Math.PI; // FOR DEFAULT DRIVE WHEELS 
-    protected static final double AUTO_DRIVE_POWER = 0.5; // percentage between 0 and 1
-    protected static final double CORRECTION = 0.75;
+    protected static final double AUTO_DRIVE_POWER = 0.75; // percentage between 0 and 1
+    protected static final double CORRECTION = 0.50;
     protected static final double BUFFER = 0.1;
+    protected static final double BUFFER_ANGLE = 5;
     protected static final double COMPENSATION = 7;
     
     // Singleton design pattern: instance of this class.
@@ -40,9 +38,11 @@ public class DriveSystem {
     
     protected QuadratureEncoder encRight;
     protected QuadratureEncoder encLeft;
+    protected FRCGyroAccelerometer gyroAccel;
     
     protected DriveSystem() {
         raw = new Victor[NUM_ITEMS];
+        gyroAccel = new FRCGyroAccelerometer();
     }
     
     public static DriveSystem getInstance() {
@@ -53,6 +53,7 @@ public class DriveSystem {
         return instance;
     }
     
+    /**** ENCODER STUFF ****/
     public void initializeEncoders(int rightChannelA, int rightChannelB, boolean rightReflected,
     								int leftChannelA, int leftChannelB, boolean leftReflected, double pulsesPerRev) {
         encRight = new QuadratureEncoder(rightChannelA, rightChannelB, rightReflected, 4, pulsesPerRev);
@@ -83,6 +84,21 @@ public class DriveSystem {
     	return encLeft.getRate();
     }
     
+    /**** GYRO/ACCELEROMETER STUFF ****/
+    public double getAngle()
+    {
+    	return gyroAccel.getGyroAngle();
+    }
+    
+    public void resetGyro()
+    {
+    	gyroAccel.resetGyro();
+    }
+    
+    // ADD ACCELEROMETER GETS
+    
+    
+    /**** DRIVE STUFF ****/
     public void initializeDrive(int leftFront, int leftRear, int rightFront, int rightRear) {
         drive = new RobotDrive(leftFront, leftRear, rightFront, rightRear);
     }
@@ -164,36 +180,44 @@ public class DriveSystem {
         }
     }
 
-    public boolean forward(double distance) {
-        if ( (encRight.getDistance() < (distance - COMPENSATION) ) || (encLeft.getDistance() < (distance - COMPENSATION) ) ) {
-            //drive.tankDrive(-AUTO_DRIVE_POWER, -AUTO_DRIVE_POWER);
-            /**********/
-            keepStraightForward();
-            if (hasSecondary) drive2.tankDrive(-AUTO_DRIVE_POWER, -AUTO_DRIVE_POWER);
-            return false;
-        } else {
+    public boolean forward(double distance, double startingGyroAngle) {
+        // Both sides have not reached distance yet
+    	if ( (encRight.getDistance() < (distance - COMPENSATION) ) && (encLeft.getDistance() < (distance - COMPENSATION) ) ) {
+            keepStraightForward(startingGyroAngle);
+        }
+    	// Right side has not reached distance yet
+        else if (encRight.getDistance() < (distance - COMPENSATION))
+        {
+        	drive.tankDrive(0, AUTO_DRIVE_POWER);
+        }
+    	// Left side has not reached distance yet
+        else if (encLeft.getDistance() < (distance - COMPENSATION))
+        {
+        	drive.tankDrive(AUTO_DRIVE_POWER, 0);
+        }
+    	// Distance is reached
+        else
+        {
             drive.tankDrive(0, 0);
             return true;
         }
+        return false;
     }
     
-    /**** IMPLEMENT hasSecondary NEXT YEAR SPRING ****/
-    private void keepStraightForward()
+    public void keepStraightForward(double straightGyroAngle)
     {
-    	double rightVal = encRight.getDistance();
-    	double leftVal = encLeft.getDistance();
-    	// FORWARD
-    	if (leftVal + BUFFER < rightVal)
+    	double currAngle = gyroAccel.getGyroAngle();
+    	if (straightGyroAngle + BUFFER_ANGLE < currAngle)
     	{
-    		drive.tankDrive(-AUTO_DRIVE_POWER, -AUTO_DRIVE_POWER + CORRECTION);
+    		drive.tankDrive(AUTO_DRIVE_POWER - CORRECTION, AUTO_DRIVE_POWER);
     	}
-    	else if (rightVal + BUFFER < leftVal)
+    	else if (currAngle < straightGyroAngle - BUFFER_ANGLE)
     	{
-    		drive.tankDrive(-AUTO_DRIVE_POWER + CORRECTION, -AUTO_DRIVE_POWER);
+    		drive.tankDrive(AUTO_DRIVE_POWER, AUTO_DRIVE_POWER - CORRECTION);
     	}
     	else
     	{
-    		drive.tankDrive(-AUTO_DRIVE_POWER, -AUTO_DRIVE_POWER);
+    		drive.tankDrive(AUTO_DRIVE_POWER, AUTO_DRIVE_POWER);
     	}
     }
     
