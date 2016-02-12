@@ -84,7 +84,6 @@ public class FRCGyroAccelerometer {
 		if (indexX > 99) 
 		{
 			indexX = 0;
-			sumX -= accelXAverage[indexX];
 			isOverOneLoopX = true;
 		}
 		if ( isOverOneLoopX )
@@ -92,7 +91,7 @@ public class FRCGyroAccelerometer {
 		accelXAverage[indexX] = getRawAccelX()-accelX;
 		sumX += accelXAverage[indexX];
 		indexX++;
-		return (isOverOneLoopX) ? sumX/accelXAverage.length : indexX+1;
+		return (isOverOneLoopX) ? sumX/accelXAverage.length : sumX/indexX+1;
 	}
 	
 	public double getAccelY()
@@ -100,7 +99,6 @@ public class FRCGyroAccelerometer {
 		if (indexY > 99 )
 		{
 			indexY = 0;
-			sumY -= accelYAverage[indexY];
 			isOverOneLoopY = true;
 		} 
 		if ( isOverOneLoopY )
@@ -108,7 +106,7 @@ public class FRCGyroAccelerometer {
 		accelYAverage[indexY] = getRawAccelY()-accelY;		
 		sumY += accelYAverage[indexY];
 		indexY++;
-		return (isOverOneLoopY) ? sumY/accelYAverage.length : indexY+1;
+		return (isOverOneLoopY) ? sumY/accelYAverage.length : sumY/indexY+1;
 	}
 	
 	public double getAccelZ()
@@ -116,7 +114,6 @@ public class FRCGyroAccelerometer {
 		if (indexZ > 99 )
 		{
 			indexZ = 0; 
-			sumZ -= accelZAverage[indexZ];
 			isOverOneLoopZ = true;
 		}
 		if ( isOverOneLoopZ )
@@ -124,7 +121,7 @@ public class FRCGyroAccelerometer {
 		accelZAverage[indexZ] = getRawAccelZ()-accelZ;
 		sumZ += accelZAverage[indexZ];
 		indexZ++;
-		return (isOverOneLoopZ) ? sumZ/accelZAverage.length : indexZ+1;
+		return (isOverOneLoopZ) ? sumZ/accelZAverage.length : sumZ/indexZ+1;
 	}
 	/*private double averageGyroValue (double gyroValue)
 	{
