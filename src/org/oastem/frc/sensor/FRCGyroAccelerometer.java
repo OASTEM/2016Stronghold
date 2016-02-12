@@ -7,7 +7,21 @@ import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 public class FRCGyroAccelerometer {
 	private static final double DRIFT_PER_SECOND = .0161803398875;// 0.333/60; 
 	private long lastUpdateTime = 0;
-	private double gyroAverage = 0;
+	private double [] accelXAverage;
+	private double [] accelYAverage;
+	private double [] accelZAverage;
+	private int indexX;
+	private int indexY;
+	private int indexZ;
+	private double accelX;
+	private double accelY;
+	private double accelZ;
+	private double sumX;
+	private double sumY;
+	private double sumZ;
+	private boolean isOverOneLoopX;
+	private boolean isOverOneLoopY;
+	private boolean isOverOneLoopZ;
 
 	private ADXRS450_Gyro gyro;
 	private ADXL362 accel;
@@ -17,40 +31,100 @@ public class FRCGyroAccelerometer {
 		accel = new ADXL362(Accelerometer.Range.k8G);
 		gyro.calibrate();
 		lastUpdateTime = System.currentTimeMillis();
+		accelXAverage = new double[100];
+		accelYAverage = new double[100];
+		accelZAverage = new double[100];
+		indexX = 0;
+		indexY = 0;
+		indexZ = 0;
+		accelX = getRawAccelX();
+		accelY = getRawAccelY();
+		accelZ = getRawAccelZ();
+		sumX = 0;
+		sumY = 0;
+		sumZ = 0;
+		isOverOneLoopX = false;
+		isOverOneLoopY = false;
+		isOverOneLoopZ = false;
 	}
 
 	public void resetGyro() {
 		gyro.reset();
-		gyroAverage = 0;
 		lastUpdateTime = System.currentTimeMillis();
 	}
 
 	public double getGyroAngle() {
 		long currentTime = System.currentTimeMillis();
-
 		double value = gyro.getAngle()- DRIFT_PER_SECOND * (currentTime - lastUpdateTime) / 1000.0;
-		
 		return value;// averageGyroValue(value);
 	}
 	
-	public double getAccelX()
+	public double getRawAccelX()
 	{
 		return accel.getX();
 	}
 	
-	public double getAccelY()
+	public double getRawAccelY()
 	{
 		return accel.getY();
 	}
 	
-	public double getAccelZ()
+	public double getRawAccelZ()
 	{
 		return accel.getZ();
 	}
 	
-	public void freeAccel()
+	public void freeRawAccel()
 	{
 		accel.free();
+	}
+	
+	public double getAccelX()
+	{
+		if (indexX > 99) 
+		{
+			indexX = 0;
+			sumX -= accelXAverage[indexX];
+			isOverOneLoopX = true;
+		}
+		if ( isOverOneLoopX )
+			sumX -= accelXAverage[indexX];
+		accelXAverage[indexX] = getRawAccelX()-accelX;
+		sumX += accelXAverage[indexX];
+		indexX++;
+		return (isOverOneLoopX) ? sumX/accelXAverage.length : indexX+1;
+	}
+	
+	public double getAccelY()
+	{
+		if (indexY > 99 )
+		{
+			indexY = 0;
+			sumY -= accelYAverage[indexY];
+			isOverOneLoopY = true;
+		} 
+		if ( isOverOneLoopY )
+			sumY -= accelYAverage[indexY];
+		accelYAverage[indexY] = getRawAccelY()-accelY;		
+		sumY += accelYAverage[indexY];
+		indexY++;
+		return (isOverOneLoopY) ? sumY/accelYAverage.length : indexY+1;
+	}
+	
+	public double getAccelZ()
+	{
+		if (indexZ > 99 )
+		{
+			indexZ = 0; 
+			sumZ -= accelZAverage[indexZ];
+			isOverOneLoopZ = true;
+		}
+		if ( isOverOneLoopZ )
+			sumZ -= accelZAverage[indexZ];
+		accelZAverage[indexZ] = getRawAccelZ()-accelZ;
+		sumZ += accelZAverage[indexZ];
+		indexZ++;
+		return (isOverOneLoopZ) ? sumZ/accelZAverage.length : indexZ+1;
 	}
 	/*private double averageGyroValue (double gyroValue)
 	{
