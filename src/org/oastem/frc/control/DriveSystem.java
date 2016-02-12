@@ -34,7 +34,7 @@ public class DriveSystem {
     private static DriveSystem instance;
     
     private RobotDrive drive;
-    private Victor[] raw;
+    @Deprecated private Victor[] raw;
     private boolean hasSecondary = false;
     private RobotDrive drive2;
     
@@ -42,7 +42,7 @@ public class DriveSystem {
     protected QuadratureEncoder encLeft;
     
     protected DriveSystem() {
-        raw = new Victor[NUM_ITEMS];
+        //raw = new Victor[NUM_ITEMS];  DEPRECATED
     }
     
     public static DriveSystem getInstance() {
@@ -124,19 +124,43 @@ public class DriveSystem {
         if (hasSecondary) drive2.mecanumDrive_Cartesian(x, y, turn, gyro);
     }
     
-    public void addVictor(int port) {
+    /**
+     * @deprecated Due to the addition of CAN communication and advancements in actuators,
+     *  using just Victors to control the robot is not a viable control method.
+     *  DriveSystem is now used purely for drive and each actuator (i.e. an arm or a winch)
+     *  should be created as its own object in Robot.java. 
+     */
+    @Deprecated public void addVictor(int port) {
         raw[port] = new Victor(port);
     }
     
-    public void set(int vic, double power) {
+    /**
+     * @deprecated Due to the addition of CAN communication and advancements in actuators,
+     *  using just Victors to control the robot is not a viable control method.
+     *  DriveSystem is now used purely for drive and each actuator (i.e. an arm or a winch)
+     *  should be created as its own object in Robot.java. 
+     */
+    @Deprecated public void set(int vic, double power) {
         raw[vic].set(power);
     }
     
-    public double getPwm(int vic) {
+    /**
+     * @deprecated Due to the addition of CAN communication and advancements in actuators,
+     *  using just Victors to control the robot is not a viable control method.
+     *  DriveSystem is now used purely for drive and each actuator (i.e. an arm or a winch)
+     *  should be created as its own object in Robot.java. 
+     */
+    @Deprecated  public double getPwm(int vic) {
         return raw[vic].get();
     }
     
-    public Victor getVictor(int vic) {
+    /**
+     * @deprecated Due to the addition of CAN communication and advancements in actuators,
+     *  using just Victors to control the robot is not a viable control method.
+     *  DriveSystem is now used purely for drive and each actuator (i.e. an arm or a winch)
+     *  should be created as its own object in Robot.java. 
+     */
+    @Deprecated public Victor getVictor(int vic) {
         return raw[vic];
     }
     
