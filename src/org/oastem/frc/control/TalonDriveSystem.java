@@ -3,16 +3,21 @@ package org.oastem.frc.control;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.TalonSRX;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class TalonDriveSystem extends DriveSystem {
 	//TALON_SRX's
-	private CANTalon frontRightDrive;
+	/*private CANTalon frontRightDrive;
 	private CANTalon frontLeftDrive;
 	private CANTalon backRightDrive;
-	private CANTalon backLeftDrive;
+	private CANTalon backLeftDrive;*/
+	private Victor frontRightDrive;
+	private Victor frontLeftDrive;
+	private Victor backRightDrive;
+	private Victor backLeftDrive;
 	private int encoderCodePerRev;
-	private int wheelDiamter;
+	private int wheelDiameter;
     
 	// Singleton design pattern: instance of this class.
     // Only one talon drive system is allowed per robot - 
@@ -31,13 +36,13 @@ public class TalonDriveSystem extends DriveSystem {
     
     public void initializeTalonDrive(int leftFront, int leftRear, int rightFront,
     								int rightRear, int pulsesPerRev, int wheelDiameter){
-    	frontRightDrive = new CANTalon(rightFront);
-    	frontLeftDrive = new CANTalon(leftFront);
-    	backRightDrive = new CANTalon(rightRear);
-    	backLeftDrive = new CANTalon(leftRear);
+    	frontRightDrive = new Victor(rightFront);
+    	frontLeftDrive = new Victor(leftFront);
+    	backRightDrive = new Victor(rightRear);
+    	backLeftDrive = new Victor(leftRear);
     	encoderCodePerRev = pulsesPerRev;
-    	this.wheelDiamter = wheelDiameter;
-    	initCan();
+    	this.wheelDiameter = wheelDiameter;
+    	//initCan();
     	super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
     }
     
@@ -45,15 +50,15 @@ public class TalonDriveSystem extends DriveSystem {
     {
     	frontRightDrive = null;
     	frontLeftDrive = null;
-    	backRightDrive = new CANTalon(right);
-    	backLeftDrive = new CANTalon(left);
+    	backRightDrive = new Victor(right);
+    	backLeftDrive = new Victor(left);
     	encoderCodePerRev = pulsesPerRev;
-    	this.wheelDiamter = wheelDiameter;
-    	initCan();
+    	this.wheelDiameter = wheelDiameter;
+    	//initCan();
     	super.initializeDrive(left, right);
     }
     
-    private void initCan()
+    /*private void initCan()
     {
     	TalonControlMode mode = TalonControlMode.Speed;
     	if(frontRightDrive != null)
@@ -74,7 +79,7 @@ public class TalonDriveSystem extends DriveSystem {
     	backLeftDrive.changeControlMode(mode);
     	backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
     	backLeftDrive.enable();
-    }
+    }*/
     
     public void speedTankDrive(double leftValuePerMin, double rightValuePerMin,
     							boolean isInInches)
@@ -83,8 +88,8 @@ public class TalonDriveSystem extends DriveSystem {
     	double rightRPM = rightValuePerMin;
     	if (isInInches)
     	{
-    		leftRPM /= wheelDiamter;
-    		rightRPM /= wheelDiamter;
+    		leftRPM /= wheelDiameter;
+    		rightRPM /= wheelDiameter;
     	}
     	backLeftDrive.set(leftRPM);
     	if (frontLeftDrive != null)
@@ -95,6 +100,19 @@ public class TalonDriveSystem extends DriveSystem {
     	
     }
 
+    /*public CANTalon getFrontLeftDrive(){
+    	return frontLeftDrive;
+    }
     
+    public CANTalon getFrontRightDrive(){
+    	return frontRightDrive;
+    }
     
+    public CANTalon getBackLeftDrive(){
+    	return backLeftDrive;
+    }
+    
+    public CANTalon getBackRightDrive(){
+    	return backRightDrive;
+    }*/
 }
