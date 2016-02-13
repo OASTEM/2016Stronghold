@@ -8,14 +8,10 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class TalonDriveSystem extends DriveSystem {
 	//TALON_SRX's
-	/*private CANTalon frontRightDrive;
+	private CANTalon frontRightDrive;
 	private CANTalon frontLeftDrive;
 	private CANTalon backRightDrive;
-	private CANTalon backLeftDrive;*/
-	private Victor frontRightDrive;
-	private Victor frontLeftDrive;
-	private Victor backRightDrive;
-	private Victor backLeftDrive;
+	private CANTalon backLeftDrive;
 	private int encoderCodePerRev;
 	private int wheelDiameter;
     
@@ -36,10 +32,10 @@ public class TalonDriveSystem extends DriveSystem {
     
     public void initializeTalonDrive(int leftFront, int leftRear, int rightFront,
     								int rightRear, int pulsesPerRev, int wheelDiameter){
-    	frontRightDrive = new Victor(rightFront);
-    	frontLeftDrive = new Victor(leftFront);
-    	backRightDrive = new Victor(rightRear);
-    	backLeftDrive = new Victor(leftRear);
+    	frontRightDrive = new CANTalon(rightFront);
+    	frontLeftDrive = new CANTalon(leftFront);
+    	backRightDrive = new CANTalon(rightRear);
+    	backLeftDrive = new CANTalon(leftRear);
     	encoderCodePerRev = pulsesPerRev;
     	this.wheelDiameter = wheelDiameter;
     	//initCan();
@@ -50,15 +46,15 @@ public class TalonDriveSystem extends DriveSystem {
     {
     	frontRightDrive = null;
     	frontLeftDrive = null;
-    	backRightDrive = new Victor(right);
-    	backLeftDrive = new Victor(left);
+    	backRightDrive = new CANTalon(right);
+    	backLeftDrive = new CANTalon(left);
     	encoderCodePerRev = pulsesPerRev;
     	this.wheelDiameter = wheelDiameter;
-    	//initCan();
+    	initCan();
     	super.initializeDrive(left, right);
     }
     
-    /*private void initCan()
+    private void initCan()
     {
     	TalonControlMode mode = TalonControlMode.Speed;
     	if(frontRightDrive != null)
@@ -79,7 +75,7 @@ public class TalonDriveSystem extends DriveSystem {
     	backLeftDrive.changeControlMode(mode);
     	backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
     	backLeftDrive.enable();
-    }*/
+    }
     
     public void speedTankDrive(double leftValuePerMin, double rightValuePerMin,
     							boolean isInInches)
@@ -100,7 +96,7 @@ public class TalonDriveSystem extends DriveSystem {
     	
     }
 
-    /*public CANTalon getFrontLeftDrive(){
+    public CANTalon getFrontLeftDrive(){
     	return frontLeftDrive;
     }
     
@@ -114,5 +110,5 @@ public class TalonDriveSystem extends DriveSystem {
     
     public CANTalon getBackRightDrive(){
     	return backRightDrive;
-    }*/
+    }
 }

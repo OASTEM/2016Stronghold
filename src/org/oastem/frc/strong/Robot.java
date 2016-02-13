@@ -46,10 +46,10 @@ public class Robot extends SampleRobot {
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
 	private final int DRIVE_WHEEL_DIAM = 6;
-	private final int FRONT_LEFT_CAN_DRIVE = 0;
-	private final int FRONT_RIGHT_CAN_DRIVE = 2;
-	private final int BACK_LEFT_CAN_DRIVE = 1;
-	private final int BACK_RIGHT_CAN_DRIVE = 3;
+	private final int LEFT = 1;
+	private final int RIGHT = 2;
+	//private final int BACK_LEFT_CAN_DRIVE = 1;
+	//private final int BACK_RIGHT_CAN_DRIVE = 3;
 	private final double WHEEL_CIRCUMFERENCE = 8.0 * Math.PI;
 	private final double MAX_SPEED = 72; // in inches
 	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60; // in
@@ -68,14 +68,15 @@ public class Robot extends SampleRobot {
 	private DoubleSolenoid actuator;
 	private Solenoid actuator2;
 	private PowerDistributionPanel pdp;
+	private CANTalon left;
+	private CANTalon right;
 
 	// Strings
 	final String defaultAuto = "Default";
 	final String customAuto = "My Auto";
 
 	public Robot() {
-		talonDrive.initializeTalonDrive(FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE,
-				BACK_RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
+		talonDrive.initializeTalonDrive(LEFT, RIGHT, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
 	}
 
 	public void robotInit() {
@@ -93,6 +94,8 @@ public class Robot extends SampleRobot {
 		isPressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
+		left = new CANTalon(1);
+		right = new CANTalon(2);
 		
 
 		pdp.clearStickyFaults();
@@ -108,7 +111,9 @@ public class Robot extends SampleRobot {
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 
-			motorDrive();
+			//motorDrive();
+			left.set(-pad.getLeftAnalogY());
+			right.set(pad.getRightAnalogY());
 			dash.putData(pdp.getSmartDashboardType(), pdp);
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
