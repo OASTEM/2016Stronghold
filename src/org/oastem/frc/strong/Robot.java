@@ -1,8 +1,13 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
+import org.oastem.frc.control.TalonDriveSystem;
+
+import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -26,19 +31,38 @@ public class Robot extends SampleRobot {
 	private final int FRONT_RIGHT_DRIVE = 3;
 	private final int BACK_LEFT_DRIVE = 0;
 	private final int BACK_RIGHT_DRIVE = 2;
+	
+	private final int DRIVE_ENC_CODE_PER_REV = 2048;
+	private final int DRIVE_WHEEL_DIAM = 6;
+	private final int LEFT_CAN_DRIVE = 0;
+	private final int RIGHT_CAN_DRIVE = 1;
 	private static double joyScale = 1.0;
     DriveSystem myRobot = DriveSystem.getInstance();
+    TalonDriveSystem talonDrive = TalonDriveSystem.getInstance();
     Joystick stickLeft;
     Joystick stickRight;
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
+    
 
+    CANTalon test;
     
     public Robot() {
     	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
+    	//talonDrive.initializeTalonDrive(LEFT_CAN_DRIVE, RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
         stickLeft = new Joystick(0);
         stickRight = new Joystick(1);
+        
+        test = new CANTalon(0);
+        test.changeControlMode(TalonControlMode.Speed);
+        test.reverseSensor(true);
+        test.setFeedbackDevice(FeedbackDevice.QuadEncoder);
+        test.configEncoderCodesPerRev(2048);
+        test.enable();
+        test.setP(0);
+        test.setI(0);
+        test.setD(0);
     }
     
     public void robotInit() {
@@ -55,7 +79,9 @@ public class Robot extends SampleRobot {
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
-        	doArcadeDrive();
+        	//doArcadeDrive();
+        	//talonDrive.speedTankDrive(stickLeft.getY(), stickRight.getY(), false);
+        	test.set(60);
         }
     }
 
