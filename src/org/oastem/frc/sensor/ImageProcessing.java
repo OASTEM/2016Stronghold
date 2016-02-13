@@ -1,6 +1,8 @@
 package org.oastem.frc.sensor;
 
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.ArrayList;
 
 /**
@@ -20,6 +22,7 @@ public class ImageProcessing {
 	private String contours;
 	private String lines;
 	private String blobs;
+	private SmartDashboard dash;
 
 	// This defaultValue is here in the case that there is nothing detected on
 	// the Network Table, so that there would be no error.
@@ -46,6 +49,7 @@ public class ImageProcessing {
 		this.lines = lines;
 		this.blobs = blobs;
 		defaultValue = new double[0];
+		dash = new SmartDashboard();
 	}
 
 	/**
@@ -179,15 +183,21 @@ public class ImageProcessing {
 	}
 	
 	public double[][] getPolywhirl(ArrayList<ArrayList<Double>> points, int point){
+		/*System.out.println("points array");
+		for (int i = 0; i < points.get(0).size(); i++)
+			System.out.println(points.get(0).get(i) + "\t" + points.get(1).get(i));
+		*/
 		double centerX = 0;
 		double centerY = 0;
 
-		for (int i = 0; i < points.size(); i++) {
+		for (int i = 0; i < points.get(0).size(); i++) {
 			centerX += points.get(0).get(i);
 			centerY += points.get(1).get(i);
 		}
 		centerX /= points.get(0).size();
 		centerY /= points.get(0).size();
+		
+		//System.out.println("Center X: " + centerX + ", Center Y: " + centerY);
 		
 		double[] lengths = new double[points.get(0).size()];
 		double[][] curr = new double[points.get(0).size()][2];
@@ -198,8 +208,17 @@ public class ImageProcessing {
 			lengths[i] = Math.hypot(curr[i][1] - centerY, curr[i][0] - centerX);
 		}
 		
-		for (int r = 0; r < points.size(); r++)
-			System.out.println(curr[r][0] + "\t" + curr[r][1]);
+		/*System.out.println("lengths array");
+		for (int i = 0; i < lengths.length; i++)
+			System.out.println(lengths[i]);
+			*/
+		//for (int r = 0; r < points.size(); r++)
+		//	System.out.println(curr[r][0] + "\t" + curr[r][1]);
+		/*System.out.println("curr array before sort");
+		for (int i = 0; i < curr.length; i++)
+			System.out.println(curr[i][0] + "\t" + curr[i][1]);
+		*/
+		
 		
 		boolean sorted = true;
 		
@@ -225,13 +244,25 @@ public class ImageProcessing {
 			}
 		}
 		
-		double [][] re = new double[point][2];
+		for (int i = 0; i < lengths.length; i++)
+			dash.putNumber("Length " + (i + 1), lengths[i]);
 		
-		for (int i = 0; i > point; i++){
-			re[i][0] = curr[i][0];
-			re[i][1] = curr[i][1];
+		/*System.out.println("curr array after sort");
+		for (int i = 0; i < curr.length; i++)
+			System.out.println(curr[i][0] + "\t" + curr[i][1]);
+		*/
+		double [][] re = new double[point][2];
+		if (curr.length > 0) {
+			for (int i = 0; i < point && i < curr.length; i++) {
+				re[i][0] = curr[i][0];
+				re[i][1] = curr[i][1];
+			}
 		}
 		
+		/*System.out.println("re array");
+		for (int i = 0; i < re.length; i++)
+			System.out.println(re[i][0] + "\t" + re[i][1]);
+		*/
 		return re;
 
 	}

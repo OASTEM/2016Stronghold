@@ -78,7 +78,7 @@ public class Robot extends SampleRobot {
 	
 		ArrayList<Double> xCoor = new ArrayList<Double>();
 		ArrayList<Double> yCoor = new ArrayList<Double>();
-		xCoor.add(0.0);
+		/*xCoor.add(0.0);
 		yCoor.add(0.0);	
 		xCoor.add(0.0);
 		yCoor.add(4.0);
@@ -87,21 +87,43 @@ public class Robot extends SampleRobot {
 		xCoor.add(4.0);
 		yCoor.add(4.0);
 		xCoor.add(2.0);
+		yCoor.add(2.0);*/
+		/*xCoor.add(0.0);
+		yCoor.add(0.0);
+		xCoor.add(0.0);
+		yCoor.add(5.0);
+		xCoor.add(1.0);
+		yCoor.add(4.0);
+		xCoor.add(1.0);
 		yCoor.add(2.0);
-		
-		originPoints.add(xCoor);
-		originPoints.add(yCoor);
-		
-		double[][] finalPoints = process.getPolywhirl(originPoints, 4);
+		xCoor.add(4.0);
+		yCoor.add(1.0);
+		xCoor.add(4.0);
+		yCoor.add(4.0);
+		xCoor.add(5.0);
+		yCoor.add(3.0);
+		xCoor.add(5.0);
+		yCoor.add(0.0);
+		*/
+		/*originPoints.add(xCoor);
+		originPoints.add(yCoor);*/	
+		//double[][] finalPoints = process.getPolywhirl(originPoints, 4);
 		
 		int yolo = 0;
 		while (isOperatorControl() && isEnabled()) {
 			
-			//originPoints = process.getPoints();
-			/*double[][] finalPoints = process.getPolywhirl(originPoints, 4);
+			originPoints = process.getPoints();
+			double[][] finalPoints = process.getPolywhirl(originPoints, 4);
 			for(int x = 0; x < finalPoints.length; x++){
-				dash.putNumber("Point " + (x+1) + "X", finalPoints[x][0]);
-				dash.putNumber("Point " + (x+1) + "Y", finalPoints[x][1]);
+				dash.putNumber("WhirlPoint " + (x+1) + "X", finalPoints[x][0]);
+				dash.putNumber("WhirlPoint " + (x+1) + "Y", finalPoints[x][1]);
+			}
+			
+			/*double[][] finalPoints = process.getPolygon(originPoints, 4);
+			for(int x = 0; x < finalPoints.length; x++){
+				dash.putNumber("GonPoint " + (x+1) + "X", finalPoints[x][0]);
+				dash.putNumber("GonPoint " + (x+1) + "Y", finalPoints[x][1]);
+				dash.putString("AYY", "LMAO");
 			}*/
 			
 			dash.putNumber("what", yolo++);
