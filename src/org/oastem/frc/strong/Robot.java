@@ -1,14 +1,11 @@
 package org.oastem.frc.strong;
 import org.oastem.frc.control.DriveSystem;
-import org.oastem.frc.sensor.ADW22307Gyro;
-import org.oastem.frc.sensor.ADXL345Accelerometer;
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 
-import edu.wpi.first.wpilibj.ADXRS450_Gyro;
-import edu.wpi.first.wpilibj.AnalogGyro;
-import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -41,6 +38,10 @@ public class Robot extends SampleRobot {
     SendableChooser chooser;
     FRCGyroAccelerometer gyro;
     SmartDashboard dash;
+    BuiltInAccelerometer accel;
+    
+   
+ 
       
     public Robot() {
     	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
@@ -55,6 +56,8 @@ public class Robot extends SampleRobot {
         SmartDashboard.putData("Auto modes", chooser);
         dash = new SmartDashboard();
         gyro = new FRCGyroAccelerometer();
+        accel = new BuiltInAccelerometer();
+        accel = new BuiltInAccelerometer(Accelerometer.Range.k4G); 
     }
 
     /**
@@ -71,6 +74,9 @@ public class Robot extends SampleRobot {
         	dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
         	dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
         	dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
+        	dash.putNumber("Built-In Accelerometer X Value: ", accel.getX());
+        	dash.putNumber("Built-In Accelerometer Y Value: ", accel.getY());
+        	dash.putNumber("Built-In Accelerometer Z Value: ", accel.getZ()-1);
         }
     }
 
