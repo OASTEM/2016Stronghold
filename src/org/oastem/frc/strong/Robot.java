@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import org.oastem.frc.sensor.FRCGyroAccelerometer;
+import edu.wpi.first.wpilibj.BuiltInAccelerometer;
+import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 /**
@@ -44,10 +47,14 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-    
-
     CANTalon test;
+    FRCGyroAccelerometer gyro;
+    SmartDashboard dash;
+    BuiltInAccelerometer accel;
     
+   
+ 
+      
     public Robot() {
     	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); //WE ARE SMART
     	//talonDrive.initializeTalonDrive(LEFT_CAN_DRIVE, RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
@@ -70,18 +77,32 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
+        dash = new SmartDashboard();
+        gyro = new FRCGyroAccelerometer();
+        accel = new BuiltInAccelerometer();
+        accel = new BuiltInAccelerometer(Accelerometer.Range.k4G); 
     }
 
     /**
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
+    	gyro.resetGyro();
+    	//gyro.freeAccel();
         while (isOperatorControl() && isEnabled()) {
             //myRobot.arcadeDrive(stickLeft.getY(), stickLeft.getX()); // drive with arcade style (use right stick)
             //myRobot.tankDrive(stickLeft.getY(), stickRight.getY());
         	//doArcadeDrive();
         	//talonDrive.speedTankDrive(stickLeft.getY(), stickRight.getY(), false);
         	test.set(60);
+        	
+        	dash.putNumber("Gyro Value:", gyro.getGyroAngle());
+        	dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
+        	dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
+        	dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
+        	dash.putNumber("Built-In Accelerometer X Value: ", accel.getX());
+        	dash.putNumber("Built-In Accelerometer Y Value: ", accel.getY());
+        	dash.putNumber("Built-In Accelerometer Z Value: ", accel.getZ()-1);
         }
     }
 
