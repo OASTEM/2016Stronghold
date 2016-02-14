@@ -158,7 +158,7 @@ public class ImageProcessing {
 	 * @param points
 	 *            A 2d ArrayList of a set of points, where the first ArrayList
 	 *            is the x value and the second ArrayList is the y value.
-	 * @param sides
+	 * @param point
 	 *            The amount of sides the intended polygon has.
 	 * @return A 2d array of the set of points of the polygon with the largest
 	 *         area, where the first column is the x value and the second column
