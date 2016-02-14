@@ -75,58 +75,59 @@ public class Robot extends SampleRobot {
 		dash.putString("list", shit[0] + "" + shit[1] + "" + shit[2]);
 		
 		ArrayList<ArrayList<Double>> originPoints = new ArrayList<ArrayList<Double>>();
+	
 		ArrayList<Double> xCoor = new ArrayList<Double>();
 		ArrayList<Double> yCoor = new ArrayList<Double>();
-		xCoor.add(0.0);
+		/*xCoor.add(0.0);
 		yCoor.add(0.0);	
 		xCoor.add(0.0);
+		yCoor.add(4.0);
+		xCoor.add(4.0);
+		yCoor.add(0.0);
+		xCoor.add(4.0);
+		yCoor.add(4.0);
+		xCoor.add(2.0);
+		yCoor.add(2.0);*/
+		/*xCoor.add(0.0);
+		yCoor.add(0.0);
+		xCoor.add(0.0);
 		yCoor.add(5.0);
+		xCoor.add(1.0);
+		yCoor.add(4.0);
+		xCoor.add(1.0);
+		yCoor.add(2.0);
+		xCoor.add(4.0);
+		yCoor.add(1.0);
+		xCoor.add(4.0);
+		yCoor.add(4.0);
+		xCoor.add(5.0);
+		yCoor.add(3.0);
 		xCoor.add(5.0);
 		yCoor.add(0.0);
-		xCoor.add(5.0);
-		yCoor.add(5.0);
-		originPoints.add(xCoor);
-		originPoints.add(yCoor);
-		double[][] finalPoints = process.getPolygon(originPoints, 4); //Doesn't get appropriate polygon
-		for(int x = 0; x < finalPoints.length; x++){
-			dash.putNumber("Point " + (x+1) + "X", finalPoints[x][0]);
-			dash.putNumber("Point " + (x+1) + "Y", finalPoints[x][1]);
-		}
+		*/
+		/*originPoints.add(xCoor);
+		originPoints.add(yCoor);*/	
+		//double[][] finalPoints = process.getPolywhirl(originPoints, 4);
 		
-		double[][] square = new double[][] {{0,0},
-							 		{0,5},
-							 		{5,5},
-							 		{5,0}};
-		dash.putNumber("Area", process.getArea(square)); // Area is correct
-		
+		int yolo = 0;
 		while (isOperatorControl() && isEnabled()) {
-			// double[][] points = process.getPoints();
-			// dash.putNumber("length", points.length);
-
-			// points = process.getRawPoints();
-			// ArrayList<Double> swag = process.getAngles();
-			points = process.getPoints();
-
-			gg = process.getPolygon(points, 4);
-			print2d(gg, "point");
-
-			// dash.putString("Point 1: ", gg[0][0] + ", " + gg[0][1]);
-			// dash.putString("Point 2: ", gg[1][0] + ", " + gg[1][1]);
-			// dash.putString("Point 3: ", gg[2][0] + ", " + gg[2][1]);
-			// dash.putString("Point 4: ", gg[3][0] + ", " + gg[3][1]);
-			/*
-			 * for (int i = 0; i < swag.size(); i++) { dash.putString("Angle " +
-			 * (i + 1), swag.get(i) + ""); // dash.putString("Angle " + (i + 1),
-			 * "lol"); // dash.putString("Point " + (i + 1), points[i][0] + ", "
-			 * + // points[i][1]);
-			 * 
-			 * }
-			 * 
-			 * if (swag.size() > kek) kek = swag.size(); else { for (int i =
-			 * swag.size(); i < kek; i++) dash.putString("Angle " + (i + 1),
-			 * "BASE IS NOT FOUND"); }
-			 */
-		
+			
+			originPoints = process.getPoints();
+			double[][] finalPoints = process.getPolywhirl(originPoints, 4);
+			for(int x = 0; x < finalPoints.length; x++){
+				dash.putNumber("WhirlPoint " + (x+1) + "X", finalPoints[x][0]);
+				dash.putNumber("WhirlPoint " + (x+1) + "Y", finalPoints[x][1]);
+			}
+			
+			/*double[][] finalPoints = process.getPolygon(originPoints, 4);
+			for(int x = 0; x < finalPoints.length; x++){
+				dash.putNumber("GonPoint " + (x+1) + "X", finalPoints[x][0]);
+				dash.putNumber("GonPoint " + (x+1) + "Y", finalPoints[x][1]);
+				dash.putString("AYY", "LMAO");
+			}*/
+			
+			dash.putNumber("what", yolo++);
+			
 		}
 	}
 
