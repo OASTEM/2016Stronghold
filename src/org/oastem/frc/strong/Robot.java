@@ -337,9 +337,8 @@ public class Robot extends SampleRobot {
 		if (speedToggle && !isRotating) {
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1, pad.getRightAnalogY(), false);
 		} else if (!isRotating) 
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()), 
+			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()),
 					pad.getRightAnalogY() * scaleTrigger(pad.getRightTriggerValue()));
-
 
 		if (pad.getLeftBumper() && !isPressed) {
 			isPressed = true;

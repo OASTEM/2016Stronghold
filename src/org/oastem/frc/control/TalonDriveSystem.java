@@ -110,7 +110,11 @@ public class TalonDriveSystem extends DriveSystem {//(:
 		SmartDashboard.putNumber("Deccelerate Y" ,scaleDeceleration(acc.decelerateValue(backLeftDrive.getSpeed(), y)));
 		SmartDashboard.putNumber("Accerlerate X" ,acc.accelerateValue(-1 * x));
 		SmartDashboard.putNumber("Accerlerate X" ,acc.accelerateValue(-1 * y));
-	}
+		backRightDrive.set(scaleDeceleration(acc.decelerateValue(backRightDrive.getSpeed(), -1 * x)));
+		backLeftDrive.set(scaleDeceleration(acc.decelerateValue(backLeftDrive.getSpeed(), y)));
+		frontRightDrive.set(backRightDrive.getDeviceID());
+		frontLeftDrive.set(backLeftDrive.getDeviceID());
+		}
 	
 	public void fakeTankDrive(double x, double y) {
 		backRightDrive.set(-1 * x);
