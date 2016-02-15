@@ -7,6 +7,7 @@ import org.oastem.frc.control.TalonDriveSystem;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
+import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
@@ -15,6 +16,7 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
+
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -39,17 +41,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  */
 public class Robot extends SampleRobot {
 	// Ports
-	private final int DSOLENOID_PORT_FORWARD = 0;
-	private final int DSOLENOID_PORT_REVERSE = 1;
-	private final int SSOLENOID_PORT = 2;
-
-	// Values
-	private final int DRIVE_ENC_CODE_PER_REV = 2048;
-	private final int DRIVE_WHEEL_DIAM = 6;
 	private final int LEFT = 1;
 	private final int RIGHT = 2;
 	//private final int BACK_LEFT_CAN_DRIVE = 1;
 	//private final int BACK_RIGHT_CAN_DRIVE = 3;
+	
+	// Values
+	private final int DRIVE_ENC_CODE_PER_REV = 2048;
+	private final int DRIVE_WHEEL_DIAM = 8;
 	private final double WHEEL_CIRCUMFERENCE = 8.0 * Math.PI;
 	private final double MAX_SPEED = 72; // in inches
 	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60; // in
@@ -58,15 +57,12 @@ public class Robot extends SampleRobot {
 	private boolean isPressed;
 
 	// Objects
-	private DriveSystem myRobot = DriveSystem.getInstance();
 	private TalonDriveSystem talonDrive = TalonDriveSystem.getInstance();
 	private SendableChooser chooser;
 	//private FRCGyroAccelerometer gyro;
 	private SmartDashboard dash;
 	private BuiltInAccelerometer accel;
 	private LogitechGamingPad pad;
-	private DoubleSolenoid actuator;
-	private Solenoid actuator2;
 	private PowerDistributionPanel pdp;
 	private CANTalon left;
 	private CANTalon right;
@@ -89,13 +85,9 @@ public class Robot extends SampleRobot {
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
 		pad = new LogitechGamingPad(0);
-		actuator = new DoubleSolenoid(DSOLENOID_PORT_FORWARD, DSOLENOID_PORT_REVERSE);
-		actuator2 = new Solenoid(SSOLENOID_PORT);
 		isPressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
-		left = new CANTalon(1);
-		right = new CANTalon(2);
 		
 
 		pdp.clearStickyFaults();
@@ -107,30 +99,18 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 
 		int what = 0; // Spring insisted
-
+		
+		left = talonDrive.getBackLeftDrive();
+		right = talonDrive.getBackRightDrive();
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 
-			//motorDrive();
-			left.set(-pad.getLeftAnalogY());
-			right.set(pad.getRightAnalogY());
-			dash.putData(pdp.getSmartDashboardType(), pdp);
+			
+			motorDrive();
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
-
-			if (pad.getYButton())
-				actuator.set(DoubleSolenoid.Value.kForward);
-			else if (actuator.get().equals(DoubleSolenoid.Value.kReverse)
-					|| actuator.get().equals(DoubleSolenoid.Value.kOff))// joyjoyRight.getRawButton(FIRST_SOLENOID_REVERSE))
-				actuator.set(DoubleSolenoid.Value.kOff);// Reverse);
-			else
-				actuator.set(DoubleSolenoid.Value.kReverse);
-
-			if (pad.getBButton())
-				actuator2.set(true);
-			else
-				actuator2.set(false);
-
+			dash.putBoolean("Speed Toggle", speedToggle);
+			
 		}
 	}
 
@@ -149,13 +129,16 @@ public class Robot extends SampleRobot {
 		// C = 1 rotation = 25.1327412287 in
 		// rps = 2.86478897565
 		// rpm = 171.887338539
-
-		if (speedToggle)
-			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 * ROTATION_SCALE, pad.getRightAnalogY() * -1 * ROTATION_SCALE,
+		
+		
+		if (speedToggle){
+			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1, pad.getRightAnalogY() * -1,
 					false);
-		else
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftAnalogY()),
-					pad.getRightAnalogY() * scaleTrigger(pad.getRightAnalogY()));
+		}
+		else{
+			talonDrive.fakeTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
+					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
+		}
 
 		if (pad.getLeftBumper() && !isPressed) {
 			isPressed = true;
@@ -163,10 +146,17 @@ public class Robot extends SampleRobot {
 		}
 		if (!pad.getLeftBumper())
 			isPressed = false;
+		
+		if (pad.checkDPad(2))
+			talonDrive.fakeTankDrive(0.5, 0.5);
+		else if (pad.checkDPad(6)){
+			talonDrive.fakeTankDrive(-0.5, -0.5);
+		}
 
 		/*dash.putNumber(talonDrive.getFrontLeftDrive().getSmartDashboardType(),
 				talonDrive.getFrontLeftDrive().getOutputVoltage());
 		dash.putNumber(talonDrive.getFrontRightDrive().getSmartDashboardType(),
+				
 				talonDrive.getFrontRightDrive().getOutputVoltage());
 		dash.putNumber(talonDrive.getBackLeftDrive().getSmartDashboardType(),
 				talonDrive.getBackLeftDrive().getOutputVoltage());
@@ -189,5 +179,9 @@ public class Robot extends SampleRobot {
 			talonDrive.getBackRightDrive().setVoltageRampRate(0); // ???
 		}
 		*/
+	}
+	
+	public void accelerate(){
+		
 	}
 }
