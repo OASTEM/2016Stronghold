@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
@@ -55,13 +56,29 @@ public class Robot extends SampleRobot {
 	private final int FRONT_RIGHT_CAN_DRIVE = 2;
 	private final int BACK_LEFT_CAN_DRIVE = 1;
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
+	private final int LEFT = 1;
+	private final int RIGHT = 2;
+	// private final int BACK_LEFT_CAN_DRIVE = 1;
+	// private final int BACK_RIGHT_CAN_DRIVE = 3;
+	private final int AUTO_PORT_1 = 1;
+	private final int AUTO_PORT_2 = 2;
+
+	private final int ARM_ENC_A = 0;
+	private final int ARM_ENC_B = 1;
+	private final int ARM_ENC_I = 2;
+
+	private final int DRIVE_ENC_LEFT_A = 0;
+	private final int DRIVE_ENC_LEFT_B = 1;
+
+	private final int DRIVE_ENC_RIGHT_A = 3;
+	private final int DRIVE_ENC_RIGHT_B = 4;
 
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
 	private final int DRIVE_WHEEL_DIAM = 8;
-	private final double WHEEL_CIRCUMFERENCE = 8.0 * Math.PI;
+	private final double WHEEL_CIRCUMFERENCE = DRIVE_WHEEL_DIAM * Math.PI;
 	private final double MAX_SPEED = 72; // in inches
-	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60; // in
+	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60;
 
 	// Arm States
 	private final int TOP_STATE = 0;
@@ -92,14 +109,18 @@ public class Robot extends SampleRobot {
 	FRCGyroAccelerometer gyro;
 	SmartDashboard dash;
 	BuiltInAccelerometer accel;
+
 	// Objects
-	private PowerDistributionPanel pdp;
 	private CANTalon left;
 	private CANTalon right;
+	private QuadratureEncoder leftDrive;
+	private QuadratureEncoder rightDrive;
+	private DigitalInput auto1;
+	private DigitalInput auto2;
 
 	public Robot() {
-		talonDrive.initializeTalonDrive(FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE, BACK_RIGHT_CAN_DRIVE,
-										DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
+		talonDrive.initializeTalonDrive(FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE,
+				BACK_RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
 		test = new CANTalon(0);
 		test.changeControlMode(TalonControlMode.Speed);
 		test.reverseSensor(true);
@@ -108,6 +129,11 @@ public class Robot extends SampleRobot {
 		test.enable();
 	}
 
+	// public Robot() {
+	// talonDrive.initializeTalonDrive(LEFT, RIGHT, DRIVE_ENC_CODE_PER_REV,
+	// DRIVE_WHEEL_DIAM);
+	// }
+
 	public void robotInit() {
 		chooser = new SendableChooser();
 		chooser.addDefault("Default Auto", defaultAuto);
@@ -115,22 +141,69 @@ public class Robot extends SampleRobot {
 		SmartDashboard.putData("Auto modes", chooser);
 		dash = new SmartDashboard();
 		gyro = new FRCGyroAccelerometer();
-		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armPositionEncoder = new QuadratureEncoder(0, 1, 2); // i dont know what
-																// i did FIX
-																// LATER i
-																// actually knew
-																// what i was
-																// doing
+		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
 		armMotor = new Talon(0);
 		pad = new LogitechGamingPad(0);
 		isPressed = false;
 		speedToggle = false;
 		isRotating = false;
-		pdp = new PowerDistributionPanel();
+		auto1 = new DigitalInput(AUTO_PORT_1);
+		auto2 = new DigitalInput(AUTO_PORT_2);
+		leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
+		rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
+	}
 
-		pdp.clearStickyFaults();
+	// AUTONOMOUS MODES
+
+	private static final int LOW_BAR = 0;
+	private static final int OTHER_TERRAIN = 1;
+	private static final int PORTCULLIS = 2;
+	private static final int TEST = 3;
+
+	public void autonomous() {
+		int autoMode = TEST;
+		if (auto1.get()) {
+			if (auto2.get())
+				autoMode = LOW_BAR;
+			else
+				autoMode = OTHER_TERRAIN;
+		} else {
+			if (auto2.get())
+				autoMode = PORTCULLIS;
+		}
+
+		leftDrive.reset();
+		rightDrive.reset();
+
+		String state = "Neutral";
+
+		while (isAutonomous() && isEnabled()) {
+			if (autoMode == LOW_BAR) {
+				if (state.equals("Neutral") && passDefense(LOW_BAR))
+					state = "Passed";
+				if (state.equals("Passed") && reverse(LOW_BAR))
+					state = "Returned";
+			}
+			if (autoMode == OTHER_TERRAIN) {
+
+			}
+			if (autoMode == PORTCULLIS) {
+
+			}
+			if (autoMode == TEST) {
+
+			}
+
+		}
+	}
+
+	private boolean passDefense(int mode) {
+		return true;
+	}
+
+	private boolean reverse(int mode) {
+		return true;
 	}
 
 	/**
@@ -150,7 +223,6 @@ public class Robot extends SampleRobot {
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
-			test.set(60);
 			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
 			dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
@@ -264,10 +336,10 @@ public class Robot extends SampleRobot {
 
 		if (speedToggle && !isRotating) {
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1, pad.getRightAnalogY(), false);
-		} else if (!isRotating) {
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()),
-					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
-		}
+		} else if (!isRotating) 
+			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()), 
+					pad.getRightAnalogY() * scaleTrigger(pad.getRightTriggerValue()));
+
 
 		if (pad.getLeftBumper() && !isPressed) {
 			isPressed = true;
