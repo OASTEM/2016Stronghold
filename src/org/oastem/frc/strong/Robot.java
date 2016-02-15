@@ -9,16 +9,18 @@ import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 /**
- * This is a demo program showing the use of the RobotDrive class.
- * The SampleRobot class is the base of a robot application that will automatically call your
- * Autonomous and OperatorControl methods at the right time as controlled by the switches on
- * the driver station or the field controls.
+ * This is a demo program showing the use of the RobotDrive class. The
+ * SampleRobot class is the base of a robot application that will automatically
+ * call your Autonomous and OperatorControl methods at the right time as
+ * controlled by the switches on the driver station or the field controls.
  *
  * The VM is configured to automatically run this class, and to call the
  * functions corresponding to each mode, as described in the SampleRobot
@@ -26,20 +28,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  *
- * WARNING: While it may look like a good choice to use for your code if you're inexperienced,
- * don't. Unless you know what you are doing, complex code will be much more difficult under
- * this system. Use IterativeRobot or Command-Based instead if you're new.
+ * WARNING: While it may look like a good choice to use for your code if you're
+ * inexperienced, don't. Unless you know what you are doing, complex code will
+ * be much more difficult under this system. Use IterativeRobot or Command-Based
+ * instead if you're new.
  */
 public class Robot extends SampleRobot {
-	private final int FRONT_LEFT_DRIVE = 1;
-	private final int FRONT_RIGHT_DRIVE = 3;
-	private final int BACK_LEFT_DRIVE = 0;
-	private final int BACK_RIGHT_DRIVE = 2;
-	
+	// Ports
+	private final int DSOLENOID_PORT_FORWARD = 0;
+	private final int DSOLENOID_PORT_REVERSE = 1;
+	private final int SSOLENOID_PORT = 2;
+
+	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
 	private final int DRIVE_WHEEL_DIAM = 6;
-	private final int LEFT_CAN_DRIVE = 0;
-	private final int RIGHT_CAN_DRIVE = 1;
+	private final int LEFT = 1;
+	private final int RIGHT = 2;
+	//private final int BACK_LEFT_CAN_DRIVE = 1;
+	//private final int BACK_RIGHT_CAN_DRIVE = 3;
+	private final double WHEEL_CIRCUMFERENCE = 8.0 * Math.PI;
+	private final double MAX_SPEED = 72; // in inches
+	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60; // in
 	
 	//Arm States
 	private final int TOP_STATE = 0; 
@@ -70,7 +79,7 @@ public class Robot extends SampleRobot {
     BuiltInAccelerometer accel;
        
     public Robot() {
-    	myRobot.initializeDrive(FRONT_LEFT_DRIVE, BACK_LEFT_DRIVE, FRONT_RIGHT_DRIVE, BACK_RIGHT_DRIVE); 
+    	talonDrive.initializeTalonDrive(LEFT, RIGHT, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
     	//talonDrive.initializeTalonDrive(LEFT_CAN_DRIVE, RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
         //stickLeft = new Joystick(0);
         //stickRight = new Joystick(1);
@@ -218,46 +227,4 @@ public class Robot extends SampleRobot {
      */
     public void test() {
     }
-    
-   /* private void doArcadeDrive() {
-		double leftMove = 0.0;
-		double rightMove = 0.0;
-		double zone = 0.04;
-
-		joyScale = scaleZ(stickLeft.getZ());
-
-		double x = stickLeft.getX();
-		double y = stickLeft.getY() * -1;
-
-		if (Math.abs(y) > zone) 
-		{
-			leftMove = y;
-			rightMove = y;
-		}
-
-		if (Math.abs(x) > zone) 
-		{
-			leftMove = correct(leftMove + x);
-			rightMove = correct(rightMove - x);
-		}
-
-		leftMove *= joyScale * -1;
-		rightMove *= joyScale * -1;
-
-		myRobot.tankDrive(leftMove, rightMove);
-	}
-
-	private double scaleZ(double rawZ) {
-		return Math.min(1.0, 0.5 - 0.5 * rawZ);
-	}
-
-	private double correct(double val) {
-		if (val > 1.0) {
-			return 1.0;
-		}
-		if (val < -1.0) {
-			return -1.0;
-		}
-		return val; 
-	}*/
 }

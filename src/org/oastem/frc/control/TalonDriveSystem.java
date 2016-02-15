@@ -3,6 +3,7 @@ package org.oastem.frc.control;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.RobotDrive;
 import edu.wpi.first.wpilibj.TalonSRX;
+import edu.wpi.first.wpilibj.Victor;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 public class TalonDriveSystem extends DriveSystem {
@@ -12,7 +13,7 @@ public class TalonDriveSystem extends DriveSystem {
 	private CANTalon backRightDrive;
 	private CANTalon backLeftDrive;
 	private int encoderCodePerRev;
-	private int wheelDiamter;
+	private int wheelDiameter;
     
 	// Singleton design pattern: instance of this class.
     // Only one talon drive system is allowed per robot - 
@@ -36,8 +37,8 @@ public class TalonDriveSystem extends DriveSystem {
     	backRightDrive = new CANTalon(rightRear);
     	backLeftDrive = new CANTalon(leftRear);
     	encoderCodePerRev = pulsesPerRev;
-    	this.wheelDiamter = wheelDiameter;
-    	initCan();
+    	this.wheelDiameter = wheelDiameter;
+    	//initCan();
     	super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
     }
     
@@ -48,7 +49,7 @@ public class TalonDriveSystem extends DriveSystem {
     	backRightDrive = new CANTalon(right);
     	backLeftDrive = new CANTalon(left);
     	encoderCodePerRev = pulsesPerRev;
-    	this.wheelDiamter = wheelDiameter;
+    	this.wheelDiameter = wheelDiameter;
     	initCan();
     	super.initializeDrive(left, right);
     }
@@ -83,8 +84,8 @@ public class TalonDriveSystem extends DriveSystem {
     	double rightRPM = rightValuePerMin;
     	if (isInInches)
     	{
-    		leftRPM /= wheelDiamter;
-    		rightRPM /= wheelDiamter;
+    		leftRPM /= wheelDiameter;
+    		rightRPM /= wheelDiameter;
     	}
     	backLeftDrive.set(leftRPM);
     	if (frontLeftDrive != null)
@@ -95,6 +96,19 @@ public class TalonDriveSystem extends DriveSystem {
     	
     }
 
+    public CANTalon getFrontLeftDrive(){
+    	return frontLeftDrive;
+    }
     
+    public CANTalon getFrontRightDrive(){
+    	return frontRightDrive;
+    }
     
+    public CANTalon getBackLeftDrive(){
+    	return backLeftDrive;
+    }
+    
+    public CANTalon getBackRightDrive(){
+    	return backRightDrive;
+    }
 }
