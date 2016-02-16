@@ -1,5 +1,8 @@
 package org.oastem.frc.strong;
 
+import jdk.nashorn.internal.runtime.regexp.joni.ast.BackRefNode;
+
+import org.oastem.frc.Dashboard;
 import org.oastem.frc.LogitechGamingPad;
 import org.oastem.frc.control.DriveSystem;
 import org.oastem.frc.control.TalonDriveSystem;
@@ -8,14 +11,12 @@ import org.oastem.frc.sensor.QuadratureEncoder;
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
-
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -57,7 +58,7 @@ public class Robot extends SampleRobot {
 	private final int BACK_LEFT_CAN_DRIVE = 1;
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
 	private final int LEFT = 1;
-	private final int RIGHT = 2;
+	private final int RIGHT = 3;
 	// private final int BACK_LEFT_CAN_DRIVE = 1;
 	// private final int BACK_RIGHT_CAN_DRIVE = 3;
 	private final int AUTO_PORT_1 = 1;
@@ -108,25 +109,23 @@ public class Robot extends SampleRobot {
 	CANTalon test;
 	FRCGyroAccelerometer gyro;
 	SmartDashboard dash;
-	BuiltInAccelerometer accel;
+	//BuiltInAccelerometer accel;
 
 	// Objects
-	private CANTalon left;
-	private CANTalon right;
 	private QuadratureEncoder leftDrive;
 	private QuadratureEncoder rightDrive;
 	private DigitalInput auto1;
 	private DigitalInput auto2;
-
+	private PowerDistributionPanel pdp;
+	
 	public Robot() {
-		talonDrive.initializeTalonDrive(FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE,
-				BACK_RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
-		test = new CANTalon(0);
+		talonDrive.initializeTalonDrive( FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE, BACK_RIGHT_CAN_DRIVE, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
+		/*test = new CANTalon(0);
 		test.changeControlMode(TalonControlMode.Speed);
 		test.reverseSensor(true);
 		test.setFeedbackDevice(FeedbackDevice.QuadEncoder);
 		test.configEncoderCodesPerRev(2048);
-		test.enable();
+		test.enable();*/
 	}
 
 	// public Robot() {
@@ -140,18 +139,19 @@ public class Robot extends SampleRobot {
 		chooser.addObject("My Auto", customAuto);
 		SmartDashboard.putData("Auto modes", chooser);
 		dash = new SmartDashboard();
-		gyro = new FRCGyroAccelerometer();
-		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
-		armMotor = new Talon(0);
+		//gyro = new FRCGyroAccelerometer();
+		//accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
+		//armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
+		//armMotor = new Talon(0);
 		pad = new LogitechGamingPad(0);
 		isPressed = false;
 		speedToggle = false;
 		isRotating = false;
 		auto1 = new DigitalInput(AUTO_PORT_1);
 		auto2 = new DigitalInput(AUTO_PORT_2);
-		leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
-		rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
+		pdp = new PowerDistributionPanel();
+		//leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
+		//rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
 	}
 
 	// AUTONOMOUS MODES
@@ -210,28 +210,28 @@ public class Robot extends SampleRobot {
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
-		gyro.resetGyro();
+		//gyro.resetGyro();
 		int stateOfArm = BOTTOM_STATE;
 		boolean isManualState = false;
 		int goalValue = 0;
 		int what = 0; // Spring insisted
-		left = talonDrive.getBackLeftDrive();
-		right = talonDrive.getBackRightDrive();
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 			motorDrive();
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
-			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
+			/*dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
 			dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
 			dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
 			dash.putNumber("Built-In Accelerometer X Value: ", accel.getX());
 			dash.putNumber("Built-In Accelerometer Y Value: ", accel.getY());
 			dash.putNumber("Built-In Accelerometer Z Value: ", accel.getZ() - 1);
-
-			int encoderValue = armPositionEncoder.get();
+			*/
+			dash.putData(pdp.getSmartDashboardType(), pdp);
+			//int encoderValue = armPositionEncoder.get();
+			/*
 			// toggle button is the b button
 			if (pad.getBButton())
 				isManualState = !isManualState;
@@ -313,7 +313,7 @@ public class Robot extends SampleRobot {
 				armMotor.set(0);
 				// stop everything....but what is everything??
 				break;
-			}
+			}*/
 		}
 	}
 
@@ -335,10 +335,11 @@ public class Robot extends SampleRobot {
 		// rpm = 171.887338539
 
 		if (speedToggle && !isRotating) {
-			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1, pad.getRightAnalogY(), false);
+			talonDrive.fakeTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
+					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
 		} else if (!isRotating) 
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()),
-					pad.getRightAnalogY() * scaleTrigger(pad.getRightTriggerValue()));
+			talonDrive.tankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
+					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
 
 		if (pad.getLeftBumper() && !isPressed) {
 			isPressed = true;
@@ -349,10 +350,10 @@ public class Robot extends SampleRobot {
 
 		if (pad.checkDPad(2)) {
 			isRotating = true;
-			talonDrive.fakeTankDrive(0.1, 0.1);
+			talonDrive.fakeTankDrive(0.5, 0.5);
 		} else if (pad.checkDPad(6)) {
 			isRotating = true;
-			talonDrive.fakeTankDrive(-0.1, -0.1);
+			talonDrive.fakeTankDrive(-0.5, -0.5);
 		} else
 			isRotating = false;
 

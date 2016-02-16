@@ -14,7 +14,8 @@ public class TalonDriveSystem extends DriveSystem {//(:
 	private CANTalon frontLeftDrive;
 	private CANTalon backRightDrive;
 	private CANTalon backLeftDrive;
-	private Accelerator acc;
+	private Accelerator accLeft;
+	private Accelerator accRight;
 	private int encoderCodePerRev;
 	private int wheelDiameter;
 
@@ -39,12 +40,14 @@ public class TalonDriveSystem extends DriveSystem {//(:
 		frontLeftDrive = new CANTalon(leftFront);
 		backRightDrive = new CANTalon(rightRear);
 		backLeftDrive = new CANTalon(leftRear);
-		frontRightDrive.changeControlMode(TalonControlMode.Follower);
-		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
+		//frontRightDrive.changeControlMode(TalonControlMode.Follower);
+		//frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
+		accLeft = new Accelerator();
+		accRight = new Accelerator();
 		// initCan();
-		super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
+		//super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
 	}
 // :-)
 	public void initializeTalonDrive(int left, int right, int pulsesPerRev,
@@ -55,7 +58,8 @@ public class TalonDriveSystem extends DriveSystem {//(:
 		backLeftDrive = new CANTalon(left);
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
-		acc = new Accelerator();
+		accLeft = new Accelerator();
+		accRight = new Accelerator();
 		// initCan();
 		super.initializeDrive(left, right);
 		SmartDashboard.putString("Swag", "Dank Dreams");
@@ -105,22 +109,24 @@ public class TalonDriveSystem extends DriveSystem {//(:
 
 	}//c:
 
-	public void tankDrive(double x, double y) {
-		SmartDashboard.putNumber("Deccelerate X" ,scaleDeceleration(acc.decelerateValue(backRightDrive.getSpeed(), -1 * x)));
-		SmartDashboard.putNumber("Deccelerate Y" ,scaleDeceleration(acc.decelerateValue(backLeftDrive.getSpeed(), y)));
-		SmartDashboard.putNumber("Accerlerate X" ,acc.accelerateValue(-1 * x));
-		SmartDashboard.putNumber("Accerlerate X" ,acc.accelerateValue(-1 * y));
-		backRightDrive.set(scaleDeceleration(acc.decelerateValue(backRightDrive.getSpeed(), -1 * x)));
-		backLeftDrive.set(scaleDeceleration(acc.decelerateValue(backLeftDrive.getSpeed(), y)));
-		frontRightDrive.set(backRightDrive.getDeviceID());
-		frontLeftDrive.set(backLeftDrive.getDeviceID());
+	public void tankDrive(double left, double right) {
+		backLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));
+		SmartDashboard.putNumber("Acc Left Speed", accLeft.getSpeed());
+		backRightDrive.set(accRight.decelerateValue(accRight.getSpeed(), right));
+		SmartDashboard.putNumber("Acc Right Speed", accRight.getSpeed());
+		/*if(frontLeftDrive != null)
+			frontLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));//backLeftDrive.getDeviceID());
+		if(frontRightDrive != null)
+			frontRightDrive.set(accRight.decelerateValue(accRight.getSpeed(), right));//backRightDrive.getDeviceID());*/
 		}
 	
-	public void fakeTankDrive(double x, double y) {
-		backRightDrive.set(-1 * x);
-		backLeftDrive.set(y);
-		frontRightDrive.set(backRightDrive.getDeviceID());
-		frontLeftDrive.set(backLeftDrive.getDeviceID());
+	public void fakeTankDrive(double left, double right) {
+		backLeftDrive.set(left);
+		backRightDrive.set(right);
+		if(frontLeftDrive != null)
+			frontLeftDrive.set(backLeftDrive.getDeviceID());
+		if(frontRightDrive != null)
+			frontRightDrive.set(backRightDrive.getDeviceID());
 	}
 	
 
@@ -139,15 +145,5 @@ public class TalonDriveSystem extends DriveSystem {//(:
 	public CANTalon getBackRightDrive() {
 		return backRightDrive;
 	}
-	
-	private double scaleDeceleration(double speed) { // doesn't actually scale
-		double trueSpeed = speed;;
-		if (speed > 50)
-			trueSpeed = 50;
-		else if (speed < -50)
-			trueSpeed = -50;
-		
-		trueSpeed /= 50;
-		return trueSpeed;
-	}
 }
+	
