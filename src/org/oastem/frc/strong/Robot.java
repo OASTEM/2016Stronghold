@@ -345,7 +345,10 @@ public class Robot extends SampleRobot {
 		case RELEASE_STATE:
 			prevState = RELEASE_STATE;
 			goalValue = RELEASE_ARM_VALUE;
-			if (encoderValue < goalValue)
+			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+				// set to a constant power
+				armMotor.set(CONSTANT_POWER);
+			else if (encoderValue < goalValue)
 				armMotor.set(MOVE_POWER);
 			dash.putString("State: ", "release state");
 			break;
