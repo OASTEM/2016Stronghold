@@ -6,6 +6,8 @@ import org.oastem.frc.control.TalonDriveSystem;
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 import org.oastem.frc.sensor.QuadratureEncoder;
 
+import com.sun.org.glassfish.gmbal.ManagedAttribute;
+
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -76,18 +78,6 @@ public class Robot extends SampleRobot {
 	private final double MAX_SPEED = 72; // in inches
 	private final double ROTATION_SCALE = (MAX_SPEED / WHEEL_CIRCUMFERENCE) * 60;
 
-	// Arm States
-	private final int TOP_STATE = 0;
-	private final int MIDDLE_TOP_STATE = 1;
-	private final int MIDDLE_BOTTOM_STATE = 3;
-	private final int BOTTOM_STATE = 4;
-	private final int MANUAL_STATE = 5;
-	private final int E_STOP_STATE = 6;
-	private final int MAX_ARM_VALUE = 180; // for now
-	private final int MID_TOP_ARM_VALUE = 135;
-	private final int MID_BOTTOM_ARM_VALUE = 45;
-	private final int MIN_ARM_VALUE = 0; // for now
-
 	// Objects
 	private DriveSystem myRobot = DriveSystem.getInstance();
 	private TalonDriveSystem talonDrive = TalonDriveSystem.getInstance();
@@ -110,6 +100,17 @@ public class Robot extends SampleRobot {
 	private DigitalInput auto1;
 	private DigitalInput auto2;
 
+	// Joystick commands
+
+	private double slowTrigger;
+	private double winchTrigger;
+	private boolean armUp;
+	private boolean armDown;
+	private boolean manualButton;
+	private boolean eStop1;
+	private boolean eStop2;
+	private boolean releaseWinch;
+
 	public Robot() {
 		talonDrive.initializeTalonDrive(LEFT, RIGHT, DRIVE_ENC_CODE_PER_REV, DRIVE_WHEEL_DIAM);
 	}
@@ -123,18 +124,10 @@ public class Robot extends SampleRobot {
 		gyro = new FRCGyroAccelerometer();
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); // i
-																						// dont
-																						// know
-																						// what
-		// i did FIX
-		// LATER i
-		// actually knew
-		// what i was
-		// doing
+		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
 		armMotor = new Talon(0);
 		pad = new LogitechGamingPad(0);
-		isPressed = false;
+		drivePressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
 		auto1 = new DigitalInput(AUTO_PORT_1);
@@ -170,47 +163,88 @@ public class Robot extends SampleRobot {
 		String state = "Neutral";
 
 		while (isAutonomous() && isEnabled()) {
-			if (autoMode == LOW_BAR) {
-				if (state.equals("Neutral") && passDefense(LOW_BAR))
-					state = "Passed";
-				if (state.equals("Passed") && reverse(LOW_BAR))
-					state = "Returned";
-			}
-			if (autoMode == OTHER_TERRAIN) {
-
-			}
-			if (autoMode == PORTCULLIS) {
-
-			}
-			if (autoMode == TEST) {
-
-			}
+			if (state.equals("Neutral") && passDefense(autoMode))
+				state = "Passed";
+			if (state.equals("Passed") && reverse(autoMode))
+				state = "Returned";
+			if (state.equals("Returned") && reset(autoMode))
+				state = "Back";
 
 		}
 	}
 
 	private boolean passDefense(int mode) {
-		return true;
+		if (mode == LOW_BAR) {
+
+			return true;
+		}
+		if (mode == OTHER_TERRAIN) {
+
+			return true;
+		}
+		if (mode == PORTCULLIS) {
+
+			return true;
+		}
+		if (mode == TEST) {
+
+			return true;
+		}
+		return false;
 	}
 
 	private boolean reverse(int mode) {
-		return true;
+		if (mode == LOW_BAR) {
+
+			return true;
+		}
+		if (mode == OTHER_TERRAIN) {
+
+			return true;
+		}
+		if (mode == PORTCULLIS) {
+
+			return true;
+		}
+		if (mode == TEST) {
+
+			return true;
+		}
+		return false;
+	}
+
+	private boolean reset(int mode) {
+		if (mode == LOW_BAR) {
+
+			return true;
+		}
+		if (mode == OTHER_TERRAIN) {
+
+			return true;
+		}
+		if (mode == PORTCULLIS) {
+
+			return true;
+		}
+		if (mode == TEST) {
+
+			return true;
+		}
+		return false;
 	}
 
 	/**
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
+		boolean stop = false;
+
 		gyro.resetGyro();
-		int stateOfArm = BOTTOM_STATE;
-		boolean isManualState = false;
-		int goalValue = 0;
 		int what = 0; // Spring insisted
 		left = talonDrive.getBackLeftDrive();
 		right = talonDrive.getBackRightDrive();
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
-			motorDrive();
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
@@ -222,111 +256,179 @@ public class Robot extends SampleRobot {
 			dash.putNumber("Built-In Accelerometer Y Value: ", accel.getY());
 			dash.putNumber("Built-In Accelerometer Z Value: ", accel.getZ() - 1);
 
-			int encoderValue = armPositionEncoder.get();
-			// toggle button is the b button
-			if (pad.getBButton())
-				isManualState = !isManualState;
-			if (isManualState)
-				stateOfArm = MANUAL_STATE;
-			switch (stateOfArm) {
-			case TOP_STATE:
-				goalValue = MAX_ARM_VALUE;
-				if (encoderValue > goalValue)
-					// go down
-					armMotor.set(-.5);
-				if (pad.getAButton())
-					stateOfArm = MIDDLE_TOP_STATE;
-				else if (pad.getBButton()) {
-					isManualState = !isManualState;
-					stateOfArm = MANUAL_STATE;
-				}
-				dash.putString("State: ", "top state");
-				break;
-			case MIDDLE_TOP_STATE:
-				goalValue = MID_TOP_ARM_VALUE;
-				if (encoderValue > goalValue)
-					// go down
-					armMotor.set(-.5);
-				else if (encoderValue < goalValue)
-					// go up
-					armMotor.set(.5);
-				if (pad.getYButton())
-					stateOfArm = TOP_STATE;
-				else if (pad.getAButton())
-					stateOfArm = MIDDLE_BOTTOM_STATE;
-				else if (pad.getBButton()) {
-					isManualState = !isManualState;
-					stateOfArm = MANUAL_STATE;
-				}
-				dash.putString("State: ", "mid-top state");
-				break;
-			case MIDDLE_BOTTOM_STATE:
-				goalValue = MID_BOTTOM_ARM_VALUE;
-				if (encoderValue > goalValue)
-					armMotor.set(-.5);
-				else if (encoderValue < goalValue)
-					armMotor.set(.5);
-				if (pad.getYButton())
-					stateOfArm = MIDDLE_TOP_STATE;
-				else if (pad.getAButton())
-					stateOfArm = BOTTOM_STATE;
-				else if (pad.getBButton()) {
-					isManualState = !isManualState;
-					stateOfArm = MANUAL_STATE;
-				}
-				dash.putString("State: ", "mid-bottom");
-				break;
-			case BOTTOM_STATE:
-				goalValue = MIN_ARM_VALUE;
-				if (encoderValue > goalValue)
-					armMotor.set(-.5);
-				else if (encoderValue < goalValue)
-					armMotor.set(.5);
-				if (pad.getYButton())
-					stateOfArm = MIDDLE_BOTTOM_STATE;
-				else if (pad.getBButton()) {
-					isManualState = !isManualState;
-					stateOfArm = MANUAL_STATE;
-				}
-				dash.putString("State: ", "bottom");
-				break;
-			case MANUAL_STATE:
-				if (pad.getYButton() && encoderValue < MAX_ARM_VALUE)
-					armMotor.set(.75);
-				else if (pad.getAButton() && encoderValue > MIN_ARM_VALUE)
-					armMotor.set(-.75);
-				if (pad.getBButton()) {
-					isManualState = !isManualState;
-					// what would stateOfArm be?
-				}
-				break;
-			case E_STOP_STATE:
-				armMotor.set(0);
-				// stop everything....but what is everything??
-				break;
+			slowTrigger = pad.getLeftTriggerValue();
+			winchTrigger = pad.getRightTriggerValue();
+			armUp = pad.getRightBumper();
+			armDown = pad.getLeftBumper();
+			manualButton = pad.getBButton();
+			eStop1 = pad.getBackButton();
+			eStop2 = pad.getStartButton();
+			releaseWinch = pad.getYButton();
+
+			if (eStop1 && eStop2)
+				stop = true;
+
+			// "Arcade" Drive
+			if (!stop) {
+				if (pad.checkDPad(0)) {
+					talonDrive.fakeTankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
+				} else if (pad.checkDPad(1)) {
+					talonDrive.fakeTankDrive(scaleTrigger(1.0), scaleTrigger(0));
+				} else if (pad.checkDPad(2)) {
+					talonDrive.fakeTankDrive(scaleTrigger(1.0), scaleTrigger(-1.0));
+				} else if (pad.checkDPad(3)) {
+					talonDrive.fakeTankDrive(scaleTrigger(-1.0), scaleTrigger(0));
+				} else if (pad.checkDPad(4)) {
+					talonDrive.fakeTankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
+				} else if (pad.checkDPad(5)) {
+					talonDrive.fakeTankDrive(scaleTrigger(0), scaleTrigger(-1.0));
+				} else if (pad.checkDPad(6)) {
+					talonDrive.fakeTankDrive(scaleTrigger(-1.0), scaleTrigger(1.0));
+				} else if (pad.checkDPad(7)) {
+					talonDrive.fakeTankDrive(scaleTrigger(0), scaleTrigger(1.0));
+				} else
+					motorDrive();
+				doArm();
 			}
 		}
 	}
 
-	/**
-	 * Runs during test mode
-	 */
-	public void test() {
-	}
-	// rp
+	// Arm States
+	private final int TOP_STATE = 0;
+	private final int MIDDLE_STATE = 1;
+	private final int BOTTOM_STATE = 2;
+	private final int RELEASE_STATE = 5;
+	private final int MANUAL_STATE = 8;
+	
+	private final int RELEASE_ARM_VALUE = 180; // for now
+	private final int MAX_ARM_VALUE = 120; // for now
+	private final int MID_ARM_VALUE = 90; // for now
+	private final int MIN_ARM_VALUE = 0; // for now
+	private int goalValue;
+	private int encoderValue;
 
-	private double scaleTrigger(double trigger) {
-		return Math.min(1.0, 0.8 - 0.5 * trigger);
+	private final double MOVE_POWER = 0.5;
+	private final double REST_BOT_POWER = 0.3;
+	private final double REST_MID_POWER = 0.4;
+	private final double REST_TOP_POWER = 0.3;
+	private final double MAN_POWER = 1.0;
+	
+	private int stateOfArm = BOTTOM_STATE;
+	private int prevState;
+	private boolean isManualState = false;
+	private boolean manPressed;
+	private boolean released = false;
+	private boolean releasePressed;
+
+	private void doArm() {
+		encoderValue = armPositionEncoder.get();
+
+		if (manualButton && !manPressed) {
+			manPressed = true;
+			isManualState = !isManualState;
+			if (isManualState)
+				stateOfArm = MANUAL_STATE;
+			else
+				stateOfArm = prevState;
+
+		}
+		if (!manualButton)
+			manPressed = false;
+
+		if (releaseWinch && !releasePressed) {
+			releasePressed = true;
+			released = !released;
+			if (released)
+				stateOfArm = RELEASE_STATE;
+		}
+		if (!pad.getBButton())
+			releasePressed = false;
+
+		switch (stateOfArm) {
+		case RELEASE_STATE:
+			prevState = RELEASE_STATE;
+			goalValue = RELEASE_ARM_VALUE;
+
+			if (encoderValue < goalValue)
+				armMotor.set(MOVE_POWER);
+
+			dash.putString("State: ", "release state");
+			break;
+
+		case TOP_STATE:
+			prevState = TOP_STATE;
+			goalValue = MAX_ARM_VALUE;
+
+			if (encoderValue < goalValue)
+				// go down
+				armMotor.set(MOVE_POWER);
+
+			if (pad.getAButton())
+				stateOfArm = MIDDLE_STATE;
+
+			dash.putString("State: ", "top state");
+			break;
+
+		case MIDDLE_STATE:
+			prevState = MIDDLE_STATE;
+			goalValue = MID_ARM_VALUE;
+
+			if (encoderValue > goalValue)
+				// go down
+				armMotor.set(-MOVE_POWER);
+			else if (encoderValue < goalValue)
+				// go up
+				armMotor.set(MOVE_POWER);
+
+			if (pad.getYButton())
+				stateOfArm = TOP_STATE;
+			else if (pad.getAButton())
+				stateOfArm = MIDDLE_STATE;
+
+			dash.putString("State: ", "mid-top state");
+			break;
+
+		case BOTTOM_STATE:
+			prevState = BOTTOM_STATE;
+			goalValue = MIN_ARM_VALUE;
+
+			if (encoderValue > goalValue)
+				armMotor.set(-MOVE_POWER);
+			else if (encoderValue < goalValue)
+				armMotor.set(MOVE_POWER);
+
+			if (pad.getYButton())
+				stateOfArm = BOTTOM_STATE;
+
+			dash.putString("State: ", "bottom");
+			break;
+
+		case MANUAL_STATE:
+			if (pad.getYButton() && encoderValue < MAX_ARM_VALUE)
+				armMotor.set(scaleTrigger(MAN_POWER));
+			else if (pad.getAButton() && encoderValue > MIN_ARM_VALUE)
+				armMotor.set(-scaleTrigger(MAN_POWER));
+
+			dash.putString("State: ", "EMANUEL");
+			break;
+		}
 	}
 
 	private boolean speedToggle;
-	private boolean isPressed;
+	private boolean drivePressed;
 
 	private void motorDrive() {
 		// max 2 yd per sec = 72 in per sec
 		// C = 1 rotation = 25.1327412287 in
 		// rps = 2.86478897565
 		// rpm = 171.887338539
+
+		if (pad.getLeftBumper() && !drivePressed) {
+			drivePressed = true;
+			speedToggle = !speedToggle;
+		}
+		if (!pad.getLeftBumper())
+			drivePressed = false;
 
 		if (speedToggle) {
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1, pad.getRightAnalogY() * -1, false);
@@ -335,46 +437,20 @@ public class Robot extends SampleRobot {
 					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
 		}
 
-		if (pad.getLeftBumper() && !isPressed) {
-			isPressed = true;
-			speedToggle = !speedToggle;
-		}
-		if (!pad.getLeftBumper())
-			isPressed = false;
-
 		if (pad.checkDPad(2))
 			talonDrive.fakeTankDrive(0.5, 0.5);
 		else if (pad.checkDPad(6)) {
 			talonDrive.fakeTankDrive(-0.5, -0.5);
 		}
-
-		/*
-		 * dash.putNumber(talonDrive.getFrontLeftDrive().getSmartDashboardType()
-		 * , talonDrive.getFrontLeftDrive().getOutputVoltage());
-		 * dash.putNumber(talonDrive.getFrontRightDrive().getSmartDashboardType(
-		 * ),
-		 * 
-		 * talonDrive.getFrontRightDrive().getOutputVoltage());
-		 * dash.putNumber(talonDrive.getBackLeftDrive().getSmartDashboardType(),
-		 * talonDrive.getBackLeftDrive().getOutputVoltage());
-		 * dash.putNumber(talonDrive.getBackRightDrive().getSmartDashboardType()
-		 * , talonDrive.getBackRightDrive().getOutputVoltage());
-		 * 
-		 * if (talonDrive.getFrontLeftDrive().getOutputVoltage() > 12.0) {
-		 * talonDrive.getFrontLeftDrive().setVoltageRampRate(0); // ??? }
-		 * 
-		 * if (talonDrive.getFrontRightDrive().getOutputVoltage() > 12.0) {
-		 * talonDrive.getFrontRightDrive().setVoltageRampRate(0); // ??? }
-		 * 
-		 * if (talonDrive.getBackLeftDrive().getOutputVoltage() > 12.0) {
-		 * talonDrive.getBackLeftDrive().setVoltageRampRate(0); // ??? }
-		 * 
-		 * if (talonDrive.getBackRightDrive().getOutputVoltage() > 12.0) {
-		 * talonDrive.getBackRightDrive().setVoltageRampRate(0); // ??? }
-		 */
 	}
 
-	public void accelerate() {
+	private double scaleTrigger(double trigger) {
+		return Math.min(1.0, 0.4 + 0.5 * trigger);
+	}
 
+	/**
+	 * Runs during test mode
+	 */
+	public void test() {
 	}
 }
