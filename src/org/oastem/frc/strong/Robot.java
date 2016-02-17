@@ -47,8 +47,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * inexperienced, don't. Unless you know what you are doing, complex code will
  * be much more difficult under this system. Use IterativeRobot or Command-Based
  * instead if you're new.
- */orresponding to each mode, as described in the SampleRobot
- * documentatio
+ */
 public class Robot extends SampleRobot {
 	// Ports
 	private final int LEFT = 1;
