@@ -95,6 +95,7 @@ public class Robot extends SampleRobot {
 	private QuadratureEncoder armPositionEncoder;
 	private CANTalon left;
 	private CANTalon right;
+	private CANTalon winchMotor;
 	private QuadratureEncoder leftDrive;
 	private QuadratureEncoder rightDrive;
 	private DigitalInput auto1;
@@ -319,6 +320,7 @@ public class Robot extends SampleRobot {
 	private boolean manPressed;
 	private boolean released = false;
 	private boolean releasePressed;
+	private boolean winchRelease = false;
 
 	private void doArm() {
 		encoderValue = armPositionEncoder.get();
@@ -341,6 +343,7 @@ public class Robot extends SampleRobot {
 			if (released)
 				stateOfArm = RELEASE_STATE;
 		}
+			
 		if (!pad.getBButton())
 			releasePressed = false;
 
@@ -349,8 +352,16 @@ public class Robot extends SampleRobot {
 			prevState = RELEASE_STATE;
 			goalValue = RELEASE_ARM_VALUE;
 
-			if (encoderValue < goalValue)
+			if (encoderValue < goalValue && !winchRelease)
 				armMotor.set(MOVE_POWER);
+			
+			if (encoderValue > RELEASE_ARM_VALUE) {
+				if (releaseWinch) {
+					winchRelease = true;
+					winchMotor.set(winchTrigger);
+					// winchMotor.set(-winchTrigger);
+				}
+			}
 
 			dash.putString("State: ", "release state");
 			break;
@@ -362,7 +373,8 @@ public class Robot extends SampleRobot {
 			if (encoderValue < goalValue)
 				// go down
 				armMotor.set(MOVE_POWER);
-
+			
+			
 			if (pad.getAButton())
 				stateOfArm = MIDDLE_STATE;
 
