@@ -81,12 +81,12 @@ public class TalonDriveSystem extends DriveSystem {//(:
 		frontRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		frontRightDrive.enable();
 		frontRightDrive.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		frontRightDrive.setPID(0.1, 0, 1.0);
+		//frontRightDrive.setPID(0.1, 0, 1.0);
 		frontLeftDrive.changeControlMode(mode);
 		frontLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		frontLeftDrive.enable();
 		frontLeftDrive.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
-		frontLeftDrive.setPID(1.0, 1.0, 1.0);
+		//frontLeftDrive.setPID(0.1, 0, 1.0);
 	}
 
 	public void speedTankDrive(double leftValuePerMin, double rightValuePerMin,
