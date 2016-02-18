@@ -46,7 +46,7 @@ public class TalonDriveSystem extends DriveSystem {// (:
 		this.wheelDiameter = wheelDiameter;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
-		//initCan();
+		initCan();
 		// super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
 	}
 
@@ -67,26 +67,32 @@ public class TalonDriveSystem extends DriveSystem {// (:
 
 	private void initCan() {
 		TalonControlMode mode = TalonControlMode.Speed;
-		if (backRightDrive != null) {
-			backRightDrive.changeControlMode(mode);
-			backRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
-			backRightDrive.enable();
+		FeedbackDevice encoder = FeedbackDevice.QuadEncoder;
+		backRightDrive.changeControlMode(mode);
+		backRightDrive.setFeedbackDevice(encoder);
+		backRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
+		backRightDrive.enable();
+		backLeftDrive.changeControlMode(mode);
+		backLeftDrive.setFeedbackDevice(encoder);
+		backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
+		backLeftDrive.enable();
+		 // :D
+		if (frontRightDrive != null)
+		{
+			frontRightDrive.changeControlMode(mode);
+			frontRightDrive.setFeedbackDevice(encoder);
+			frontRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
+			frontRightDrive.enable();
+			frontRightDrive.setPID(1, 0, 0);
 		}
-		if (backLeftDrive != null) {
-			backLeftDrive.changeControlMode(mode);
-			backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
-			backLeftDrive.enable();
-		} // :D
-		frontRightDrive.changeControlMode(mode);
-		frontRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
-		frontRightDrive.enable();
-		frontRightDrive.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-		// frontRightDrive.setPID(0.1, 0, 1.0);
-		frontLeftDrive.changeControlMode(mode);
-		frontLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
-		frontLeftDrive.enable();
-		frontLeftDrive.setFeedbackDevice(FeedbackDevice.AnalogEncoder);
-		// frontLeftDrive.setPID(0.1, 0, 1.0);
+		if (frontLeftDrive != null)
+		{
+			frontLeftDrive.changeControlMode(mode);
+			frontLeftDrive.setFeedbackDevice(encoder);
+			frontLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
+			frontLeftDrive.enable();
+			frontLeftDrive.setPID(1, 0, 0);
+		}
 	}
 
 	public void speedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches) {
@@ -96,14 +102,14 @@ public class TalonDriveSystem extends DriveSystem {// (:
 			leftRPM /= wheelDiameter;
 			rightRPM /= wheelDiameter;
 		}
-		frontLeftDrive.set(leftRPM);
-		SmartDashboard.putNumber("Front Left Speed", frontLeftDrive.get());
-		if (backLeftDrive != null)
-			backLeftDrive.set(leftRPM);
-		frontRightDrive.set(rightRPM);
-		SmartDashboard.putNumber("Front Right Speed", frontRightDrive.get());
-		if (backLeftDrive != null)
-			backRightDrive.set(rightRPM);
+		backLeftDrive.set(leftRPM);
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
+		if (frontLeftDrive != null)
+			frontLeftDrive.set(backLeftDrive.getDeviceID());
+		backRightDrive.set(rightRPM);
+		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
+		if (frontLeftDrive != null)
+			frontRightDrive.set(frontRightDrive.getDeviceID());
 
 	}// c:
 
@@ -115,28 +121,28 @@ public class TalonDriveSystem extends DriveSystem {// (:
 			rightRPM /= wheelDiameter;
 		}
 
-		double currLeft = (leftRPM - frontLeftDrive.getSpeed()) / scalePower;
-		double currRight = (rightRPM - frontRightDrive.getSpeed()) / scalePower;
+		double currLeft = (leftRPM - backLeftDrive.getSpeed()) / scalePower;
+		double currRight = (rightRPM - backRightDrive.getSpeed()) / scalePower;
 
-		frontLeftDrive.set(-currLeft);
-		SmartDashboard.putNumber("Front Left Speed", frontLeftDrive.get());
-		if (backLeftDrive != null)
-			backLeftDrive.set(-currLeft);
-		frontRightDrive.set(currRight);
-		SmartDashboard.putNumber("Front Right Speed", frontRightDrive.get());
-		if (backLeftDrive != null)
-			backRightDrive.set(currRight);
+		backLeftDrive.set(currLeft);
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
+		if (frontLeftDrive != null)
+			frontLeftDrive.set(backLeftDrive.getDeviceID());
+		backRightDrive.set(currRight);
+		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
+		if (frontLeftDrive != null)
+			frontRightDrive.set(frontRightDrive.getDeviceID());
 	}
 
 	public void tankDrive(double left, double right) {
-		frontLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));
+		backLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));
 		SmartDashboard.putNumber("Acc Left Speed", accLeft.getSpeed());
-		frontRightDrive.set(accRight.decelerateValue(accRight.getSpeed(), right));
+		backRightDrive.set(accRight.decelerateValue(accRight.getSpeed(), right));
 		SmartDashboard.putNumber("Acc Right Speed", accRight.getSpeed());
-		if (backLeftDrive != null)
-			backLeftDrive.set(frontLeftDrive.getDeviceID());
-		if (backRightDrive != null)
-			backRightDrive.set(frontRightDrive.getDeviceID());
+		if (frontLeftDrive != null)
+			frontLeftDrive.set(frontLeftDrive.getDeviceID());
+		if (frontRightDrive != null)
+			frontRightDrive.set(frontRightDrive.getDeviceID());
 	}
 
 	public void fakeTankDrive(double left, double right) {
