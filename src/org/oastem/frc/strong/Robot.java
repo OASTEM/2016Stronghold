@@ -441,7 +441,7 @@ public class Robot extends SampleRobot {
 			drivePressed = false;
 
 		if (speedToggle) {
-			talonDrive.speedTankDrive(0, pad.getRightAnalogY() * -1, false);
+			talonDrive.speedTankDrive(pad.getLeftAnalogY(), pad.getRightAnalogY() * -1, false);
 		} else {
 			talonDrive.fakeTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
 					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
