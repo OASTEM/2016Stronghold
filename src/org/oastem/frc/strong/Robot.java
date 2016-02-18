@@ -239,7 +239,7 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		boolean stop = false;
 
-		gyro.resetGyro();
+		//gyro.resetGyro();
 		int what = 0; // Spring insisted
 		left = talonDrive.getBackLeftDrive();
 		right = talonDrive.getBackRightDrive();
@@ -248,7 +248,7 @@ public class Robot extends SampleRobot {
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
-			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
+			//dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
 			dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
 			dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
@@ -322,11 +322,14 @@ public class Robot extends SampleRobot {
 
 	private void doArm() {
 		if (pad.getLeftBumper()){
-			armMotor.set(-0.5);
+			armMotor.set(-1);
 		}
 		
-		if (pad.getRightBumper()){
-			armMotor.set(0.5);
+		else if (pad.getRightBumper()){
+			armMotor.set(1.0);
+		}
+		else{
+			armMotor.set(0.25);
 		}
 		/*
 		encoderValue = armPositionEncoder.get();
