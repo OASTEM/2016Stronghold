@@ -288,7 +288,7 @@ public class Robot extends SampleRobot {
 					talonDrive.fakeTankDrive(scaleTrigger(0), scaleTrigger(1.0));
 				} else
 					motorDrive();
-				doArm();
+				//doArm();
 			}
 		}
 	}

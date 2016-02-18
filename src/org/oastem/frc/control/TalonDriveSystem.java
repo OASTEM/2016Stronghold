@@ -40,13 +40,13 @@ public class TalonDriveSystem extends DriveSystem {// (:
 		frontLeftDrive = new CANTalon(leftFront);
 		backRightDrive = new CANTalon(rightRear);
 		backLeftDrive = new CANTalon(leftRear);
-		backRightDrive.changeControlMode(TalonControlMode.Follower);
-		backLeftDrive.changeControlMode(TalonControlMode.Follower);
+		frontRightDrive.changeControlMode(TalonControlMode.Follower);
+		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
-		initCan();
+		//initCan();
 		// super.initializeDrive(leftFront, leftRear, rightFront, rightRear);
 	}
 
