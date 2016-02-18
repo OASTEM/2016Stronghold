@@ -6,8 +6,6 @@ import org.oastem.frc.control.TalonDriveSystem;
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 import org.oastem.frc.sensor.QuadratureEncoder;
 
-import com.sun.org.glassfish.gmbal.ManagedAttribute;
-
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -313,9 +311,12 @@ public class Robot extends SampleRobot {
 	private final double REST_TOP_POWER = 0.3;
 	private final double MAN_POWER = 1.0;
 	
-	private int stateOfArm = BOTTOM_STATE;
+	private int THRESHOLD_VALUE = 10;
+	private double CONSTANT_POWER = .0275; //for now
+	private int stateOfArm = MANUAL_STATE;
 	private int prevState;
-	private boolean isManualState = false;
+	//private boolean isManualState = false; was originally this but
+	private boolean isManualState = true; // use this for testing
 	private boolean manPressed;
 	private boolean released = false;
 	private boolean releasePressed;
@@ -333,7 +334,6 @@ public class Robot extends SampleRobot {
 		}
 		/*
 		encoderValue = armPositionEncoder.get();
-
 		if (manualButton && !manPressed) {
 			manPressed = true;
 			isManualState = !isManualState;
@@ -341,11 +341,9 @@ public class Robot extends SampleRobot {
 				stateOfArm = MANUAL_STATE;
 			else
 				stateOfArm = prevState;
-
 		}
 		if (!manualButton)
 			manPressed = false;
-
 		if (releaseWinch && !releasePressed) {
 			releasePressed = true;
 			released = !released;
@@ -354,72 +352,66 @@ public class Robot extends SampleRobot {
 		}
 		if (!pad.getBButton())
 			releasePressed = false;
-
 		switch (stateOfArm) {
 		case RELEASE_STATE:
 			prevState = RELEASE_STATE;
 			goalValue = RELEASE_ARM_VALUE;
-
-			if (encoderValue < goalValue)
+			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+				// set to a constant power
+				armMotor.set(CONSTANT_POWER);
+			else if (encoderValue < goalValue)
 				armMotor.set(MOVE_POWER);
-
 			dash.putString("State: ", "release state");
 			break;
 
 		case TOP_STATE:
 			prevState = TOP_STATE;
 			goalValue = MAX_ARM_VALUE;
-
-			if (encoderValue < goalValue)
-				// go down
+			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+				// set to a constant power
+				armMotor.set(CONSTANT_POWER);
+			else if (encoderValue < goalValue)
 				armMotor.set(MOVE_POWER);
-
-			if (pad.getAButton())
+			if (pad.getLeftBumper())
 				stateOfArm = MIDDLE_STATE;
-
 			dash.putString("State: ", "top state");
 			break;
 
 		case MIDDLE_STATE:
 			prevState = MIDDLE_STATE;
 			goalValue = MID_ARM_VALUE;
-
-			if (encoderValue > goalValue)
-				// go down
+			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+				// set to a constant power
+				armMotor.set(CONSTANT_POWER);
+			else if (encoderValue > goalValue)
 				armMotor.set(-MOVE_POWER);
 			else if (encoderValue < goalValue)
-				// go up
 				armMotor.set(MOVE_POWER);
-
-			if (pad.getYButton())
+			if (pad.getRightBumper())
 				stateOfArm = TOP_STATE;
-			else if (pad.getAButton())
+			else if (pad.getLeftBumper())
 				stateOfArm = MIDDLE_STATE;
-
-			dash.putString("State: ", "mid-top state");
+			dash.putString("State: ", "middle state");
 			break;
 
 		case BOTTOM_STATE:
 			prevState = BOTTOM_STATE;
 			goalValue = MIN_ARM_VALUE;
-
-			if (encoderValue > goalValue)
+			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+				// set to a constant power
+				armMotor.set(CONSTANT_POWER);
+			else if (encoderValue > goalValue)
 				armMotor.set(-MOVE_POWER);
-			else if (encoderValue < goalValue)
-				armMotor.set(MOVE_POWER);
-
-			if (pad.getYButton())
-				stateOfArm = BOTTOM_STATE;
-
+			if (pad.getRightBumper())
+				stateOfArm = MIDDLE_STATE;
 			dash.putString("State: ", "bottom");
 			break;
 
 		case MANUAL_STATE:
-			if (pad.getYButton() && encoderValue < MAX_ARM_VALUE)
+			if (pad.getRightBumper() && encoderValue < MAX_ARM_VALUE)
 				armMotor.set(scaleTrigger(MAN_POWER));
-			else if (pad.getAButton() && encoderValue > MIN_ARM_VALUE)
+			else if (pad.getLeftBumper() && encoderValue > MIN_ARM_VALUE)
 				armMotor.set(-scaleTrigger(MAN_POWER));
-
 			dash.putString("State: ", "EMANUEL");
 			break;
 		}*/
