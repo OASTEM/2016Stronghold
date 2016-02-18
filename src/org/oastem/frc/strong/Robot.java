@@ -130,10 +130,10 @@ public class Robot extends SampleRobot {
 		drivePressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
-		auto1 = new DigitalInput(AUTO_PORT_1);
-		auto2 = new DigitalInput(AUTO_PORT_2);
-		leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
-		rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
+		//auto1 = new DigitalInput(AUTO_PORT_1);
+		//auto2 = new DigitalInput(AUTO_PORT_2);
+		//leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
+		//rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
 
 		pdp.clearStickyFaults();
 	}
@@ -321,6 +321,14 @@ public class Robot extends SampleRobot {
 	private boolean releasePressed;
 
 	private void doArm() {
+		if (pad.getLeftBumper()){
+			armMotor.set(-0.5);
+		}
+		
+		if (pad.getRightBumper()){
+			armMotor.set(0.5);
+		}
+		/*
 		encoderValue = armPositionEncoder.get();
 
 		if (manualButton && !manPressed) {
@@ -411,7 +419,7 @@ public class Robot extends SampleRobot {
 
 			dash.putString("State: ", "EMANUEL");
 			break;
-		}
+		}*/
 	}
 
 	private boolean speedToggle;
