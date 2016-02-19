@@ -108,9 +108,27 @@ public class TalonDriveSystem extends DriveSystem {// (:
 		}*/
 	}
 
+	private void changeTalonToSpeed()
+	{
+		TalonControlMode mode = TalonControlMode.Speed;
+		backLeftDrive.changeControlMode(mode);
+		backRightDrive.changeControlMode(mode);
+	}
+	
+	private void changeTalonToPercent()
+	{
+		TalonControlMode mode = TalonControlMode.PercentVbus;
+		backLeftDrive.changeControlMode(mode);
+		backRightDrive.changeControlMode(mode);
+	}
+	
 	public void speedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches) {
+<<<<<<< HEAD
 		backLeftDrive.changeControlMode(TalonControlMode.Speed);
 		backRightDrive.changeControlMode(TalonControlMode.Speed);
+=======
+		changeTalonToSpeed();
+>>>>>>> 6008c3ea89ae2ab16e20769a5bc1c61b57bd0ace
 		double leftRPM = leftValuePerMin;
 		double rightRPM = rightValuePerMin;
 		if (isInInches) {
@@ -129,6 +147,7 @@ public class TalonDriveSystem extends DriveSystem {// (:
 	}// c:
 
 	public void fakeSpeedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches, double scalePower) {
+		changeTalonToSpeed();
 		double leftRPM = leftValuePerMin;
 		double rightRPM = rightValuePerMin;
 		if (isInInches) {
@@ -150,6 +169,7 @@ public class TalonDriveSystem extends DriveSystem {// (:
 	}
 
 	public void tankDrive(double left, double right) {
+		changeTalonToPercent();
 		backLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));
 		SmartDashboard.putNumber("Acc Left Speed", accLeft.getSpeed());
 		backRightDrive.set(accRight.decelerateValue(accRight.getSpeed(), right));
@@ -161,8 +181,12 @@ public class TalonDriveSystem extends DriveSystem {// (:
 	}
 
 	public void fakeTankDrive(double left, double right) {
+<<<<<<< HEAD
 		backLeftDrive.changeControlMode(TalonControlMode.PercentVbus);
 		backRightDrive.changeControlMode(TalonControlMode.PercentVbus);
+=======
+		changeTalonToPercent();
+>>>>>>> 6008c3ea89ae2ab16e20769a5bc1c61b57bd0ace
 		backLeftDrive.set(left);
 		backRightDrive.set(right);
 
