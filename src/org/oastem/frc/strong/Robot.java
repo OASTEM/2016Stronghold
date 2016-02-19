@@ -246,7 +246,7 @@ public class Robot extends SampleRobot {
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
 			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
-			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
+			//dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
 			dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
 			dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
