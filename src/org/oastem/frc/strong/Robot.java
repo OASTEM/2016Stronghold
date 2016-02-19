@@ -122,17 +122,17 @@ public class Robot extends SampleRobot {
 		gyro = new FRCGyroAccelerometer();
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
+		//armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I); 
 		armMotor = new Talon(0);
 		pad = new LogitechGamingPad(0);
 		drivePressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
-		auto1 = new DigitalInput(AUTO_PORT_1);
+		/*auto1 = new DigitalInput(AUTO_PORT_1);
 		auto2 = new DigitalInput(AUTO_PORT_2);
 		leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
 		rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
-
+*/
 		pdp.clearStickyFaults();
 	}
 
@@ -237,7 +237,7 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		boolean stop = false;
 
-		gyro.resetGyro();
+		//gyro.resetGyro();
 		int what = 0; // Spring insisted
 		left = talonDrive.getBackLeftDrive();
 		right = talonDrive.getBackRightDrive();
@@ -309,7 +309,7 @@ public class Robot extends SampleRobot {
 	private final double REST_BOT_POWER = 0.3;
 	private final double REST_MID_POWER = 0.4;
 	private final double REST_TOP_POWER = 0.3;
-	private final double MAN_POWER = 1.0;
+	private final double ARM_MAN_POWER = 0.65;
 	
 	private int THRESHOLD_VALUE = 10;
 	private double CONSTANT_POWER = .0275; //for now
@@ -322,7 +322,7 @@ public class Robot extends SampleRobot {
 	private boolean releasePressed;
 
 	private void doArm() {
-		encoderValue = armPositionEncoder.get();
+		/*encoderValue = armPositionEncoder.get();
 		if (manualButton && !manPressed) {
 			manPressed = true;
 			isManualState = !isManualState;
@@ -396,14 +396,16 @@ public class Robot extends SampleRobot {
 			dash.putString("State: ", "bottom");
 			break;
 
-		case MANUAL_STATE:
-			if (pad.getRightBumper() && encoderValue < MAX_ARM_VALUE)
-				armMotor.set(scaleTrigger(MAN_POWER));
-			else if (pad.getLeftBumper() && encoderValue > MIN_ARM_VALUE)
-				armMotor.set(-scaleTrigger(MAN_POWER));
+		case MANUAL_STATE:*/
+			if (pad.getRightBumper())// && encoderValue < MAX_ARM_VALUE)
+				armMotor.set(-ARM_MAN_POWER);
+			else if (pad.getLeftBumper())// && encoderValue > MIN_ARM_VALUE)
+				armMotor.set(ARM_MAN_POWER);
+			else
+				armMotor.set(0);
 			dash.putString("State: ", "EMANUEL");
-			break;
-		}
+			/*break;
+		}*/
 	}
 
 	private boolean speedToggle;
