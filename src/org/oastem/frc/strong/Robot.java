@@ -56,8 +56,8 @@ public class Robot extends SampleRobot {
 	private final int FRONT_RIGHT_CAN_DRIVE = 2;
 	private final int BACK_LEFT_CAN_DRIVE = 1;
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
-	private final int AUTO_PORT_1 = 1;
-	private final int AUTO_PORT_2 = 2;
+	private final int AUTO_PORT_1 = 8;
+	private final int AUTO_PORT_2 = 9;
 
 	private final int ARM_ENC_A = 0;
 	private final int ARM_ENC_B = 1;
@@ -124,14 +124,13 @@ public class Robot extends SampleRobot {
 		gyro = new FRCGyroAccelerometer();
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_I);
 		armMotor = new Talon(0);
 		pad = new LogitechGamingPad(0);
 		drivePressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
-		//auto1 = new DigitalInput(AUTO_PORT_1);
-		//auto2 = new DigitalInput(AUTO_PORT_2);
+		auto1 = new DigitalInput(AUTO_PORT_1);
+		auto2 = new DigitalInput(AUTO_PORT_2);
 		//leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
 		//rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
 
@@ -146,29 +145,26 @@ public class Robot extends SampleRobot {
 	private static final int TEST = 3;
 
 	public void autonomous() {
-		int autoMode = TEST;
-		if (auto1.get()) {
-			if (auto2.get())
-				autoMode = LOW_BAR;
-			else
-				autoMode = OTHER_TERRAIN;
-		} else {
-			if (auto2.get())
-				autoMode = PORTCULLIS;
-		}
-
-		leftDrive.reset();
-		rightDrive.reset();
-
 		String state = "Neutral";
 
 		while (isAutonomous() && isEnabled()) {
+			int autoMode = TEST;
+			if (auto1.get()) {
+				if (auto2.get())
+					autoMode = LOW_BAR;
+				else
+					autoMode = OTHER_TERRAIN;
+			} else {
+				if (auto2.get())
+					autoMode = PORTCULLIS;
+			}
+			dash.putNumber("Autonomous State", autoMode);/*
 			if (state.equals("Neutral") && passDefense(autoMode))
 				state = "Passed";
 			if (state.equals("Passed") && reverse(autoMode))
 				state = "Returned";
 			if (state.equals("Returned") && reset(autoMode))
-				state = "Back";
+				state = "Back";*/
 
 		}
 	}
