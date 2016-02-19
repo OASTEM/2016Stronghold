@@ -289,6 +289,15 @@ public class Robot extends SampleRobot {
 				} else
 					motorDrive();
 				//doArm();
+				if (pad.getRightBumper()){
+					armMotor.set(-1);
+				}
+				else if (pad.getLeftBumper()){
+					armMotor.set(0.65);
+				}
+				else
+					armMotor.set(0);
+				
 			}
 		}
 	}
@@ -433,15 +442,17 @@ public class Robot extends SampleRobot {
 		// rps = 2.86478897565
 		// rpm = 171.887338539
 
-		if (pad.getLeftBumper() && !drivePressed) {
+		if (pad.getAButton() && !drivePressed) {
 			drivePressed = true;
 			speedToggle = !speedToggle;
 		}
-		if (!pad.getLeftBumper())
+		if (!pad.getAButton())
 			drivePressed = false;
 
 		if (speedToggle) {
-			talonDrive.speedTankDrive(30, 30, false);
+			talonDrive.speedTankDrive(6, 6, false);/*
+			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
+					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));*/
 		} else {
 			talonDrive.fakeTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
 					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
@@ -456,7 +467,7 @@ public class Robot extends SampleRobot {
 	}
 
 	private double scaleTrigger(double trigger) {
-		return Math.min(1.0, 0.4 + 0.5 * trigger);
+		return Math.min(1.0, 0.8 - 0.5 * trigger);
 	}
 
 	/**

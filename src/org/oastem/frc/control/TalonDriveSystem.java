@@ -1,5 +1,7 @@
 package org.oastem.frc.control;
 
+import javax.swing.table.TableColumnModel;
+
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.RobotDrive;
@@ -40,8 +42,6 @@ public class TalonDriveSystem extends DriveSystem {// (:
 		frontLeftDrive = new CANTalon(leftFront);
 		backRightDrive = new CANTalon(rightRear);
 		backLeftDrive = new CANTalon(leftRear);
-		frontRightDrive.changeControlMode(TalonControlMode.Follower);
-		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
 		accLeft = new Accelerator();
@@ -66,24 +66,36 @@ public class TalonDriveSystem extends DriveSystem {// (:
 	}
 
 	private void initCan() {
+		frontRightDrive.changeControlMode(TalonControlMode.Follower);
+		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		TalonControlMode mode = TalonControlMode.Speed;
 		FeedbackDevice encoder = FeedbackDevice.QuadEncoder;
 		backRightDrive.changeControlMode(mode);
 		backRightDrive.setFeedbackDevice(encoder);
 		backRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		backRightDrive.enable();
+		backRightDrive.setPID(1, 0, 0);
+		backRightDrive.setF(2);
+		backRightDrive.reverseOutput(true);
+		backRightDrive.reverseSensor(true);
+		
 		backLeftDrive.changeControlMode(mode);
 		backLeftDrive.setFeedbackDevice(encoder);
 		backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		backLeftDrive.enable();
-		 // :D
+		backLeftDrive.setPID(1, 0, 0);
+		backLeftDrive.setF(2);
+
+		 // :D 
+		/*
 		if (frontRightDrive != null)
 		{
 			frontRightDrive.changeControlMode(mode);
 			frontRightDrive.setFeedbackDevice(encoder);
 			frontRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
 			frontRightDrive.enable();
-			frontRightDrive.setPID(1, 0, 0);
+			frontRightDrive.setPID(0, 0, 0);
+			frontRightDrive.setF(1);
 		}
 		if (frontLeftDrive != null)
 		{
@@ -91,11 +103,14 @@ public class TalonDriveSystem extends DriveSystem {// (:
 			frontLeftDrive.setFeedbackDevice(encoder);
 			frontLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
 			frontLeftDrive.enable();
-			frontLeftDrive.setPID(1, 0, 0);
-		}
+			frontLeftDrive.setPID(0, 0, 0);
+			frontLeftDrive.setF(1);
+		}*/
 	}
 
 	public void speedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches) {
+		backLeftDrive.changeControlMode(TalonControlMode.Speed);
+		backRightDrive.changeControlMode(TalonControlMode.Speed);
 		double leftRPM = leftValuePerMin;
 		double rightRPM = rightValuePerMin;
 		if (isInInches) {
@@ -109,7 +124,7 @@ public class TalonDriveSystem extends DriveSystem {// (:
 		backRightDrive.set(rightRPM);
 		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
 		if (frontLeftDrive != null)
-			frontRightDrive.set(frontRightDrive.getDeviceID());
+			frontRightDrive.set(backRightDrive.getDeviceID());
 
 	}// c:
 
@@ -146,8 +161,14 @@ public class TalonDriveSystem extends DriveSystem {// (:
 	}
 
 	public void fakeTankDrive(double left, double right) {
+		backLeftDrive.changeControlMode(TalonControlMode.PercentVbus);
+		backRightDrive.changeControlMode(TalonControlMode.PercentVbus);
 		backLeftDrive.set(left);
 		backRightDrive.set(right);
+
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.getPosition());
+		SmartDashboard.putNumber("Back Right Speed", backRightDrive.getPosition());
+		
 		if (frontLeftDrive != null)
 			frontLeftDrive.set(backLeftDrive.getDeviceID());
 		if (frontRightDrive != null)
