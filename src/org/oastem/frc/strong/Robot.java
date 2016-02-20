@@ -151,7 +151,8 @@ public class Robot extends SampleRobot {
 			int autoMode = TEST;
 			if (auto1.get()) {
 				if (auto2.get())
-					autoMode = LOW_BAR;
+					talonDrive.fakeDriveDistance(WHEEL_CIRCUMFERENCE, true);
+					//autoMode = LOW_BAR;
 				else
 					autoMode = OTHER_TERRAIN;
 			} else {
@@ -165,6 +166,7 @@ public class Robot extends SampleRobot {
 				state = "Returned";
 			if (state.equals("Returned") && reset(autoMode))
 				state = "Back";*/
+			
 		}
 	}
 
