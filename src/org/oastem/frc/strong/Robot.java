@@ -5,6 +5,7 @@ import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
 import org.oastem.frc.strong.*;
 
+
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -120,6 +121,7 @@ public class Robot extends SampleRobot {
 		gyro = new FRCGyroAccelerometer();
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
+
 		armMotor = new Talon(0);
 		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
 		pad = new LogitechGamingPad(0);
@@ -233,8 +235,6 @@ public class Robot extends SampleRobot {
 
 		//gyro.resetGyro();
 		int what = 0; // Spring insisted
-		left = talonDrive.getBackLeftDrive();
-		right = talonDrive.getBackRightDrive();
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
@@ -362,10 +362,8 @@ public class Robot extends SampleRobot {
 					// winchMotor.set(-winchTrigger);
 				}
 			}
-
 			dash.putString("State: ", "release state");
 			break;
-
 		case TOP_STATE:
 			prevState = TOP_STATE;
 			goalValue = MAX_ARM_VALUE;
@@ -373,13 +371,11 @@ public class Robot extends SampleRobot {
 			if (encoderValue < goalValue)
 				// go down
 				armMotor.set(MOVE_POWER);
-
 			if (pad.getAButton())
 				stateOfArm = MIDDLE_STATE;
 
 			dash.putString("State: ", "top state");
 			break;
-
 		case MIDDLE_STATE:
 			prevState = MIDDLE_STATE;
 			goalValue = MID_ARM_VALUE;
