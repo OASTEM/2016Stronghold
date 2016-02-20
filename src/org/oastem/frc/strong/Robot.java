@@ -5,6 +5,7 @@ import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
 import org.oastem.frc.strong.*;
 
+
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -151,7 +152,10 @@ public class Robot extends SampleRobot {
 					autoMode = PORTCULLIS;
 			}
 			dash.putNumber("Autonomous State", autoMode);/*
+<<<<<<< HEAD
 
+=======
+>>>>>>> autonomous
 			if (state.equals("Neutral") && passDefense(autoMode))
 				state = "Passed";
 			if (state.equals("Passed") && reverse(autoMode))
@@ -201,7 +205,6 @@ public class Robot extends SampleRobot {
 		}
 		return false;
 	}
-
 
 	private boolean reset(int mode) {
 		if (mode == LOW_BAR) {
@@ -286,6 +289,7 @@ public class Robot extends SampleRobot {
 				}
 				else
 					armMotor.set(0);
+
 			}
 		}
 	}
@@ -314,6 +318,7 @@ public class Robot extends SampleRobot {
 	private int THRESHOLD_VALUE = 10;
 	private double CONSTANT_POWER = .0275; //for now
 
+
 	private int stateOfArm = BOTTOM_STATE;
 	//private boolean isManualState = false; was originally this but
 	private boolean isManualState = true; // use this for testing
@@ -326,6 +331,7 @@ public class Robot extends SampleRobot {
 	
 	private long currTime = 0L;
 	private long caliStart = 0L;
+
 
 	private void calibrateArm()
 	{
@@ -353,7 +359,12 @@ public class Robot extends SampleRobot {
 			if (released)
 				stateOfArm = RELEASE_STATE;
 		}
+<<<<<<< HEAD
 		if (!releaseWinchPressed)
+=======
+
+		if (!pad.getBButton())
+>>>>>>> autonomous
 			releasePressed = false;
 
 		switch (stateOfArm) {
@@ -379,10 +390,12 @@ public class Robot extends SampleRobot {
 					// winchMotor.set(-winchTrigger);
 				}
 			}
+<<<<<<< HEAD
 
+=======
+>>>>>>> autonomous
 			dash.putString("State: ", "release state");
 			break;
-
 		case TOP_STATE:
 			prevState = TOP_STATE;
 			goalValue = MAX_ARM_VALUE;
@@ -394,8 +407,12 @@ public class Robot extends SampleRobot {
 				armMotor.set(-MOVE_POWER);
 			else if (encoderValue < goalValue)
 				armMotor.set(MOVE_POWER);
+<<<<<<< HEAD
 			
 			if (pad.getLeftBumper())
+=======
+			if (pad.getAButton())
+>>>>>>> autonomous
 				stateOfArm = MIDDLE_STATE;
 			dash.putString("State: ", "top state");
 			break;
@@ -451,13 +468,13 @@ public class Robot extends SampleRobot {
 		// rps = 2.86478897565
 		// rpm = 171.887338539
 
-		if (pad.getLeftBumper() && !drivePressed) {
+		if (pad.getAButton() && !drivePressed) {
 			drivePressed = true;
 			speedToggle = !speedToggle;
 		}
-		if (!pad.getLeftBumper())
+		if (!pad.getAButton())
 			drivePressed = false;
-			
+
 		if (speedToggle) {
 			talonDrive.speedTankDrive(30, 30, false);/*
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
