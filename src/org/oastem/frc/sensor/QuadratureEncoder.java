@@ -220,6 +220,7 @@ public class QuadratureEncoder {
         enc.reset();
     }
     
+    
     /**
      * Sets the encoder to read each pulse as a certain amount of distance.
      * Used to set up for getDistance(), so set it with constructor.

@@ -95,8 +95,8 @@ public class TalonDriveSystem{// (:
 		backRightDrive.setFeedbackDevice(encoder);
 		backRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		backRightDrive.enable();
-		backRightDrive.setPID(1, 0, 0);
-		backRightDrive.setF(2);
+		backRightDrive.setPID(.6, 0, 0);
+		backRightDrive.setF(.534);
 		backRightDrive.reverseOutput(true);
 		backRightDrive.reverseSensor(true);
 		
@@ -104,8 +104,8 @@ public class TalonDriveSystem{// (:
 		backLeftDrive.setFeedbackDevice(encoder);
 		backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		backLeftDrive.enable();
-		backLeftDrive.setPID(1, 0, 0);
-		backLeftDrive.setF(2);
+		backLeftDrive.setPID(.6, 0, 0);
+		backLeftDrive.setF(.534);
 
 		 // :D 
 		/*
@@ -207,9 +207,13 @@ public class TalonDriveSystem{// (:
 		backLeftDrive.set(left);
 		backRightDrive.set(right);
 
-		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.getPosition());
-		SmartDashboard.putNumber("Back Right Speed", backRightDrive.getPosition());
+		SmartDashboard.putNumber("Back Left Position", backLeftDrive.getPosition());
+		SmartDashboard.putNumber("Back Right Position", backRightDrive.getPosition());
 
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.getSpeed());
+		SmartDashboard.putNumber("Back Right Speed", backRightDrive.getSpeed());
+
+		
 		slave();
 	}
 	
