@@ -121,7 +121,7 @@ public class Robot extends SampleRobot {
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
 		armMotor = new Talon(0);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
+		//armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
 		pad = new LogitechGamingPad(0);
 		drivePressed = false;
 		speedToggle = false;
@@ -147,27 +147,29 @@ public class Robot extends SampleRobot {
 			if (auto1.get()) {
 				if (auto2.get())
 					talonDrive.fakeDriveDistance(WHEEL_CIRCUMFERENCE, true);
-					//autoMode = LOW_BAR;
+				// autoMode = LOW_BAR;
 				else
 					autoMode = OTHER_TERRAIN;
 			} else {
 				if (auto2.get())
 					autoMode = PORTCULLIS;
 			}
-			dash.putNumber("Autonomous State", autoMode);/*
-			if (state.equals("Neutral") && passDefense(autoMode))
-				state = "Passed";
-			if (state.equals("Passed") && reverse(autoMode))
-				state = "Returned";
-			if (state.equals("Returned") && reset(autoMode))
-				state = "Back";*/
-			
+			dash.putNumber("Autonomous State",
+					autoMode);/*
+								 * if (state.equals("Neutral") &&
+								 * passDefense(autoMode)) state = "Passed"; if
+								 * (state.equals("Passed") && reverse(autoMode))
+								 * state = "Returned"; if
+								 * (state.equals("Returned") && reset(autoMode))
+								 * state = "Back";
+								 */
+
 		}
 	}
 
 	private boolean passDefense(int mode) {
 		if (mode == LOW_BAR) {
-			
+
 			return true;
 		}
 		if (mode == OTHER_TERRAIN) {
@@ -231,10 +233,8 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		boolean stop = false;
 
-		//gyro.resetGyro();
+		// gyro.resetGyro();
 		int what = 0; // Spring insisted
-		left = talonDrive.getBackLeftDrive();
-		right = talonDrive.getBackRightDrive();
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 			dash.putNumber("Left Y", pad.getLeftAnalogY());
@@ -261,35 +261,29 @@ public class Robot extends SampleRobot {
 				stop = true;
 
 			// "Arcade" Drive
-			if (!stop) {
-				if (pad.checkDPad(0)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
-				} else if (pad.checkDPad(1)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(0));
-				} else if (pad.checkDPad(2)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(-1.0));
-				} else if (pad.checkDPad(3)) {
-					talonDrive.tankDrive(scaleTrigger(0), scaleTrigger(-1.0));
-				} else if (pad.checkDPad(4)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
-				} else if (pad.checkDPad(5)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(0));
-				} else if (pad.checkDPad(6)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(1.0));
-				} else if (pad.checkDPad(7)) {
-					talonDrive.tankDrive(scaleTrigger(0), scaleTrigger(1.0));
-				} else
-					motorDrive();
-				//doArm();
-				if (pad.getRightBumper()){
-					armMotor.set(-1);
-				}
-				else if (pad.getLeftBumper()){
-					armMotor.set(0.65);
-				}
-				else
-					armMotor.set(0);
-				
+			if (!stop) {/*
+						 * if (pad.checkDPad(0)) {
+						 * talonDrive.tankDrive(scaleTrigger(1.0),
+						 * scaleTrigger(1.0)); } else if (pad.checkDPad(1)) {
+						 * talonDrive.tankDrive(scaleTrigger(1.0),
+						 * scaleTrigger(0)); } else if (pad.checkDPad(2)) {
+						 * talonDrive.tankDrive(scaleTrigger(1.0),
+						 * scaleTrigger(-1.0)); } else if (pad.checkDPad(3)) {
+						 * talonDrive.tankDrive(scaleTrigger(0),
+						 * scaleTrigger(-1.0)); } else if (pad.checkDPad(4)) {
+						 * talonDrive.tankDrive(scaleTrigger(-1.0),
+						 * scaleTrigger(-1.0)); } else if (pad.checkDPad(5)) {
+						 * talonDrive.tankDrive(scaleTrigger(-1.0),
+						 * scaleTrigger(0)); } else if (pad.checkDPad(6)) {
+						 * talonDrive.tankDrive(scaleTrigger(-1.0),
+						 * scaleTrigger(1.0)); } else if (pad.checkDPad(7)) {
+						 * talonDrive.tankDrive(scaleTrigger(0),
+						 * scaleTrigger(1.0)); } else motorDrive(); //doArm();
+						 * if (pad.getRightBumper()){ armMotor.set(-1); } else
+						 * if (pad.getLeftBumper()){ armMotor.set(0.65); } else
+						 * armMotor.set(0);
+						 */
+				motorDrive();
 			}
 		}
 	}
@@ -323,7 +317,7 @@ public class Robot extends SampleRobot {
 	private boolean winchRelease = false;
 
 	private void doArm() {
-		encoderValue = armPositionEncoder.get();
+		//encoderValue = armPositionEncoder.get();
 
 		if (manualButton && !manPressed) {
 			manPressed = true;
@@ -425,8 +419,24 @@ public class Robot extends SampleRobot {
 		}
 	}
 
-	private boolean speedToggle;
+	private boolean speedToggle = true;
 	private boolean drivePressed;
+
+	private boolean speedUpPressed = true;
+	private boolean speedDownPressed = true;
+	private boolean pUpPressed = true;
+	private boolean pDownPressed = true;
+	private boolean iUpPressed = true;
+	private boolean iDownPressed = true;
+	private boolean dUpPressed = true;
+	private boolean dDownPressed = true;
+	private boolean fUpPressed = true;
+	private boolean fDownPressed = true;
+	private double rpm = 20;
+	private double p = 0;
+	private double i = 0;
+	private double d = 0;
+	private double f = 0.234;
 
 	private void motorDrive() {
 		// max 2 yd per sec = 72 in per sec
@@ -434,23 +444,103 @@ public class Robot extends SampleRobot {
 		// rps = 2.86478897565
 		// rpm = 171.887338539
 
-		if (pad.getAButton() && !drivePressed) {
-			drivePressed = true;
-			speedToggle = !speedToggle;
+		/*
+		 * if (pad.getAButton() && !drivePressed) { drivePressed = true;
+		 * speedToggle = !speedToggle; } if (!pad.getAButton()) drivePressed =
+		 * false;
+		 * 
+		 * if (speedToggle) { talonDrive.speedTankDrive(6, 6, false);/*
+		 * talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 *
+		 * scaleTrigger(pad.getLeftTriggerValue()), pad.getRightAnalogY() *
+		 * scaleTrigger(pad.getLeftTriggerValue())); } else {
+		 * talonDrive.accelTankDrive(pad.getLeftAnalogY() *
+		 * scaleTrigger(pad.getLeftTriggerValue()), pad.getRightAnalogY() *
+		 * scaleTrigger(pad.getLeftTriggerValue())); }
+		 */
+		// RPM
+		if (pad.getBackButton() && !speedUpPressed) {
+			speedUpPressed = true;
+			rpm += 1;
+		}
+		if (!pad.getBackButton())
+			speedUpPressed = false;
+
+		if (pad.getStartButton() && !speedDownPressed) {
+			speedDownPressed = true;
+			rpm -= 1;
+		}
+		if (!pad.getStartButton())
+			speedDownPressed = false;
+
+		// P value
+		if (pad.getDPad() == 0 && !pUpPressed) {
+			pUpPressed = true;
+			p += 0.1;
+		}
+		if (!(pad.getDPad() == 0))
+			pUpPressed = false;
+
+		if (pad.getDPad() == 4 && !pDownPressed) {
+			pDownPressed = true;
+			p -= 0.1;
+		}
+		if (!(pad.getDPad() == 4))
+			pDownPressed = false;
+
+		// I value
+		if (pad.getDPad() == 2 && !iUpPressed) {
+			iUpPressed = true;
+			i += 0.1;
+		}
+		if (!(pad.getDPad() == 2))
+			iUpPressed = false;
+
+		if (pad.getDPad() == 6 && !iDownPressed) {
+			iDownPressed = true;
+			i -= 0.1;
+		}
+		if (!(pad.getDPad() == 6))
+			iDownPressed = false;
+
+		// D value
+		if (pad.getYButton() && !dUpPressed) {
+			dUpPressed = true;
+			d += 0.1;
+		}
+		if (!pad.getYButton())
+			dUpPressed = false;
+
+		if (pad.getAButton() && !dDownPressed) {
+			dDownPressed = true;
+			d -= 0.1;
 		}
 		if (!pad.getAButton())
-			drivePressed = false;
-
-		if (speedToggle) {
-			talonDrive.speedTankDrive(6, 6, false);/*
-			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 * scaleTrigger(pad.getLeftTriggerValue()),
-					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));*/
-		} else {
-			talonDrive.accelTankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()),
-					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
+			dDownPressed = false;
+		
+		// F value
+		if (pad.getXButton() && !fUpPressed) {
+			fUpPressed = true;
+			f += 0.01;
 		}
+		if (!pad.getXButton())
+			fUpPressed = false;
 
-		dash.putBoolean("speedtoggle", speedToggle);
+		if (pad.getBButton() && !fDownPressed) {
+			fDownPressed = true;
+			f -= 0.01;
+		}
+		if (!pad.getBButton())
+			fDownPressed = false;
+		
+		talonDrive.speedTankDrive(rpm, rpm, false);
+		talonDrive.setPID(p, i, d, f);
+
+		dash.putNumber("RPM", rpm);
+		dash.putNumber("P", p);
+		dash.putNumber("I", i);
+		dash.putNumber("D", d);
+		dash.putNumber("F", f);
+		// dash.putBoolean("speedtoggle", speedToggle);
 	}
 
 	private double scaleTrigger(double trigger) {

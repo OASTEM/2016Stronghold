@@ -295,6 +295,13 @@ public class TalonDriveSystem{// (:
 		}
 	}
 	
+	public void setPID(double p, double i, double d, double f){
+		backLeftDrive.setPID(p, i, d);
+		backLeftDrive.setF(f);
+		backRightDrive.setPID(p, i, d);
+		backRightDrive.setF(f);
+	}
+	
 	public CANTalon getFrontLeftDrive() {
 		return frontLeftDrive;
 	}
