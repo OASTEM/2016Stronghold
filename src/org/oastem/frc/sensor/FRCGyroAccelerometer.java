@@ -29,7 +29,7 @@ public class FRCGyroAccelerometer {
 	public FRCGyroAccelerometer() {
 		gyro = new ADXRS450_Gyro();
 		accel = new ADXL362(Accelerometer.Range.k8G);
-		gyro.calibrate();
+		//gyro.calibrate();
 		lastUpdateTime = System.currentTimeMillis();
 		accelXAverage = new double[100];
 		accelYAverage = new double[100];
@@ -52,11 +52,21 @@ public class FRCGyroAccelerometer {
 		gyro.reset();
 		lastUpdateTime = System.currentTimeMillis();
 	}
+	
+	public void calibrateGyro()
+	{
+		gyro.calibrate();
+	}
 
 	public double getGyroAngle() {
 		long currentTime = System.currentTimeMillis();
 		double value = gyro.getAngle()- DRIFT_PER_SECOND * (currentTime - lastUpdateTime) / 1000.0;
 		return value;// averageGyroValue(value);
+	}
+	
+	public double getRawGyro()
+	{
+		return gyro.getAngle();
 	}
 	
 	public double getRawAccelX()
