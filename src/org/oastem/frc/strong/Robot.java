@@ -61,7 +61,6 @@ public class Robot extends SampleRobot {
 
 	private final int ARM_ENC_A = 0;
 	private final int ARM_ENC_B = 1;
-	private final int ARM_ENC_I = 2;
 
 	private final int DRIVE_ENC_LEFT_A = 0;
 	private final int DRIVE_ENC_LEFT_B = 1;
@@ -71,6 +70,7 @@ public class Robot extends SampleRobot {
 
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
+	private final int ARM_ENC_CODE_PER_REV = 497;
 	private final int DRIVE_WHEEL_DIAM = 8;
 	private final double WHEEL_CIRCUMFERENCE = DRIVE_WHEEL_DIAM * Math.PI;
 	private final double MAX_SPEED = 72; // in inches
@@ -91,11 +91,7 @@ public class Robot extends SampleRobot {
 	private BuiltInAccelerometer accel;
 	private Talon armMotor;
 	private QuadratureEncoder armPositionEncoder;
-	private CANTalon left;
-	private CANTalon right;
 	private CANTalon winchMotor;
-	private QuadratureEncoder leftDrive;
-	private QuadratureEncoder rightDrive;
 	private DigitalInput auto1;
 	private DigitalInput auto2;
 
@@ -125,14 +121,13 @@ public class Robot extends SampleRobot {
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
 		armMotor = new Talon(0);
+		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
 		pad = new LogitechGamingPad(0);
 		drivePressed = false;
 		speedToggle = false;
 		pdp = new PowerDistributionPanel();
 		auto1 = new DigitalInput(AUTO_PORT_1);
 		auto2 = new DigitalInput(AUTO_PORT_2);
-		//leftDrive = new QuadratureEncoder(DRIVE_ENC_LEFT_A, DRIVE_ENC_LEFT_B, DRIVE_ENC_CODE_PER_REV);
-		//rightDrive = new QuadratureEncoder(DRIVE_ENC_RIGHT_A, DRIVE_ENC_RIGHT_B, DRIVE_ENC_CODE_PER_REV);
 
 		pdp.clearStickyFaults();
 	}
