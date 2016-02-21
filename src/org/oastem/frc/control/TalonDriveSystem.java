@@ -60,12 +60,14 @@ public class TalonDriveSystem {// (:
 		frontLeftDrive = new CANTalon(leftFront);
 		backRightDrive = new CANTalon(rightRear);
 		backLeftDrive = new CANTalon(leftRear);
+		
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
 		this.wheelCircum = wheelSircum;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
 		gyro = new FRCGyroAccelerometer();
+		
 		initCan();
 	}
 
@@ -75,12 +77,14 @@ public class TalonDriveSystem {// (:
 		frontLeftDrive = null;
 		backRightDrive = new CANTalon(right);
 		backLeftDrive = new CANTalon(left);
+		
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
 		this.wheelCircum = wheelSircum;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
 		gyro = new FRCGyroAccelerometer();
+		
 		initCan();
 		SmartDashboard.putString("Swag", "Dank Dreams");
 	}
@@ -90,15 +94,14 @@ public class TalonDriveSystem {// (:
 		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		TalonControlMode mode = TalonControlMode.Speed;
 		FeedbackDevice encoder = FeedbackDevice.QuadEncoder;
+		
 		backRightDrive.changeControlMode(mode);
 		backRightDrive.setFeedbackDevice(encoder);
 		backRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
 		backRightDrive.enable();
 		backRightDrive.setPID(.6, 0, 0);
 		backRightDrive.setF(.534);
-		backRightDrive.reverseOutput(true);
-		backRightDrive.reverseSensor(true);
-
+		
 		backLeftDrive.changeControlMode(mode);
 		backLeftDrive.setFeedbackDevice(encoder);
 		backLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
@@ -106,20 +109,6 @@ public class TalonDriveSystem {// (:
 		backLeftDrive.setPID(.6, 0, 0);
 		backLeftDrive.setF(.534);
 
-		// :D
-		/*
-		 * if (frontRightDrive != null) {
-		 * frontRightDrive.changeControlMode(mode);
-		 * frontRightDrive.setFeedbackDevice(encoder);
-		 * frontRightDrive.configEncoderCodesPerRev(encoderCodePerRev);
-		 * frontRightDrive.enable(); frontRightDrive.setPID(0, 0, 0);
-		 * frontRightDrive.setF(1); } if (frontLeftDrive != null) {
-		 * frontLeftDrive.changeControlMode(mode);
-		 * frontLeftDrive.setFeedbackDevice(encoder);
-		 * frontLeftDrive.configEncoderCodesPerRev(encoderCodePerRev);
-		 * frontLeftDrive.enable(); frontLeftDrive.setPID(0, 0, 0);
-		 * frontLeftDrive.setF(1); }
-		 */
 	}
 
 	/**** GYRO STUFF ****/
@@ -140,29 +129,31 @@ public class TalonDriveSystem {// (:
 		TalonControlMode mode = TalonControlMode.Speed;
 		backLeftDrive.changeControlMode(mode);
 		backRightDrive.changeControlMode(mode);
-		backRightDrive.reverseOutput(true);
-		backRightDrive.reverseSensor(true);
 	}
 
 	private void changeTalonToPercent() {
 		TalonControlMode mode = TalonControlMode.PercentVbus;
 		backLeftDrive.changeControlMode(mode);
 		backRightDrive.changeControlMode(mode);
-		backRightDrive.reverseOutput(true);
-		backRightDrive.reverseSensor(true);
 	}
 
 	public void driveStraight(double speed) {
 		double currAngle = gyro.getGyroAngle();
+		
 		if (tick++ == 0)
 			startAngle = currAngle;
+		
 		SmartDashboard.putNumber("Gyro", currAngle);
 		SmartDashboard.putNumber("Start gyro", startAngle);
+		
 		double diff = Math.abs(currAngle - startAngle);
 		double comp = diff * 20 / 100;
+		
 		SmartDashboard.putNumber("Diff", diff);
+		
 		if (comp > 1)
 			comp = 1;
+		
 		SmartDashboard.putNumber("Compensation", comp);
 
 		if (currAngle > startAngle) {
@@ -177,24 +168,31 @@ public class TalonDriveSystem {// (:
 
 	public void speedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches) {
 		changeTalonToSpeed();
+		
 		double leftRPM = leftValuePerMin;
 		double rightRPM = rightValuePerMin;
+		
 		if (isInInches) {
 			leftRPM /= wheelDiameter;
 			rightRPM /= wheelDiameter;
 		}
+		
 		backLeftDrive.set(leftRPM);
-		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
 		backRightDrive.set(rightRPM);
+		
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
 		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
+		
 		slave();
 	}// c:
 
 	public void fakeSpeedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches,
 			double scalePower) {
 		changeTalonToSpeed();
+		
 		double leftRPM = leftValuePerMin;
 		double rightRPM = rightValuePerMin;
+		
 		if (isInInches) {
 			leftRPM /= wheelDiameter;
 			rightRPM /= wheelDiameter;
@@ -204,23 +202,29 @@ public class TalonDriveSystem {// (:
 		double currRight = (rightRPM - backRightDrive.getSpeed()) / scalePower;
 
 		backLeftDrive.set(currLeft);
-		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
 		backRightDrive.set(currRight);
+		
+		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
 		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
+		
 		slave();
 	}
 
 	public void accelTankDrive(double left, double right) {
 		changeTalonToPercent();
+		
 		backLeftDrive.set(accLeft.decelerateValue(accLeft.getSpeed(), left));
-		SmartDashboard.putNumber("Acc Left Speed", accLeft.getSpeed());
 		backRightDrive.set(-accRight.decelerateValue(accRight.getSpeed(), right));
+		
+		SmartDashboard.putNumber("Acc Left Speed", accLeft.getSpeed());
 		SmartDashboard.putNumber("Acc Right Speed", accRight.getSpeed());
+		
 		slave();
 	}
 
-	public void tankDrive(double left, double right) {
+	public void faketankDrive(double left, double right) {
 		changeTalonToPercent();
+		
 		backLeftDrive.set(left);
 		backRightDrive.set(-right);
 
@@ -236,14 +240,18 @@ public class TalonDriveSystem {// (:
 
 	public boolean fakeDriveDistance(double distanceInInches, boolean isFoward) {
 		changeTalonToSpeed();
+		
 		double leftDistance = backLeftDrive.getEncPosition() * wheelCircum;
 		double rightDistance = backRightDrive.getEncPosition() * wheelCircum;
 		double currAngle = gyro.getGyroAngle();
+		
 		SmartDashboard.putNumber("Gyro", currAngle);
+		
 		if (tick++ == 0) {
 			startLeft = leftDistance;
 			startRight = rightDistance;
 			startAngle = currAngle;
+			
 			SmartDashboard.putString("Start values",
 					"Left: " + startLeft + "\tRight: " + startRight + "\tAngle: " + startAngle);
 		}

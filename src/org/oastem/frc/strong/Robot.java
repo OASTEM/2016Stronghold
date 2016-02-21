@@ -291,21 +291,21 @@ public class Robot extends SampleRobot {
 
 			if (!stop) {
 				if (pad.checkDPad(0)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
+					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
 				} else if (pad.checkDPad(1)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(0));
+					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(2)) {
-					talonDrive.tankDrive(scaleTrigger(1.0), scaleTrigger(-1.0));
+					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(-1.0));
 				} else if (pad.checkDPad(3)) {
-					talonDrive.tankDrive(scaleTrigger(0), scaleTrigger(-1.0));
+					talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(-1.0));
 				} else if (pad.checkDPad(4)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
+					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
 				} else if (pad.checkDPad(5)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(0));
+					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(6)) {
-					talonDrive.tankDrive(scaleTrigger(-1.0), scaleTrigger(1.0));
+					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(1.0));
 				} else if (pad.checkDPad(7)) {
-					talonDrive.tankDrive(scaleTrigger(0), scaleTrigger(1.0));
+					talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(1.0));
 				} else
 					motorDrive();
 				doArm();
@@ -506,7 +506,7 @@ public class Robot extends SampleRobot {
 		if (speedToggle){
 			talonDrive.driveStraight(pad.getLeftAnalogY() * -30);
 		} else
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()) * -1,
+			talonDrive.faketankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()),
 					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
 		// dash.putBoolean("speedtoggle", speedToggle);
 	}
