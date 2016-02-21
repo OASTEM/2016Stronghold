@@ -93,8 +93,6 @@ public class Robot extends SampleRobot {
 	private boolean releaseWinchPressed;
 	private boolean noScopePressed;
 	private boolean speedPressed;
-	private boolean straightPressed1;
-	private boolean straightPressed2;
 	private boolean eStop1Pressed;
 	private boolean eStop2Pressed;
 	private boolean armPressed = false;
@@ -289,8 +287,6 @@ public class Robot extends SampleRobot {
 			noScopePressed = pad.getXButton();
 			speedPressed = pad.getAButton();
 			manualButtonPressed = pad.getBButton();
-			straightPressed1 = pad.getLeftAnalogButton();
-			straightPressed2 = pad.getRightAnalogButton();
 			eStop1Pressed = pad.getBackButton();
 			eStop2Pressed = pad.getStartButton();
 
@@ -301,7 +297,7 @@ public class Robot extends SampleRobot {
 
 			if (!stop) {
 				if (pad.checkDPad(0)) {
-					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
+					talonDrive.driveStraight(-60 * scaleTrigger(slowTrigger));
 				} else if (pad.checkDPad(1)) {
 					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(2)) {
@@ -309,7 +305,7 @@ public class Robot extends SampleRobot {
 				} else if (pad.checkDPad(3)) {
 					talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(-1.0));
 				} else if (pad.checkDPad(4)) {
-					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
+					talonDrive.driveStraight(60 * scaleTrigger(slowTrigger));
 				} else if (pad.checkDPad(5)) {
 					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(6)) {
@@ -360,6 +356,7 @@ public class Robot extends SampleRobot {
 	private boolean releasePressed;
 	private boolean winchRelease = false;
 	private boolean calibrateStarting = false;
+	private boolean armSupport = false;
 
 	private long currTime = 0L;
 	private long checkTime = 0L;
@@ -495,8 +492,6 @@ public class Robot extends SampleRobot {
 
 	private boolean speedToggle = false;
 	private boolean drive;
-	private boolean straightToggle = false;
-	private boolean straight;
 
 	private void motorDrive() {
 		// max 2 yd per sec = 72 in per sec
@@ -511,16 +506,7 @@ public class Robot extends SampleRobot {
 		if (!speedPressed)
 			drive = false;
 
-		if (straightPressed1 && straightPressed2 && !straight) {
-			straight = true;
-			straightToggle = !straightToggle;
-		}
-		if (!speedPressed)
-			straight = false;
-
-		if (straightToggle)
-			talonDrive.driveStraight(pad.getLeftAnalogY() * -30 * scaleTrigger(slowTrigger));
-		else if (speedToggle)
+		if (speedToggle)
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -30 * scaleTrigger(slowTrigger),
 					pad.getRightAnalogY() * -30 * scaleTrigger(slowTrigger), false);
 		else
