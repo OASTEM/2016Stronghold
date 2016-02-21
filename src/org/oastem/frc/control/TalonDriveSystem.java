@@ -101,6 +101,8 @@ public class TalonDriveSystem {// (:
 		backRightDrive.enable();
 		backRightDrive.setPID(.6, 0, 0);
 		backRightDrive.setF(.534);
+		backRightDrive.reverseOutput(true);
+		backRightDrive.reverseSensor(true);
 		
 		backLeftDrive.changeControlMode(mode);
 		backLeftDrive.setFeedbackDevice(encoder);
