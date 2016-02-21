@@ -3,7 +3,6 @@ package org.oastem.frc.strong;
 import org.oastem.frc.*;
 import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
-import org.oastem.frc.strong.*;
 
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
@@ -11,8 +10,9 @@ import edu.wpi.first.wpilibj.CANTalon;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.Talon;
-
+import edu.wpi.first.wpilibj.CANJaguar;
+import edu.wpi.first.wpilibj.CANJaguar.JaguarControlMode;
+import edu.wpi.first.wpilibj.CANJaguar.LimitMode;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 
@@ -47,6 +47,7 @@ public class Robot extends SampleRobot {
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
 	private final int AUTO_PORT_1 = 8;
 	private final int AUTO_PORT_2 = 9;
+	private final int ARM_CAN_PORT = 0;
 
 	private final int ARM_ENC_A = 0;
 	private final int ARM_ENC_B = 1;
@@ -54,7 +55,7 @@ public class Robot extends SampleRobot {
 
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
-	private final double ARM_ENC_CODE_PER_REV = 497;
+	private final int ARM_ENC_CODE_PER_REV = 497 * 3; // ACCOUNTED FOR GEAR RATIO
 	private final int DRIVE_WHEEL_DIAM = 8;
 	private final double WHEEL_CIRCUMFERENCE = DRIVE_WHEEL_DIAM * Math.PI;
 	private final double MAX_SPEED = 72; // in inches
@@ -75,8 +76,8 @@ public class Robot extends SampleRobot {
 	
 	private FRCGyroAccelerometer gyro;
 	private BuiltInAccelerometer accel;
-	private Talon armMotor;
-	private QuadratureEncoder armPositionEncoder;
+	private CANJaguar armMotor;
+	//private QuadratureEncoder armPositionEncoder;
 	private CANTalon winchMotor;
 	private DigitalInput auto1;
 	private DigitalInput auto2;
@@ -112,10 +113,10 @@ public class Robot extends SampleRobot {
 		talonDrive.calibrateGyro();
 		accel = new BuiltInAccelerometer();
 		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armMotor = new Talon(0);
-		armMotor.setInverted(true);
-		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
-		armPositionEncoder.setDistancePerPulse(360 * 3);
+		armMotor = new CANJaguar(ARM_CAN_PORT);
+		initArm();
+		//armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
+		//armPositionEncoder.setDistancePerPulse(360 * 3);
 		pad = new LogitechGamingPad(0);
 		drivePressed = false;
 		speedToggle = false;
@@ -124,6 +125,29 @@ public class Robot extends SampleRobot {
 		auto2 = new DigitalInput(AUTO_PORT_2);
 
 		pdp.clearStickyFaults();
+	}
+	
+	private void initArm()
+	{
+		armMotor.free();
+		armMotor = new CANJaguar(ARM_CAN_PORT);
+		armMotor.setInverted(true);
+		armMotor.setPositionMode(CANJaguar.kQuadEncoder, ARM_ENC_CODE_PER_REV, 1500, .002, 1000);
+		//armMotor.configEncoderCodesPerRev(ARM_ENC_CODE_PER_REV * 3);
+		armMotor.configForwardLimit(MAX_ARM_VALUE);
+		armMotor.configLimitMode(LimitMode.SoftPositionLimits);
+		armMotor.enableControl(0);
+	}
+	
+	
+	
+	private double getAngle()
+	{
+		if (armMotor.getControlMode() == JaguarControlMode.Position)
+		{
+			return armMotor.getPosition() * 360;
+		}
+		return 0;
 	}
 
 	// AUTONOMOUS MODES
@@ -323,8 +347,6 @@ public class Robot extends SampleRobot {
 	private final int MAX_ARM_VALUE = 120; // for now
 	private final int MID_ARM_VALUE = 90; // for now
 	private final int MIN_ARM_VALUE = 0; // for now
-	private int goalValue;
-	private int encoderValue;
 
 	private final double MOVE_POWER = 0.5;
 	private final double REST_BOT_POWER = 0.3;
@@ -347,18 +369,36 @@ public class Robot extends SampleRobot {
 	private boolean calibrateStarting = false;
 	
 	private long currTime = 0L;
-	private long caliStart = 0L;
+	private long checkTime = 0L;
+	private double checkAngle = 0;
+	private double currAngle = 0;
+	private int goalValue;
 
 
-	private void calibrateArm()
+	private boolean calibrateArm()
 	{
-		armMotor.set(-.025);
+		armMotor.set(-.25);
+		if (currTime - checkTime >= 250) // check every .5 seconds
+		{
+			checkTime = currTime;
+			checkAngle = currAngle;
+			if (checkAngle - currAngle <= 2)
+			{
+				armMotor.set(0);
+				armMotor.free();
+				armMotor = new CANJaguar(ARM_CAN_PORT);
+				initArm();
+				calibrateStarting = true;
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private void doArm() {
 		currTime = System.currentTimeMillis();
-		/*
-		encoderValue = armPositionEncoder.get(); // accounted for gear ratio of arm
+		currAngle = getAngle(); // accounted for gear ratio of arm
+
 		if (manualButtonPressed && !manPressed) {
 			manPressed = true;
 			isManualState = !isManualState;
@@ -383,19 +423,23 @@ public class Robot extends SampleRobot {
 		case CALIBRATE_STATE:
 			if (calibrateStarting)
 			{
-				caliStart = currTime;
+				checkTime = currTime;
+				checkAngle = currAngle;
+				armMotor.setPercentMode(CANJaguar.kQuadEncoder, ARM_ENC_CODE_PER_REV);
+				armMotor.enableControl(armMotor.getPosition());
 				calibrateStarting = false;
 			}
-			calibrateArm();
+			if(calibrateArm())
+				stateOfArm = BOTTOM_STATE;
 			break;
 		case RELEASE_STATE:
 			prevState = RELEASE_STATE;
 			goalValue = RELEASE_ARM_VALUE;
 
-			if (encoderValue < goalValue && !winchRelease)
+			if (currAngle < goalValue && !winchRelease)
 				armMotor.set(MOVE_POWER);
 
-			if (encoderValue > RELEASE_ARM_VALUE) {
+			if (currAngle > RELEASE_ARM_VALUE) {
 				if (releaseWinchPressed) {
 					winchRelease = true;
 					winchMotor.set(winchTrigger);
@@ -411,9 +455,9 @@ public class Robot extends SampleRobot {
 			/*if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
 				// set to a constant power
 				armMotor.set(CONSTANT_POWER);
-			else *//*if (encoderValue > goalValue)
+			else */if (currAngle > goalValue)
 				armMotor.set(-MOVE_POWER);
-			else if (encoderValue < goalValue)
+			else if (currAngle < goalValue)
 				armMotor.set(MOVE_POWER);
 			
 			if (pad.getLeftBumper())
@@ -424,12 +468,12 @@ public class Robot extends SampleRobot {
 			prevState = MIDDLE_STATE;
 			goalValue = MID_ARM_VALUE;
 
-			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+			if (goalValue - currAngle >= -THRESHOLD_VALUE && goalValue - currAngle <= THRESHOLD_VALUE)
 				// set to a constant power
 				armMotor.set(CONSTANT_POWER);
-			else if (encoderValue > goalValue)
+			else if (currAngle > goalValue)
 				armMotor.set(-MOVE_POWER);
-			else if (encoderValue < goalValue)
+			else if (currAngle < goalValue)
 				armMotor.set(MOVE_POWER);
 			if (pad.getRightBumper())
 				stateOfArm = TOP_STATE;
@@ -441,17 +485,17 @@ public class Robot extends SampleRobot {
 			prevState = BOTTOM_STATE;
 			goalValue = MIN_ARM_VALUE;
 		
-			if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
+			if (goalValue - currAngle >= -THRESHOLD_VALUE && goalValue - currAngle <= THRESHOLD_VALUE)
 				// set to a constant power
 				armMotor.set(CONSTANT_POWER);
-			else if (encoderValue > goalValue)
+			else if (currAngle > goalValue)
 				armMotor.set(-MOVE_POWER);
 			
 			if (pad.getRightBumper())
 				stateOfArm = MIDDLE_STATE;
 			dash.putString("State: ", "bottom");
 			break;
-		case MANUAL_STATE:*/
+		case MANUAL_STATE:
 			if (pad.getRightBumper())// && encoderValue < MAX_ARM_VALUE)
 				armMotor.set(ARM_MAN_POWER);
 			else if (pad.getLeftBumper())// && encoderValue > MIN_ARM_VALUE)
@@ -459,8 +503,8 @@ public class Robot extends SampleRobot {
 			else
 				armMotor.set(0);
 			dash.putString("State: ", "EMANUEL");
-			/*break;
-		}*/
+			break;
+		}
 	}
 
 	private boolean speedToggle = false;
