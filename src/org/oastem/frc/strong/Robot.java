@@ -9,22 +9,12 @@ import org.oastem.frc.strong.*;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.CANTalon;
 
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
 
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
-import edu.wpi.first.wpilibj.RobotDrive;
-import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
-import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 
@@ -127,8 +117,8 @@ public class Robot extends SampleRobot {
 		armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
 		armPositionEncoder.setDistancePerPulse(360 * 3);
 		pad = new LogitechGamingPad(0);
-		//drivePressed = false;
-		//speedToggle = false;
+		drivePressed = false;
+		speedToggle = false;
 		pdp = new PowerDistributionPanel();
 		auto1 = new DigitalInput(AUTO_PORT_1);
 		auto2 = new DigitalInput(AUTO_PORT_2);
@@ -259,7 +249,7 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		boolean stop = false;
 
-		// gyro.resetGyro();
+		gyro.resetGyro();
 		int what = 0; // Spring insisted
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
