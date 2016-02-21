@@ -378,10 +378,8 @@ public class Robot extends SampleRobot {
 	private boolean calibrateArm()
 	{
 		armMotor.set(-.25);
-		if (currTime - checkTime >= 250) // check every .5 seconds
+		if (currTime - checkTime >= 250) // check every .25 seconds
 		{
-			checkTime = currTime;
-			checkAngle = currAngle;
 			if (checkAngle - currAngle <= 2)
 			{
 				armMotor.set(0);
@@ -391,6 +389,8 @@ public class Robot extends SampleRobot {
 				calibrateStarting = true;
 				return true;
 			}
+			checkTime = currTime;
+			checkAngle = currAngle;
 		}
 		return false;
 	}
@@ -403,7 +403,11 @@ public class Robot extends SampleRobot {
 			manPressed = true;
 			isManualState = !isManualState;
 			if (isManualState)
+			{
+				armMotor.setPercentMode(CANJaguar.kQuadEncoder, ARM_ENC_CODE_PER_REV);
+				armMotor.enableControl(armMotor.getPosition());
 				stateOfArm = MANUAL_STATE;
+			}
 			else
 				stateOfArm = prevState;
 		}
@@ -452,13 +456,7 @@ public class Robot extends SampleRobot {
 			prevState = TOP_STATE;
 			goalValue = MAX_ARM_VALUE;
 
-			/*if (goalValue - encoderValue >= -THRESHOLD_VALUE && goalValue - encoderValue <= THRESHOLD_VALUE)
-				// set to a constant power
-				armMotor.set(CONSTANT_POWER);
-			else */if (currAngle > goalValue)
-				armMotor.set(-MOVE_POWER);
-			else if (currAngle < goalValue)
-				armMotor.set(MOVE_POWER);
+			armMotor.set(goalValue);
 			
 			if (pad.getLeftBumper())
 				stateOfArm = MIDDLE_STATE;
@@ -468,13 +466,8 @@ public class Robot extends SampleRobot {
 			prevState = MIDDLE_STATE;
 			goalValue = MID_ARM_VALUE;
 
-			if (goalValue - currAngle >= -THRESHOLD_VALUE && goalValue - currAngle <= THRESHOLD_VALUE)
-				// set to a constant power
-				armMotor.set(CONSTANT_POWER);
-			else if (currAngle > goalValue)
-				armMotor.set(-MOVE_POWER);
-			else if (currAngle < goalValue)
-				armMotor.set(MOVE_POWER);
+			armMotor.set(goalValue);
+			
 			if (pad.getRightBumper())
 				stateOfArm = TOP_STATE;
 			else if (pad.getLeftBumper())
@@ -485,11 +478,7 @@ public class Robot extends SampleRobot {
 			prevState = BOTTOM_STATE;
 			goalValue = MIN_ARM_VALUE;
 		
-			if (goalValue - currAngle >= -THRESHOLD_VALUE && goalValue - currAngle <= THRESHOLD_VALUE)
-				// set to a constant power
-				armMotor.set(CONSTANT_POWER);
-			else if (currAngle > goalValue)
-				armMotor.set(-MOVE_POWER);
+			armMotor.set(goalValue);
 			
 			if (pad.getRightBumper())
 				stateOfArm = MIDDLE_STATE;
