@@ -52,7 +52,6 @@ public class Robot extends SampleRobot {
 	private final int ARM_ENC_A = 0;
 	private final int ARM_ENC_B = 1;
 
-
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
 	private final int ARM_ENC_CODE_PER_REV = 497 * 3; // ACCOUNTED FOR GEAR RATIO
@@ -72,12 +71,10 @@ public class Robot extends SampleRobot {
 	private final String customAuto1 = "Low Terrain";
 	private final String customAuto2 = "Other Terrain";
 	private final String customAuto3 = "Portcullis";
-	private SendableChooser drive;
 	
 	private FRCGyroAccelerometer gyro;
 	private BuiltInAccelerometer accel;
 	private CANJaguar armMotor;
-	//private QuadratureEncoder armPositionEncoder;
 	private CANTalon winchMotor;
 	private DigitalInput auto1;
 	private DigitalInput auto2;
@@ -89,9 +86,11 @@ public class Robot extends SampleRobot {
 	private boolean armUpPressed;
 	private boolean armDownPressed;
 	private boolean manualButtonPressed;
+	private boolean releaseWinchPressed;
+	private boolean noScopePressed;
+	private boolean speedPressed;
 	private boolean eStop1Pressed;
 	private boolean eStop2Pressed;
-	private boolean releaseWinchPressed;
 	
 
 	public Robot() {
@@ -100,31 +99,29 @@ public class Robot extends SampleRobot {
 	}
 
 	public void robotInit() {
+		dash = new SmartDashboard();
+		gyro = new FRCGyroAccelerometer();
+		talonDrive.calibrateGyro();
+		armMotor = new CANJaguar(ARM_CAN_PORT);
+		initArm();
+		pad = new LogitechGamingPad(0);
+		
+		auto1 = new DigitalInput(AUTO_PORT_1);
+		auto2 = new DigitalInput(AUTO_PORT_2);
+
 		autoSelect = new SendableChooser();
 		autoSelect.addDefault("Test", defaultAuto);
 		autoSelect.addObject("Low Terrain", customAuto1);
 		autoSelect.addObject("Other Terrain", customAuto2);
 		autoSelect.addObject("Portcullis", customAuto3);
-
-		SmartDashboard.putData("Auto modes", autoSelect);
 		
-		dash = new SmartDashboard();
-		gyro = new FRCGyroAccelerometer();
-		talonDrive.calibrateGyro();
-		accel = new BuiltInAccelerometer();
-		accel = new BuiltInAccelerometer(Accelerometer.Range.k4G);
-		armMotor = new CANJaguar(ARM_CAN_PORT);
-		initArm();
-		//armPositionEncoder = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, ARM_ENC_CODE_PER_REV);
-		//armPositionEncoder.setDistancePerPulse(360 * 3);
-		pad = new LogitechGamingPad(0);
-		drivePressed = false;
-		speedToggle = false;
-		pdp = new PowerDistributionPanel();
-		auto1 = new DigitalInput(AUTO_PORT_1);
-		auto2 = new DigitalInput(AUTO_PORT_2);
+		SmartDashboard.putData("Auto modes", autoSelect);
 
+		pdp = new PowerDistributionPanel();
 		pdp.clearStickyFaults();
+		
+		drive = false;
+		speedToggle = false;
 	}
 	
 	private void initArm()
@@ -180,31 +177,19 @@ public class Robot extends SampleRobot {
 		} else {
 			if (auto2.get())
 				autoMode = PORTCULLIS;
-		}
+		}*/
 
 		while (isAutonomous() && isEnabled()) {
-
-			int autoMode = TEST;
-			if (auto1.get()) {
-				if (auto2.get())
-					talonDrive.tankDrive(0.25, -0.25);
-					//talonDrive.fakeDriveDistance(WHEEL_CIRCUMFERENCE, true);
-					//autoMode = LOW_BAR;
-				else
-					autoMode = OTHER_TERRAIN;
-			} else {
-				if (auto2.get())
-					autoMode = PORTCULLIS;
-			}
-			dash.putNumber("Autonomous State", autoMode);/*
-
+			dash.putNumber("Autonomous Type:", autoMode);
+			dash.putString("Autonomous State:", state);
+			
 			if (state.equals("Neutral") && passDefense(autoMode))
 				state = "Passed";
 			if (state.equals("Passed") && reverse(autoMode))
 				state = "Returned";
 			if (state.equals("Returned") && reset(autoMode))
 				state = "Back";
-		}*/
+		}
 	}
 
 	private boolean passDefense(int mode) {
@@ -292,10 +277,12 @@ public class Robot extends SampleRobot {
 			winchTrigger = pad.getRightTriggerValue();
 			armUpPressed = pad.getRightBumper();
 			armDownPressed = pad.getLeftBumper();
+			releaseWinchPressed = pad.getYButton();
+			noScopePressed = pad.getXButton();
+			speedPressed = pad.getAButton();
 			manualButtonPressed = pad.getBButton();
 			eStop1Pressed = pad.getBackButton();
 			eStop2Pressed = pad.getStartButton();
-			releaseWinchPressed = pad.getYButton();
 
 			if (eStop1Pressed && eStop2Pressed)
 				stop = true;
@@ -320,17 +307,19 @@ public class Robot extends SampleRobot {
 				} else if (pad.checkDPad(7)) {
 					talonDrive.tankDrive(scaleTrigger(0), scaleTrigger(1.0));
 				} else
-					System.out.println("lol");
-					//motorDrive();
-				//doArm();
-				if (pad.getRightBumper()){
+					motorDrive();
+				doArm();
+				
+				/*
+				if (armUpPressed){
 					armMotor.set(1);
 				}
-				else if (pad.getLeftBumper()){
+				else if (armDownPressed){
 					armMotor.set(-0.65);
 				}
 				else
 					armMotor.set(0);
+					*/
 			}
 		}
 	}
@@ -497,8 +486,35 @@ public class Robot extends SampleRobot {
 	}
 
 	private boolean speedToggle = false;
-	private boolean drivePressed;
+	private boolean drive;
 
+
+
+	private void motorDrive() {
+		// max 2 yd per sec = 72 in per sec
+		// C = 1 rotation = 25.1327412287 in 
+		// rps = 2.86478897565
+		// rpm = 171.887338539
+		
+		if (speedPressed && !drive) {
+			drive = true;
+			speedToggle = !speedToggle;
+		}
+		if (!speedPressed)
+			drive = false;
+
+		if (speedToggle){
+			talonDrive.driveStraight(pad.getLeftAnalogY() * -30);
+		} else
+			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()) * -1,
+					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
+		// dash.putBoolean("speedtoggle", speedToggle);
+	}
+
+	private double scaleTrigger(double trigger) {
+		return Math.min(1.0, 1.0 - 0.9 * trigger);
+	}
+	
 	private boolean speedUpPressed = true;
 	private boolean speedDownPressed = true;
 	private boolean pUpPressed = true;
@@ -514,47 +530,6 @@ public class Robot extends SampleRobot {
 	private double i = 0;
 	private double d = 0;
 	private double f = 0.534;
-
-
-	private void motorDrive() {
-		// max 2 yd per sec = 72 in per sec
-		// C = 1 rotation = 25.1327412287 in
-		// rps = 2.86478897565
-		// rpm = 171.887338539
-
-		/*
-		 * if (pad.getAButton() && !drivePressed) { drivePressed = true;
-		 * speedToggle = !speedToggle; } if (!pad.getAButton()) drivePressed =
-		 * false;
-		 * 
-		 * if (speedToggle) { talonDrive.speedTankDrive(6, 6, false);/*
-		 * talonDrive.speedTankDrive(pad.getLeftAnalogY() * -1 *
-		 * scaleTrigger(pad.getLeftTriggerValue()), pad.getRightAnalogY() *
-		 * scaleTrigger(pad.getLeftTriggerValue())); } else {
-		 * talonDrive.accelTankDrive(pad.getLeftAnalogY() *
-		 * scaleTrigger(pad.getLeftTriggerValue()), pad.getRightAnalogY() *
-		 * scaleTrigger(pad.getLeftTriggerValue())); }
-		 */
-		if (pad.getLeftBumper() && !drivePressed) {
-			drivePressed = true;
-			speedToggle = !speedToggle;
-		}
-		if (!pad.getLeftBumper())
-			drivePressed = false;
-
-		
-
-		if (speedToggle){
-			talonDrive.driveStraight(pad.getLeftAnalogY() * -30);
-		} else
-			talonDrive.tankDrive(pad.getLeftAnalogY() * scaleTrigger(pad.getLeftTriggerValue()) * -1,
-					pad.getRightAnalogY() * scaleTrigger(pad.getLeftTriggerValue()));
-		// dash.putBoolean("speedtoggle", speedToggle);
-	}
-
-	private double scaleTrigger(double trigger) {
-		return Math.min(1.0, 1.0 - 0.9 * trigger);
-	}
 
 	/**
 	 * Runs during test mode
