@@ -5,21 +5,17 @@ import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.CANTalon;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CANJaguar;
-import edu.wpi.first.wpilibj.CANJaguar.JaguarControlMode;
 import edu.wpi.first.wpilibj.CANJaguar.LimitMode;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 
-import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-import edu.wpi.first.wpilibj.interfaces.Accelerometer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -47,12 +43,11 @@ public class Robot extends SampleRobot {
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
 	private final int AUTO_PORT_1 = 8;
 	private final int AUTO_PORT_2 = 9;
+	private final int ASSIST_LIMIT_PORT = 0;
 	private final int ARM_CAN_PORT = 0;
 	private final int WINCH_PORT = 1;
 	private final int ARM_ASSIST_PORT = 0;
 
-	private final int ARM_ENC_A = 0;
-	private final int ARM_ENC_B = 1;
 
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
@@ -82,17 +77,18 @@ public class Robot extends SampleRobot {
 	private Talon armAssistMotor;
 	private DigitalInput auto1;
 	private DigitalInput auto2;
+	private DigitalInput armAssistLimit;
 
 	// Joystick commands
 
 	private double slowTrigger;
 	private double winchTrigger;
-	private boolean armUpPressed;
-	private boolean armDownPressed;
+	private boolean armUpButtonPressed;
+	private boolean armDownButtonPressed;
 	private boolean manualButtonPressed;
-	private boolean releaseWinchPressed;
-	private boolean noScopePressed;
-	private boolean speedPressed;
+	private boolean releaseWinchButtonPressed;
+	private boolean activateAssistButtonPressed;
+	private boolean speedButtonPressed;
 	private boolean straightPressed1;
 	private boolean straightPressed2;
 	private boolean eStop1Pressed;
@@ -109,13 +105,16 @@ public class Robot extends SampleRobot {
 		gyro = new FRCGyroAccelerometer();
 		talonDrive.calibrateGyro();
 		armMotor = new CANJaguar(ARM_CAN_PORT);
-		winchMotor = new Talon(WINCH_PORT);
-		armAssistMotor = new Talon(ARM_ASSIST_PORT);
 		initArm();
+		winchMotor = new Talon(WINCH_PORT);
+		//winchMotor.setInverted(true);
+		armAssistMotor = new Talon(ARM_ASSIST_PORT);
+		//armAssistMotor.setInverted(true);
 		pad = new LogitechGamingPad(0);
 
 		auto1 = new DigitalInput(AUTO_PORT_1);
 		auto2 = new DigitalInput(AUTO_PORT_2);
+		armAssistLimit = new DigitalInput(ASSIST_LIMIT_PORT);
 
 		autoSelect = new SendableChooser();
 		autoSelect.addDefault("Test", defaultAuto);
@@ -143,12 +142,6 @@ public class Robot extends SampleRobot {
 		armMotor.enableControl(0);
 	}
 
-	private double getAngle() {
-		if (armMotor.getControlMode() == JaguarControlMode.Position) {
-			return armMotor.getPosition() * 360;
-		}
-		return 0;
-	}
 
 	// AUTONOMOUS MODES
 
@@ -253,6 +246,7 @@ public class Robot extends SampleRobot {
 	 * Runs the motors with arcade steering.
 	 */
 	public void operatorControl() {
+		startTeleopTime = System.currentTimeMillis();
 		boolean stop = false;
 
 		gyro.resetGyro();
@@ -273,21 +267,30 @@ public class Robot extends SampleRobot {
 			slowTrigger = pad.getLeftTriggerValue();
 			winchTrigger = pad.getRightTriggerValue();
 
-			if (!armPressed) {
-				armUpPressed = pad.getRightBumper();
-				armDownPressed = pad.getLeftBumper();
-				armPressed = true;
-			} else {
-				armUpPressed = false;
-				armDownPressed = false;
+			if (!isManualState && !isPortcullisState)
+			{
+				if (!armPressed) {
+					armUpButtonPressed = pad.getRightBumper();
+					armDownButtonPressed = pad.getLeftBumper();
+					if (armUpButtonPressed || armDownButtonPressed)
+						armPressed = true;
+				} else {
+					armUpButtonPressed = false;
+					armDownButtonPressed = false;
+				}
+				if (!pad.getRightBumper() && !pad.getLeftBumper()) {
+					armPressed = false;
+				}
 			}
-			if (!armUpPressed && !armDownPressed) {
-				armPressed = false;
+			else
+			{
+				armUpButtonPressed = pad.getRightBumper();
+				armDownButtonPressed = pad.getLeftBumper();
 			}
 
-			releaseWinchPressed = pad.getYButton();
-			noScopePressed = pad.getXButton();
-			speedPressed = pad.getAButton();
+			releaseWinchButtonPressed = pad.getYButton();
+			activateAssistButtonPressed = pad.getXButton();
+			speedButtonPressed = pad.getAButton();
 			manualButtonPressed = pad.getBButton();
 			straightPressed1 = pad.getLeftAnalogButton();
 			straightPressed2 = pad.getRightAnalogButton();
@@ -333,48 +336,57 @@ public class Robot extends SampleRobot {
 	private final int TOP_STATE = 0;
 	private final int MIDDLE_STATE = 1;
 	private final int BOTTOM_STATE = 2;
+	private final int PORTCULLIS_STATE = 3;
 	private final int RELEASE_STATE = 5;
 	private final int CALIBRATE_STATE = 6;
 	private final int MANUAL_STATE = 8;
 
-	private final int RELEASE_ARM_VALUE = 180 / 360; // for now
-	private final int MAX_ARM_VALUE = 120 / 360; // for now
-	private final int MID_ARM_VALUE = 90 / 360; // for now
-	private final int MIN_ARM_VALUE = 0 / 360; // for now
+	private final int RELEASE_ARM_VALUE = 180; // for now
+	private final int MAX_ARM_VALUE = 120; // for now
+	private final int MID_ARM_VALUE = 90; // for now
+	private final int MIN_ARM_VALUE = 0; // for now
 
 	private final double MOVE_POWER = 0.5;
 	private final double REST_BOT_POWER = 0.3;
 	private final double REST_MID_POWER = 0.4;
 	private final double REST_TOP_POWER = 0.3;
 	private final double ARM_MAN_POWER = 0.65;
+	private final double ARM_RESET_POW = 0.25;
 
 	private int THRESHOLD_VALUE = 10;
 	private double CONSTANT_POWER = .0275; // for now
 
-	private int stateOfArm = BOTTOM_STATE;
-	// private boolean isManualState = false; was originally this but
-	private boolean isManualState = true; // use this for testing
+	private int stateOfArm = CALIBRATE_STATE;
+	private boolean isManualState = false; //was originally this but
+	//private boolean isManualState = true; // use this for testing
+	private boolean isPortcullisState = false;
 	private int prevState;
-	private boolean manPressed;
+	private boolean manToggle = false;
+	private boolean assistToggle = false;
+	private boolean armAssistReset = false;
+	private boolean armDown = false;
 	private boolean released = false;
-	private boolean releasePressed;
-	private boolean winchRelease = false;
-	private boolean calibrateStarting = false;
+	private boolean releaseToggle = false;
+	private boolean abortRelease = false;
+	private boolean calibrateStarting = true;
 
+	private long startTeleopTime = 0L;
 	private long currTime = 0L;
 	private long checkTime = 0L;
 	private double checkAngle = 0;
 	private double currAngle = 0;
 	private int goalValue;
 
+	private double getAngle() {
+		return armMotor.getPosition() * 360;
+	}
+	
 	private boolean calibrateArm() {
-		armMotor.set(-.25);
+		armMotor.set(-ARM_RESET_POW);
 		if (currTime - checkTime >= 250) // check every .25 seconds
 		{
-			if (checkAngle - currAngle <= 2 && !armMotor.getReverseLimitOK()) {
+			if (checkAngle - currAngle <= 2 || !armMotor.getReverseLimitOK()) {
 				armMotor.set(0);
-				armMotor.free();
-				armMotor = new CANJaguar(ARM_CAN_PORT);
 				initArm();
 				calibrateStarting = true;
 				return true;
@@ -389,8 +401,9 @@ public class Robot extends SampleRobot {
 		currTime = System.currentTimeMillis();
 		currAngle = getAngle(); // accounted for gear ratio of arm
 
-		if (manualButtonPressed && !manPressed) {
-			manPressed = true;
+		/**** toggle EMANUAL state ****/
+		if (manualButtonPressed && !manToggle) {
+			manToggle = true;
 			isManualState = !isManualState;
 			if (isManualState) {
 				changeArmToPercent();
@@ -401,19 +414,48 @@ public class Robot extends SampleRobot {
 			}
 		}
 		if (!manualButtonPressed)
-			manPressed = false;
-
-		if (releaseWinchPressed && !releasePressed) {
-			releasePressed = true;
-			released = !released;
-			if (released)
-				stateOfArm = RELEASE_STATE;
+			manToggle = false;
+		
+		/**** toggle PORTCULLIS state ****/
+		if (activateAssistButtonPressed && !assistToggle) {
+			assistToggle = true;
+			isPortcullisState = !isPortcullisState;
+			if (isPortcullisState) {
+				armAssistReset = false;
+				changeArmToPercent();
+				stateOfArm = PORTCULLIS_STATE;
+			} else {
+				armDown = false;
+				armAssistReset = true;
+				changeArmToPosition();
+				stateOfArm = prevState;
+			}
 		}
-		if (!releaseWinchPressed)
-			releasePressed = false;
+		if (!activateAssistButtonPressed)
+			assistToggle = false;
+		
+		/**** Resetting assist arm ****/
+		if (armAssistReset && !armAssistLimit.get())
+			armAssistMotor.set(-ARM_MAN_POWER);
+		else if (!armDown)
+		{
+			armAssistReset = false;
+			armAssistMotor.set(0);
+		}
+
+		/*** WINCH RELEASE ****/
+		if (releaseWinchButtonPressed && !releaseToggle && (currTime - startTeleopTime >= 115000)) {
+			releaseToggle = true;
+			stateOfArm = RELEASE_STATE;
+			if (abortRelease && currAngle < RELEASE_ARM_VALUE)
+				stateOfArm = prevState;
+		}
+		if (!releaseWinchButtonPressed)
+			releaseToggle = false;
 
 		switch (stateOfArm) {
 		case CALIBRATE_STATE:
+			prevState = CALIBRATE_STATE;
 			if (calibrateStarting) {
 				checkTime = currTime;
 				checkAngle = currAngle;
@@ -424,18 +466,20 @@ public class Robot extends SampleRobot {
 				stateOfArm = BOTTOM_STATE;
 			break;
 		case RELEASE_STATE:
-			prevState = RELEASE_STATE;
 			goalValue = RELEASE_ARM_VALUE;
 
-			if (currAngle < goalValue && !winchRelease)
-				armMotor.set(MOVE_POWER);
+			if (!released)
+				armMotor.set(goalValue);
 
-			if (currAngle > RELEASE_ARM_VALUE) {
-				if (releaseWinchPressed) {
-					winchRelease = true;
-					winchMotor.set(winchTrigger);
-					// winchMotor.set(-winchTrigger);
-				}
+			if (armUpButtonPressed && armDownButtonPressed)
+				abortRelease = true;
+			
+			if (currAngle >= RELEASE_ARM_VALUE) {
+				released = true;
+				changeArmToPercent();
+				armMotor.set(-ARM_RESET_POW);
+				winchMotor.set(winchTrigger);
+				// winchMotor.set(-winchTrigger);
 			}
 			dash.putString("State: ", "release state");
 			break;
@@ -443,9 +487,9 @@ public class Robot extends SampleRobot {
 			prevState = TOP_STATE;
 			goalValue = MAX_ARM_VALUE;
 
-			armMotor.set(goalValue);
+			armMotor.set(goalValue/360);
 
-			if (armDownPressed)
+			if (armDownButtonPressed)
 				stateOfArm = MIDDLE_STATE;
 			dash.putString("State: ", "top state");
 			break;
@@ -453,11 +497,11 @@ public class Robot extends SampleRobot {
 			prevState = MIDDLE_STATE;
 			goalValue = MID_ARM_VALUE;
 
-			armMotor.set(goalValue);
+			armMotor.set(goalValue/360);
 
-			if (armUpPressed)
+			if (armUpButtonPressed)
 				stateOfArm = TOP_STATE;
-			else if (armDownPressed)
+			else if (armDownButtonPressed)
 				stateOfArm = BOTTOM_STATE;
 			dash.putString("State: ", "middle state");
 			break;
@@ -465,16 +509,39 @@ public class Robot extends SampleRobot {
 			prevState = BOTTOM_STATE;
 			goalValue = MIN_ARM_VALUE;
 
-			armMotor.set(goalValue);
+			armMotor.set(goalValue/360);
 
-			if (armUpPressed)
+			if (armUpButtonPressed)
 				stateOfArm = MIDDLE_STATE;
 			dash.putString("State: ", "bottom");
 			break;
+		case PORTCULLIS_STATE:
+			if (armDown)
+			{
+				if (armUpButtonPressed && getAngle() < MAX_ARM_VALUE)
+				{
+					armMotor.set(ARM_MAN_POWER);
+					armAssistMotor.set(ARM_MAN_POWER);
+				}
+				else if (armDownButtonPressed && (getAngle() > MIN_ARM_VALUE) && (!armAssistLimit.get()))
+				{
+					armMotor.set(-ARM_MAN_POWER);
+					armAssistMotor.set(-ARM_MAN_POWER);
+				}
+				else
+				{
+					armMotor.set(0);
+					armAssistMotor.set(0);
+				}
+			}
+			else
+				armDown();
+			dash.putString("State: ", "Portcullis");
+			break;
 		case MANUAL_STATE:
-			if (armUpPressed)// && encoderValue < MAX_ARM_VALUE)
+			if (armUpButtonPressed)// && encoderValue < MAX_ARM_VALUE)
 				armMotor.set(ARM_MAN_POWER);
-			else if (armDownPressed)// && encoderValue > MIN_ARM_VALUE)
+			else if (armDownButtonPressed)// && encoderValue > MIN_ARM_VALUE)
 				armMotor.set(-ARM_MAN_POWER);
 			else
 				armMotor.set(0);
@@ -483,6 +550,17 @@ public class Robot extends SampleRobot {
 		}
 	}
 
+	private void armDown()
+	{
+		if (getAngle() < 3)
+		{
+			armDown = true;
+			armMotor.set(0);
+		}
+		else
+			armMotor.set(-ARM_MAN_POWER);
+	}
+	
 	private void changeArmToPercent() {
 		armMotor.setPercentMode(CANJaguar.kQuadEncoder, ARM_ENC_CODE_PER_REV);
 		armMotor.enableControl(armMotor.getPosition());
@@ -504,18 +582,18 @@ public class Robot extends SampleRobot {
 		// rps = 2.86478897565
 		// rpm = 171.887338539
 
-		if (speedPressed && !drive) {
+		if (speedButtonPressed && !drive) {
 			drive = true;
 			speedToggle = !speedToggle;
 		}
-		if (!speedPressed)
+		if (!speedButtonPressed)
 			drive = false;
 
 		if (straightPressed1 && straightPressed2 && !straight) {
 			straight = true;
 			straightToggle = !straightToggle;
 		}
-		if (!speedPressed)
+		if (!speedButtonPressed)
 			straight = false;
 
 		if (straightToggle)
