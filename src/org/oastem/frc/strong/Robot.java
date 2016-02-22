@@ -292,8 +292,6 @@ public class Robot extends SampleRobot {
 			activateAssistButtonPressed = pad.getXButton();
 			speedButtonPressed = pad.getAButton();
 			manualButtonPressed = pad.getBButton();
-			straightPressed1 = pad.getLeftAnalogButton();
-			straightPressed2 = pad.getRightAnalogButton();
 			eStop1Pressed = pad.getBackButton();
 			eStop2Pressed = pad.getStartButton();
 
@@ -304,7 +302,7 @@ public class Robot extends SampleRobot {
 
 			if (!stop) {
 				if (pad.checkDPad(0)) {
-					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(1.0));
+					talonDrive.driveStraight(60 * scaleTrigger(slowTrigger));
 				} else if (pad.checkDPad(1)) {
 					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(2)) {
@@ -312,7 +310,7 @@ public class Robot extends SampleRobot {
 				} else if (pad.checkDPad(3)) {
 					talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(-1.0));
 				} else if (pad.checkDPad(4)) {
-					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(-1.0));
+					talonDrive.driveStraight(-60 * scaleTrigger(slowTrigger));
 				} else if (pad.checkDPad(5)) {
 					talonDrive.faketankDrive(scaleTrigger(-1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(6)) {
@@ -572,9 +570,7 @@ public class Robot extends SampleRobot {
 	}
 
 	private boolean speedToggle = false;
-	private boolean drive;
-	private boolean straightToggle = false;
-	private boolean straight;
+	private boolean drive = false;
 
 	private void motorDrive() {
 		// max 2 yd per sec = 72 in per sec
@@ -589,20 +585,12 @@ public class Robot extends SampleRobot {
 		if (!speedButtonPressed)
 			drive = false;
 
-		if (straightPressed1 && straightPressed2 && !straight) {
-			straight = true;
-			straightToggle = !straightToggle;
-		}
-		if (!speedButtonPressed)
-			straight = false;
 
-		if (straightToggle)
-			talonDrive.driveStraight(pad.getLeftAnalogY() * -30 * scaleTrigger(slowTrigger));
-		else if (speedToggle)
+		if (speedToggle)
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -30 * scaleTrigger(slowTrigger),
 					pad.getRightAnalogY() * -30 * scaleTrigger(slowTrigger), false);
 		else
-			talonDrive.faketankDrive(pad.getLeftAnalogY() * scaleTrigger(slowTrigger),
+			talonDrive.faketankDrive(pad.getLeftAnalogY() * -scaleTrigger(slowTrigger),
 					pad.getRightAnalogY() * scaleTrigger(slowTrigger));
 		// dash.putBoolean("speedtoggle", speedToggle);
 	}
