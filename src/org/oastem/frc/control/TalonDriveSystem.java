@@ -145,7 +145,7 @@ public class TalonDriveSystem {// (:
 		if (tick++ == 0)
 			startAngle = currAngle;
 		
-		SmartDashboard.putNumber("Gyro", currAngle);
+		
 		SmartDashboard.putNumber("Start gyro", startAngle);
 		
 		double diff = Math.abs(currAngle - startAngle);
