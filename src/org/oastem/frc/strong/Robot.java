@@ -323,7 +323,7 @@ public class Robot extends SampleRobot {
 
 			if (!stop) {
 				if (pad.checkDPad(0)) {
-					talonDrive.driveStraight(60 * scaleTrigger(slowTrigger));
+					talonDrive.driveStraight(70 * scaleTrigger(slowTrigger));
 				} else if (pad.checkDPad(1)) {
 					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
 				} else if (pad.checkDPad(2)) {
@@ -605,6 +605,7 @@ public class Robot extends SampleRobot {
 			}
 			else
 				armDown();
+			
 			dash.putString("State: ", "Portcullis");
 			break;
 		case MANUAL_STATE:
@@ -685,24 +686,34 @@ public class Robot extends SampleRobot {
 
 	private boolean speedToggle = false;
 	private boolean drive = false;
-
+	private boolean straightToggle = false;
+	private boolean straight = false;
+	
 	private void motorDrive() {
 		// max 2 yd per sec = 72 in per sec
 		// C = 1 rotation = 25.1327412287 in
 		// rps = 2.86478897565
 		// rpm = 171.887338539
 
-		if (speedButtonPressed && !drive) {
+		if (speedButtonPressed && !drive && !straightToggle) {
 			drive = true;
 			speedToggle = !speedToggle;
 		}
 		if (!speedButtonPressed)
 			drive = false;
 
+		if (pad.getBButton() && !straight && !speedToggle) {
+			straight = true;
+			straightToggle = !straightToggle;
+		}
+		if (!pad.getBButton())
+			straight = false;
 
 		if (speedToggle)
 			talonDrive.speedTankDrive(pad.getLeftAnalogY() * -30 * scaleTrigger(slowTrigger),
 					pad.getRightAnalogY() * -30 * scaleTrigger(slowTrigger), false);
+		if (straightToggle)
+			talonDrive.driveStraight(20);
 		else
 			talonDrive.faketankDrive(pad.getLeftAnalogY() * -scaleTrigger(slowTrigger),
 					pad.getRightAnalogY() * -scaleTrigger(slowTrigger));
