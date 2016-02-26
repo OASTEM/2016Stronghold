@@ -197,6 +197,9 @@ public class ImageProcessing {
 		centerX /= points.get(0).size();
 		centerY /= points.get(0).size();
 		
+		dash.putNumber("center x:", centerX);
+		dash.putNumber("center y:", centerY);
+		
 		//System.out.println("Center X: " + centerX + ", Center Y: " + centerY);
 		
 		double[] lengths = new double[points.get(0).size()];
@@ -244,7 +247,7 @@ public class ImageProcessing {
 			}
 		}
 		
-		for (int i = 0; i < lengths.length; i++)
+		for (int i = 0; i < lengths.length && i < 4; i++)
 			dash.putNumber("Length " + (i + 1), lengths[i]);
 		
 		/*System.out.println("curr array after sort");

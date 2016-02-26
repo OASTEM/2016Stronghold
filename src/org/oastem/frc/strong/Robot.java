@@ -4,6 +4,7 @@ import org.oastem.frc.sensor.ImageProcessing;
 import org.oastem.frc.sensor.ImageProcessing.ProcessingType;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
@@ -36,6 +37,8 @@ public class Robot extends SampleRobot {
 	final String customAuto = "My Auto";
 	SendableChooser chooser;
 	SmartDashboard dash;
+	
+	CameraServer camera;
 
 	ImageProcessing process;
 
@@ -46,7 +49,10 @@ public class Robot extends SampleRobot {
 
 		dash = new SmartDashboard();
 		dash.putData("Auto modes", chooser);
-
+		
+		camera = CameraServer.getInstance();
+		camera.startAutomaticCapture("cam0");
+		
 		stickLeft = new Joystick(0);
 		stickLeft = new Joystick(1);
 		process = new ImageProcessing("GRIP/myContoursReport", "GRIP/myLinesReport", "GRIP/myBlobsReport");
@@ -125,8 +131,6 @@ public class Robot extends SampleRobot {
 				dash.putNumber("GonPoint " + (x+1) + "Y", finalPoints[x][1]);
 				dash.putString("AYY", "LMAO");
 			}*/
-			
-			dash.putNumber("what", yolo++);
 			
 		}
 	}
