@@ -7,6 +7,7 @@ import org.oastem.frc.sensor.*;
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CANJaguar;
@@ -52,6 +53,9 @@ public class Robot extends SampleRobot {
 	private final int ARM_ASSIST_PORT = 0;
 	private final int ARM_ENC_A = 2;
 	private final int ARM_ENC_B = 3;
+	private final int RED_LED_PORT = 4;
+	private final int GREEN_LED_PORT = 5;
+	private final int BLUE_LED_PORT = 6;
 
 	// Values
 	private final int DRIVE_ENC_CODE_PER_REV = 2048;
@@ -84,6 +88,9 @@ public class Robot extends SampleRobot {
 	private DigitalInput auto2;
 	private DigitalInput armAssistLimit;
 	private DigitalInput armLimit;
+	private PWM redLED;
+	private PWM greenLED;
+	private PWM blueLED;
 	private CameraServer camera;
 	private QuadratureEncoder armEnc;
 
@@ -110,6 +117,8 @@ public class Robot extends SampleRobot {
 
 	public void robotInit() {
 		dash = new SmartDashboard();
+		pad = new LogitechGamingPad(0);
+		/*
 		gyro = new FRCGyroAccelerometer();
 		talonDrive.calibrateGyro();
 		//armMotor = new CANJaguar(ARM_CAN_PORT);
@@ -120,7 +129,6 @@ public class Robot extends SampleRobot {
 		winchMotor.setInverted(true);
 		armAssistMotor = new Talon(ARM_ASSIST_PORT);
 		armAssistMotor.setInverted(true);
-		pad = new LogitechGamingPad(0);
 		
 		armEnc = new QuadratureEncoder(ARM_ENC_A, ARM_ENC_B, true, ARM_ENC_CODE_PER_REV);
 		armEnc.setDistancePerPulse(360);
@@ -144,7 +152,11 @@ public class Robot extends SampleRobot {
 		//pdp.clearStickyFaults();
 
 		drive = false;
-		speedToggle = false;
+		speedToggle = false;*/
+		
+		redLED = new PWM(RED_LED_PORT);
+		greenLED = new PWM(GREEN_LED_PORT);
+		blueLED = new PWM(BLUE_LED_PORT);
 	}
 
 	private void initArm() {
@@ -740,92 +752,152 @@ public class Robot extends SampleRobot {
 	private double d = 0;
 	private double f = 0.534;
 
+	
+	private int red = 0;
+	private int green = 0;
+	private int blue = 0;
+	
+	private boolean fade(int r, int g, int b)
+	{
+		boolean red = false;
+		boolean green = false;
+		boolean blue = false;
+		
+		// RED
+		if (this.red < r)
+			this.red++;
+		else if (this.red > r)
+			this.red--;
+		else
+			red = true;
+		
+		// GREEN
+		if (this.green < g)
+			this.green++;
+		else if (this.green > g)
+			this.green--;
+		else
+			green = true;
+		
+		// BLUE
+		if (this.blue < b)
+			this.blue++;
+		else if (this.blue > b)
+			this.blue--;
+		else
+			blue = true;
+		
+		redLED.setRaw(this.red);
+		greenLED.setRaw(this.green);
+		blueLED.setRaw(this.blue);
+		
+		return red && green && blue;
+	}
+	
+	
+	
+	private final boolean LED_TESTING = true;
 	/**
 	 * Runs during test mode
 	 */
 	public void test() {
-		// RPM
-		if (pad.getBackButton() && !speedUpPressed) {
-			speedUpPressed = true;
-			rpm += 1;
+		if (LED_TESTING)
+		{
+			if (pad.getBButton())
+				fade(255, 0, 0);
+			else if (pad.getAButton())
+				fade(0, 255, 0);
+			else if (pad.getXButton())
+				fade(0, 0, 255);
+			else
+				fade(0, 0, 0);
 		}
-		if (!pad.getBackButton())
-			speedUpPressed = false;
-
-		if (pad.getStartButton() && !speedDownPressed) {
-			speedDownPressed = true;
-			rpm -= 1;
+		else
+		{
+			
+			// RPM
+			if (pad.getBackButton() && !speedUpPressed) {
+				speedUpPressed = true;
+				rpm += 1;
+			}
+			if (!pad.getBackButton())
+				speedUpPressed = false;
+			
+			if (pad.getStartButton() && !speedDownPressed) {
+				speedDownPressed = true;
+				rpm -= 1;
+			}
+			if (!pad.getStartButton())
+				speedDownPressed = false;
+			
+			// P value
+			if (pad.getDPad() == 0 && !pUpPressed) {
+				pUpPressed = true;
+				p += 0.1;
+			}
+			if (!(pad.getDPad() == 0))
+				pUpPressed = false;
+			
+			if (pad.getDPad() == 4 && !pDownPressed) {
+				pDownPressed = true;
+				p -= 0.1;
+			}
+			if (!(pad.getDPad() == 4))
+				pDownPressed = false;
+			
+			// I value
+			if (pad.getDPad() == 2 && !iUpPressed) {
+				iUpPressed = true;
+				i += 0.1;
+			}
+			if (!(pad.getDPad() == 2))
+				iUpPressed = false;
+			
+			if (pad.getDPad() == 6 && !iDownPressed) {
+				iDownPressed = true;
+				i -= 0.1;
+			}
+			if (!(pad.getDPad() == 6))
+				iDownPressed = false;
+			
+			// D value
+			if (pad.getYButton() && !dUpPressed) {
+				dUpPressed = true;
+				d += 0.1;
+			}
+			if (!pad.getYButton())
+				dUpPressed = false;
+			
+			if (pad.getAButton() && !dDownPressed) {
+				dDownPressed = true;
+				d -= 0.1;
+			}
+			if (!pad.getAButton())
+				dDownPressed = false;
+			
+			// F value
+			if (pad.getXButton() && !fUpPressed) {
+				fUpPressed = true;
+				f += 0.01;
+			}
+			if (!pad.getXButton())
+				fUpPressed = false;
+			
+			if (pad.getBButton() && !fDownPressed) {
+				fDownPressed = true;
+				f -= 0.01;
+			}
+			if (!pad.getBButton())
+				fDownPressed = false;
+			
+			talonDrive.speedTankDrive(pad.getLeftAnalogY() * rpm * -1, pad.getRightAnalogY() * rpm * -1, false);
+			talonDrive.setPID(p, i, d, f);
+			
+			dash.putNumber("RPM", rpm);
+			dash.putNumber("P", p);
+			dash.putNumber("I", i);
+			dash.putNumber("D", d);
+			dash.putNumber("F", f);
 		}
-		if (!pad.getStartButton())
-			speedDownPressed = false;
-
-		// P value
-		if (pad.getDPad() == 0 && !pUpPressed) {
-			pUpPressed = true;
-			p += 0.1;
-		}
-		if (!(pad.getDPad() == 0))
-			pUpPressed = false;
-
-		if (pad.getDPad() == 4 && !pDownPressed) {
-			pDownPressed = true;
-			p -= 0.1;
-		}
-		if (!(pad.getDPad() == 4))
-			pDownPressed = false;
-
-		// I value
-		if (pad.getDPad() == 2 && !iUpPressed) {
-			iUpPressed = true;
-			i += 0.1;
-		}
-		if (!(pad.getDPad() == 2))
-			iUpPressed = false;
-
-		if (pad.getDPad() == 6 && !iDownPressed) {
-			iDownPressed = true;
-			i -= 0.1;
-		}
-		if (!(pad.getDPad() == 6))
-			iDownPressed = false;
-
-		// D value
-		if (pad.getYButton() && !dUpPressed) {
-			dUpPressed = true;
-			d += 0.1;
-		}
-		if (!pad.getYButton())
-			dUpPressed = false;
-
-		if (pad.getAButton() && !dDownPressed) {
-			dDownPressed = true;
-			d -= 0.1;
-		}
-		if (!pad.getAButton())
-			dDownPressed = false;
-
-		// F value
-		if (pad.getXButton() && !fUpPressed) {
-			fUpPressed = true;
-			f += 0.01;
-		}
-		if (!pad.getXButton())
-			fUpPressed = false;
-
-		if (pad.getBButton() && !fDownPressed) {
-			fDownPressed = true;
-			f -= 0.01;
-		}
-		if (!pad.getBButton())
-			fDownPressed = false;
-
-		talonDrive.speedTankDrive(pad.getLeftAnalogY() * rpm * -1, pad.getRightAnalogY() * rpm * -1, false);
-		talonDrive.setPID(p, i, d, f);
-
-		dash.putNumber("RPM", rpm);
-		dash.putNumber("P", p);
-		dash.putNumber("I", i);
-		dash.putNumber("D", d);
-		dash.putNumber("F", f);
 	}
 }
