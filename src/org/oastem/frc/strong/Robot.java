@@ -759,9 +759,12 @@ public class Robot extends SampleRobot {
 	private int green = 0;
 	private int blue = 0;
 	private boolean strobeOff = true;
+	private boolean isStrobing = false;
 	
 	private boolean fadeRGB(int r, int g, int b)
 	{
+		isStrobing = false;
+		
 		boolean red = false;
 		boolean green = false;
 		boolean blue = false;
@@ -797,36 +800,47 @@ public class Robot extends SampleRobot {
 		return red && green && blue;
 	}
 	
-	private void fadeHSB(float h, float s, float b)
+	private boolean fadeHSB(float h, float s, float b)
 	{
 		Color col = Color.getHSBColor(h, s, b);
-		fadeRGB(col.getRed(), col.getGreen(), col.getBlue());
+		return fadeRGB(col.getRed(), col.getGreen(), col.getBlue());
 	}
 	
 	
-	private void strobe(int r, int g, int b, int secPerCycle)
-	{		
+	private void strobeRGB(int r, int g, int b)
+	{
+		if (!isStrobing)
+		{
+			setRGB(r, g, b);
+			isStrobing = true;
+		}
 		
 		float[] hsbCol = new float[3];
 		Color.RGBtoHSB(this.red, this.green, this.blue, hsbCol);
 		if (strobeOff)
 		{
-			setHSB(hsbCol[0], hsbCol[1], hsbCol[2]--);
+			setHSB(hsbCol[0], hsbCol[1], hsbCol[2] -= 0.01);
 			if (hsbCol[2] == 0)
 				strobeOff = false;
 		}
 		else
 		{
-			setHSB(hsbCol[0], hsbCol[1], hsbCol[2]++);
+			setHSB(hsbCol[0], hsbCol[1], hsbCol[2] += 0.01);
 			if (hsbCol[2] == Color.RGBtoHSB(r, g, b, null)[2])
 				strobeOff = true;
 		}
-		
-			
+	}
+	
+	private void strobeHSB(float h, float s, float b)
+	{
+		Color col = Color.getHSBColor(h, s, b);
+		strobeRGB(col.getRed(), col.getGreen(), col.getBlue());
 	}
 	
 	private void setRGB(int r, int g, int b)
 	{
+		isStrobing = false;
+		
 		this.red = r;
 		this.green = g;
 		this.blue = b;
