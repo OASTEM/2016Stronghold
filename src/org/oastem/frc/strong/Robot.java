@@ -760,6 +760,8 @@ public class Robot extends SampleRobot {
 	private int blue = 0;
 	private boolean strobeOff = true;
 	private boolean isStrobing = false;
+	private boolean flashIsOn = true;
+	private long lastFlashTime = 0;
 	
 	private boolean fadeRGB(int r, int g, int b)
 	{
@@ -835,6 +837,27 @@ public class Robot extends SampleRobot {
 	{
 		Color col = Color.getHSBColor(h, s, b);
 		strobeRGB(col.getRed(), col.getGreen(), col.getBlue());
+	}
+	
+	
+	private void flashRGB(int r, int g, int b, int numFlashPerSecond)
+	{
+		float secPerFlash = (1/numFlashPerSecond) * 1000;
+		currTime = System.currentTimeMillis();
+		
+		if (currTime - lastFlashTime >= secPerFlash/2)
+			flashIsOn = !flashIsOn;
+		
+		if (flashIsOn)
+			setRGB(r, g, b);
+		else
+			setRGB(0, 0, 0);
+	}
+	
+	private void flashHSB(float h, float s, float b, int numFlashPerSecond)
+	{
+		Color col = Color.getHSBColor(h, s, b);
+		flashRGB(col.getRed(), col.getGreen(), col.getBlue(), numFlashPerSecond);
 	}
 	
 	private void setRGB(int r, int g, int b)
