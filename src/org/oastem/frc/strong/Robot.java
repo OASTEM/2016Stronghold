@@ -1,5 +1,7 @@
 package org.oastem.frc.strong;
 
+import java.awt.Color;
+
 import org.oastem.frc.*;
 import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
@@ -756,8 +758,9 @@ public class Robot extends SampleRobot {
 	private int red = 0;
 	private int green = 0;
 	private int blue = 0;
+	private boolean strobeOff = true;
 	
-	private boolean fade(int r, int g, int b)
+	private boolean fadeRGB(int r, int g, int b)
 	{
 		boolean red = false;
 		boolean green = false;
@@ -794,7 +797,49 @@ public class Robot extends SampleRobot {
 		return red && green && blue;
 	}
 	
+	private void fadeHSB(float h, float s, float b)
+	{
+		Color col = Color.getHSBColor(h, s, b);
+		fadeRGB(col.getRed(), col.getGreen(), col.getBlue());
+	}
 	
+	
+	private void strobe(int r, int g, int b, int secPerCycle)
+	{		
+		
+		float[] hsbCol = new float[3];
+		Color.RGBtoHSB(this.red, this.green, this.blue, hsbCol);
+		if (strobeOff)
+		{
+			setHSB(hsbCol[0], hsbCol[1], hsbCol[2]--);
+			if (hsbCol[2] == 0)
+				strobeOff = false;
+		}
+		else
+		{
+			setHSB(hsbCol[0], hsbCol[1], hsbCol[2]++);
+			if (hsbCol[2] == Color.RGBtoHSB(r, g, b, null)[2])
+				strobeOff = true;
+		}
+		
+			
+	}
+	
+	private void setRGB(int r, int g, int b)
+	{
+		this.red = r;
+		this.green = g;
+		this.blue = b;
+		redLED.setRaw(this.red);
+		greenLED.setRaw(this.green);
+		blueLED.setRaw(this.blue);
+	}
+	
+	private void setHSB(float h, float s, float b)
+	{
+		Color col = Color.getHSBColor(h, s, b);
+		setRGB(col.getRed(), col.getGreen(), col.getBlue());
+	}
 	
 	private final boolean LED_TESTING = true;
 	/**
@@ -803,14 +848,28 @@ public class Robot extends SampleRobot {
 	public void test() {
 		if (LED_TESTING)
 		{
-			if (pad.getBButton())
-				fade(255, 0, 0);
-			else if (pad.getAButton())
-				fade(0, 255, 0);
-			else if (pad.getXButton())
-				fade(0, 0, 255);
+			if (pad.getLeftBumper())
+			{
+				if (pad.getBButton())
+					fadeRGB(255, 0, 0);
+				else if (pad.getAButton())
+					fadeRGB(0, 255, 0);
+				else if (pad.getXButton())
+					fadeRGB(0, 0, 255);
+				else
+					fadeRGB(0, 0, 0);
+			}
 			else
-				fade(0, 0, 0);
+			{
+				if (pad.getBButton())
+					setRGB(255, 0, 0);
+				else if (pad.getAButton())
+					setRGB(0, 255, 0);
+				else if (pad.getXButton())
+					setRGB(0, 0, 255);
+				else
+					setRGB(0, 0, 0);
+			}
 		}
 		else
 		{
