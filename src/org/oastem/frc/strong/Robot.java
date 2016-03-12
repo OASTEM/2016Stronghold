@@ -70,8 +70,8 @@ public class Robot extends SampleRobot {
 	private SmartDashboard dash;
 	private SendableChooser autoSelect;
 	private final String defaultAuto = "Test";
-	private final String customAuto1 = "Low Terrain";
-	private final String customAuto2 = "Other Terrain";
+	private final String customAuto1 = "Low Bar";
+	private final String customAuto2 = "Moat";
 	private final String customAuto3 = "Portcullis";
 
 	private FRCGyroAccelerometer gyro;
@@ -167,10 +167,12 @@ public class Robot extends SampleRobot {
 
 	// AUTONOMOUS MODES
 
-	private static final int LOW_BAR = 0;
+	private static final int RAMPARTS = 0;
 	private static final int OTHER_TERRAIN = 1;
 	private static final int PORTCULLIS = 2;
 	private static final int TEST = 3;
+	
+	private boolean startCross = false;
 
 	public void autonomous() {
 		String state = "Neutral";
@@ -179,7 +181,7 @@ public class Robot extends SampleRobot {
 		if (autoSelect.getSelected().equals(defaultAuto))
 			autoMode = TEST;
 		if (autoSelect.getSelected().equals(customAuto1))
-			autoMode = LOW_BAR;
+			autoMode = RAMPARTS;
 		if (autoSelect.getSelected().equals(customAuto2))
 			autoMode = OTHER_TERRAIN;
 		if (autoSelect.getSelected().equals(customAuto3))
@@ -197,20 +199,29 @@ public class Robot extends SampleRobot {
 
 			if (state.equals("Neutral") && passDefense(autoMode))
 				state = "Passed";
-			if (state.equals("Passed") && reverse(autoMode))
+			else if (state.equals("Passed") && reverse(autoMode))
 				state = "Returned";
-			if (state.equals("Returned") && reset(autoMode))
-				state = "Back";
+			else if (state.equals("Returned") && stateOfArm != MANUAL_STATE)
+				doArm();
+			else
+				state = "Done";
+				
 		}
 	}
 
 	private boolean passDefense(int mode) {
-		if (mode == LOW_BAR) {
+		if (mode == RAMPARTS) {
 
 			return true;
 		}
 		if (mode == OTHER_TERRAIN) {
-
+			// drive straight 60 rpm
+			// if angled up
+				// startCross = true
+			// if startCross && straight for a while)
+				// startCross = false
+				// return true
+			
 			return true;
 		}
 		if (mode == PORTCULLIS) {
@@ -225,12 +236,17 @@ public class Robot extends SampleRobot {
 	}
 
 	private boolean reverse(int mode) {
-		if (mode == LOW_BAR) {
+		if (mode == RAMPARTS) {
 
 			return true;
 		}
 		if (mode == OTHER_TERRAIN) {
-
+			// drive straight -60 rpm (backwards)
+			// if angled up
+				// startCross = true
+			// if startCross && straight for a while)
+				// startCross = false
+				// return true
 			return true;
 		}
 		if (mode == PORTCULLIS) {
@@ -244,25 +260,7 @@ public class Robot extends SampleRobot {
 		return false;
 	}
 
-	private boolean reset(int mode) {
-		if (mode == LOW_BAR) {
-
-			return true;
-		}
-		if (mode == OTHER_TERRAIN) {
-
-			return true;
-		}
-		if (mode == PORTCULLIS) {
-
-			return true;
-		}
-		if (mode == TEST) {
-
-			return true;
-		}
-		return false;
-	}
+	
 
 	/**
 	 * Runs the motors with arcade steering.
