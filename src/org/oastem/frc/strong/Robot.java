@@ -5,7 +5,6 @@ import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
 
 import edu.wpi.first.wpilibj.BuiltInAccelerometer;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
@@ -16,6 +15,8 @@ import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
+
+import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin.FakeFocusTextField;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -86,6 +87,7 @@ public class Robot extends SampleRobot {
 	private DigitalInput armLimit;
 	private CameraServer camera;
 	private QuadratureEncoder armEnc;
+	private Timer time;
 
 	// Joystick commands
 
@@ -172,95 +174,29 @@ public class Robot extends SampleRobot {
 	private static final int PORTCULLIS = 2;
 	private static final int TEST = 3;
 	
+	private final double DEFTHRESH = 0.1;
+	
 	private boolean startCross = false;
+	private boolean onTerrain = false;
 
 	public void autonomous() {
-		String state = "Neutral";
-		talonDrive.resetGyro();
-		int autoMode = 0;
-		if (autoSelect.getSelected().equals(defaultAuto))
-			autoMode = TEST;
-		if (autoSelect.getSelected().equals(customAuto1))
-			autoMode = RAMPARTS;
-		if (autoSelect.getSelected().equals(customAuto2))
-			autoMode = OTHER_TERRAIN;
-		if (autoSelect.getSelected().equals(customAuto3))
-			autoMode = PORTCULLIS;
-
-		/*
-		 * if (auto1.get()) { if (auto2.get()) { autoMode = LOW_BAR; } else
-		 * autoMode = OTHER_TERRAIN; } else { if (auto2.get()) autoMode =
-		 * PORTCULLIS; }
-		 */
-
-		while (isAutonomous() && isEnabled()) {
-			dash.putNumber("Autonomous Type:", autoMode);
-			dash.putString("Autonomous State:", state);
-
-			if (state.equals("Neutral") && passDefense(autoMode))
-				state = "Passed";
-			else if (state.equals("Passed") && reverse(autoMode))
-				state = "Returned";
-			else if (state.equals("Returned") && stateOfArm != MANUAL_STATE)
-				doArm();
-			else
-				state = "Done";
-				
+		while(!calibrateArm()){
+			dash.putBoolean("Calibrating Arm", true);
 		}
+		dash.putBoolean("Calibrating Arm", false);
+		time.start();
+		while(time.get()<13){
+			if(Math.abs(gyro.getAccelY())>DEFTHRESH){
+				onTerrain = true;
+				talonDrive.driveStraight(30);
+			}
+			else{
+				onTerrain = false;
+				talonDrive.driveStraight(10);
+			}
+		}
+		talonDrive.driveStraight(0);
 	}
-
-	private boolean passDefense(int mode) {
-		if (mode == RAMPARTS) {
-
-			return true;
-		}
-		if (mode == OTHER_TERRAIN) {
-			// drive straight 60 rpm
-			// if angled up
-				// startCross = true
-			// if startCross && straight for a while)
-				// startCross = false
-				// return true
-			
-			return true;
-		}
-		if (mode == PORTCULLIS) {
-
-			return true;
-		}
-		if (mode == TEST) {
-
-			return true;
-		}
-		return false;
-	}
-
-	private boolean reverse(int mode) {
-		if (mode == RAMPARTS) {
-
-			return true;
-		}
-		if (mode == OTHER_TERRAIN) {
-			// drive straight -60 rpm (backwards)
-			// if angled up
-				// startCross = true
-			// if startCross && straight for a while)
-				// startCross = false
-				// return true
-			return true;
-		}
-		if (mode == PORTCULLIS) {
-
-			return true;
-		}
-		if (mode == TEST) {
-
-			return true;
-		}
-		return false;
-	}
-
-	
 
 	/**
 	 * Runs the motors with arcade steering.
