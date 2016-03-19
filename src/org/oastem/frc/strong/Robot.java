@@ -16,8 +16,6 @@ import edu.wpi.first.wpilibj.Timer;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
 
-import com.sun.javafx.scene.control.skin.ComboBoxListViewSkin.FakeFocusTextField;
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -174,7 +172,7 @@ public class Robot extends SampleRobot {
 	private static final int PORTCULLIS = 2;
 	private static final int TEST = 3;
 	
-	private final double DEFTHRESH = 0.1;
+	private static final double DEF_THRESH = 0.1;
 	
 	private boolean startCross = false;
 	private boolean onTerrain = false;
@@ -185,8 +183,8 @@ public class Robot extends SampleRobot {
 		}
 		dash.putBoolean("Calibrating Arm", false);
 		time.start();
-		while(time.get()<13){
-			if(Math.abs(gyro.getAccelY())>DEFTHRESH){
+		while(time.get() < 13){
+			if(Math.abs(gyro.getAccelY()) > DEF_THRESH){
 				onTerrain = true;
 				talonDrive.driveStraight(30);
 			}
