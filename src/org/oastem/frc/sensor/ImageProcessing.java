@@ -168,25 +168,29 @@ public class ImageProcessing {
 	 *         area, where the first column is the x value and the second column
 	 *         is the y value.
 	 */
-	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int point) { //FIX THIS SHIT SPRING
+	public double[][] getPolygon(ArrayList<ArrayList<Double>> points, int point) { // FIX
+																					// THIS
+																					// SHIT
+																					// SPRING
 		shape = new double[point][2];
 		area = 0;
 		this.point = point;
 		this.points = points;
-		
+
 		largest = new double[point][2];
-		
+
 		for (int i = 0; i < points.get(0).size(); i++)
 			permutation(i, point);
 
 		return largest;
 	}
-	
-	public double[][] getPolywhirl(ArrayList<ArrayList<Double>> points, int point){
-		/*System.out.println("points array");
-		for (int i = 0; i < points.get(0).size(); i++)
-			System.out.println(points.get(0).get(i) + "\t" + points.get(1).get(i));
-		*/
+
+	public double[][] getPolywhirl(ArrayList<ArrayList<Double>> points, int point) {
+		/*
+		 * System.out.println("points array"); for (int i = 0; i <
+		 * points.get(0).size(); i++) System.out.println(points.get(0).get(i) +
+		 * "\t" + points.get(1).get(i));
+		 */
 		double centerX = 0;
 		double centerY = 0;
 
@@ -196,35 +200,35 @@ public class ImageProcessing {
 		}
 		centerX /= points.get(0).size();
 		centerY /= points.get(0).size();
-		
+
 		dash.putNumber("center x:", centerX);
 		dash.putNumber("center y:", centerY);
-		
-		//System.out.println("Center X: " + centerX + ", Center Y: " + centerY);
-		
+
+		// System.out.println("Center X: " + centerX + ", Center Y: " +
+		// centerY);
+
 		double[] lengths = new double[points.get(0).size()];
 		double[][] curr = new double[points.get(0).size()][2];
-		
-		for (int i = 0; i < points.get(0).size(); i++){
+
+		for (int i = 0; i < points.get(0).size(); i++) {
 			curr[i][0] = points.get(0).get(i);
 			curr[i][1] = points.get(1).get(i);
 			lengths[i] = Math.hypot(curr[i][1] - centerY, curr[i][0] - centerX);
 		}
-		
-		/*System.out.println("lengths array");
-		for (int i = 0; i < lengths.length; i++)
-			System.out.println(lengths[i]);
-			*/
-		//for (int r = 0; r < points.size(); r++)
-		//	System.out.println(curr[r][0] + "\t" + curr[r][1]);
-		/*System.out.println("curr array before sort");
-		for (int i = 0; i < curr.length; i++)
-			System.out.println(curr[i][0] + "\t" + curr[i][1]);
-		*/
-		
-		
+
+		/*
+		 * System.out.println("lengths array"); for (int i = 0; i <
+		 * lengths.length; i++) System.out.println(lengths[i]);
+		 */
+		// for (int r = 0; r < points.size(); r++)
+		// System.out.println(curr[r][0] + "\t" + curr[r][1]);
+		/*
+		 * System.out.println("curr array before sort"); for (int i = 0; i <
+		 * curr.length; i++) System.out.println(curr[i][0] + "\t" + curr[i][1]);
+		 */
+
 		boolean sorted = true;
-		
+
 		int j = 0;
 		while (sorted) {
 			sorted = false;
@@ -234,11 +238,11 @@ public class ImageProcessing {
 					double temp = lengths[i];
 					lengths[i] = lengths[i + 1];
 					lengths[i + 1] = temp;
-					
+
 					temp = curr[i][0];
 					curr[i][0] = curr[i + 1][0];
 					curr[i + 1][0] = temp;
-					
+
 					temp = curr[i][1];
 					curr[i][1] = curr[i + 1][1];
 					curr[i + 1][1] = temp;
@@ -246,26 +250,26 @@ public class ImageProcessing {
 				}
 			}
 		}
-		
+
 		for (int i = 0; i < lengths.length && i < 4; i++)
 			dash.putNumber("Length " + (i + 1), lengths[i]);
-		
-		/*System.out.println("curr array after sort");
-		for (int i = 0; i < curr.length; i++)
-			System.out.println(curr[i][0] + "\t" + curr[i][1]);
-		*/
-		double [][] re = new double[point][2];
+
+		/*
+		 * System.out.println("curr array after sort"); for (int i = 0; i <
+		 * curr.length; i++) System.out.println(curr[i][0] + "\t" + curr[i][1]);
+		 */
+		double[][] re = new double[point][2];
 		if (curr.length > 0) {
 			for (int i = 0; i < point && i < curr.length; i++) {
 				re[i][0] = curr[i][0];
 				re[i][1] = curr[i][1];
 			}
 		}
-		
-		/*System.out.println("re array");
-		for (int i = 0; i < re.length; i++)
-			System.out.println(re[i][0] + "\t" + re[i][1]);
-		*/
+
+		/*
+		 * System.out.println("re array"); for (int i = 0; i < re.length; i++)
+		 * System.out.println(re[i][0] + "\t" + re[i][1]);
+		 */
 		return re;
 
 	}
@@ -290,10 +294,9 @@ public class ImageProcessing {
 	 */
 	private void permutation(int index, int number) {
 		if (number == 0) {
-			if (getArea(shape) > area){
-				area = getArea(shape);				
-				for (int r = 0; r < shape.length; r++)
-				{
+			if (getArea(shape) > area) {
+				area = getArea(shape);
+				for (int r = 0; r < shape.length; r++) {
 					largest[r][0] = shape[r][0];
 					largest[r][1] = shape[r][1];
 				}
@@ -301,9 +304,9 @@ public class ImageProcessing {
 		} else {
 			shape[point - number][0] = points.get(0).get(index);
 			shape[point - number][1] = points.get(1).get(index);
-			for (int i = 0; i < points.get(0).size(); i++){
+			for (int i = 0; i < points.get(0).size(); i++) {
 				boolean match = false;
-				for (int j = 0; j < point - number - 1; j++){
+				for (int j = 0; j < point - number - 1; j++) {
 					match = (points.get(0).get(i) == shape[j][0] && points.get(1).get(i) == shape[j][1]);
 				}
 				if (!match)
@@ -338,26 +341,24 @@ public class ImageProcessing {
 		centerY /= curr.length;
 
 		double currentAngle;
-		for (int i = 0; i < angles.length; i++){
+		for (int i = 0; i < angles.length; i++) {
 			currentAngle = Math.atan((points[i][1] - centerY) / (points[i][0] - centerX));
-			
-			if (points[i][0] < centerX){
-				if (points[i][1] < centerY){
+
+			if (points[i][0] < centerX) {
+				if (points[i][1] < centerY) {
+					currentAngle += Math.PI;
+				} else if (points[i][1] > centerY) {
 					currentAngle += Math.PI;
 				}
-				else if (points[i][1] > centerY){
-					currentAngle += Math.PI;
-				}
-			}
-			else if (points[i][0] > centerX){
-				if (points[i][1] < centerY){
+			} else if (points[i][0] > centerX) {
+				if (points[i][1] < centerY) {
 					currentAngle += 2 * Math.PI;
 				}
 			}
-			
+
 			angles[i] = currentAngle;
 		}
-		
+
 		boolean sorted = true;
 
 		int j = 0;
@@ -369,11 +370,11 @@ public class ImageProcessing {
 					double temp = angles[i];
 					angles[i] = angles[i + 1];
 					angles[i + 1] = temp;
-					
+
 					temp = curr[i][0];
 					curr[i][0] = curr[i + 1][0];
 					curr[i + 1][0] = temp;
-					
+
 					temp = curr[i][1];
 					curr[i][1] = curr[i + 1][1];
 					curr[i + 1][1] = temp;
@@ -428,7 +429,7 @@ public class ImageProcessing {
 	 *         retrieved from the Network Table published by the
 	 *         "Publish ContoursReport" operation.
 	 */
-	public ArrayList<Double> solidities() {
+	public ArrayList<Double> getSolidities() {
 		switchType(ProcessingType.Contours);
 		double[] solidity = table.getNumberArray("solidity", defaultValue);
 
@@ -436,24 +437,33 @@ public class ImageProcessing {
 	}
 
 	/**
-	 * Gets the centers from the contours detected by the GRIP image processor.
+	 * Gets the x values of centers from the contours detected by the GRIP image
+	 * processor.
 	 * 
-	 * @return An ArrayList of centers from the contours retrieved from the
-	 *         Network Table published by the "Publish ContoursReport"
+	 * @return An ArrayList of x values of centers from the contours retrieved
+	 *         from the Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<ArrayList<Double>> centers() {
+	public ArrayList<Double> getCenterX() {
 		switchType(ProcessingType.Contours);
 		double[] x = table.getNumberArray("centerX", defaultValue);
+
+		return convert(x);
+	}
+
+	/**
+	 * Gets the y values of centers from the contours detected by the GRIP image
+	 * processor.
+	 * 
+	 * @return An ArrayList of y values of centers from the contours retrieved
+	 *         from the Network Table published by the "Publish ContoursReport"
+	 *         operation.
+	 */
+	public ArrayList<Double> getCenterY() {
+		switchType(ProcessingType.Contours);
 		double[] y = table.getNumberArray("centerY", defaultValue);
-		double[][] center = new double[x.length][2];
 
-		for (int i = 0; i < x.length; i++) {
-			center[i][0] = x[i];
-			center[i][1] = y[i];
-		}
-
-		return convert(center);
+		return convert(y);
 	}
 
 	/**
@@ -463,7 +473,7 @@ public class ImageProcessing {
 	 *         Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<Double> widths() {
+	public ArrayList<Double> getWidths() {
 		switchType(ProcessingType.Contours);
 		double[] width = table.getNumberArray("width", defaultValue);
 
@@ -477,7 +487,7 @@ public class ImageProcessing {
 	 *         Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<Double> heights() {
+	public ArrayList<Double> getHeights() {
 		switchType(ProcessingType.Contours);
 		double[] height = table.getNumberArray("height", defaultValue);
 
@@ -491,7 +501,7 @@ public class ImageProcessing {
 	 *         Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<Double> areas() {
+	public ArrayList<Double> getAreas() {
 		switchType(ProcessingType.Contours);
 		double[] height = table.getNumberArray("height", defaultValue);
 
@@ -505,7 +515,7 @@ public class ImageProcessing {
 	 *         Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<Double> xValues() {
+	public ArrayList<Double> getXValues() {
 		switchType(ProcessingType.Blobs);
 		double[] x = table.getNumberArray("x", defaultValue);
 
@@ -519,7 +529,7 @@ public class ImageProcessing {
 	 *         Network Table published by the "Publish ContoursReport"
 	 *         operation.
 	 */
-	public ArrayList<Double> yValues() {
+	public ArrayList<Double> getYValues() {
 		switchType(ProcessingType.Blobs);
 		double[] y = table.getNumberArray("y", defaultValue);
 
@@ -532,7 +542,7 @@ public class ImageProcessing {
 	 * @return An ArrayList of the sizes of the blobs retrieved from the Network
 	 *         Table published by the "Publish ContoursReport" operation.
 	 */
-	public ArrayList<Double> sizes() {
+	public ArrayList<Double> getSizes() {
 		switchType(ProcessingType.Blobs);
 		double[] size = table.getNumberArray("sizes", defaultValue);
 

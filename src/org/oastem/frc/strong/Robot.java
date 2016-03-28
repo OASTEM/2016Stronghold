@@ -1,5 +1,7 @@
 package org.oastem.frc.strong;
 
+import org.oastem.frc.LogitechGamingPad;
+import org.oastem.frc.control.DriveSystem;
 import org.oastem.frc.sensor.ImageProcessing;
 import org.oastem.frc.sensor.ImageProcessing.ProcessingType;
 
@@ -31,21 +33,28 @@ import java.util.ArrayList;
  * instead if you're new.
  */
 public class Robot extends SampleRobot {
-	Joystick stickLeft;
-	Joystick stickRight;
+	DriveSystem drive;
+	LogitechGamingPad pad;
 	final String defaultAuto = "Default";
 	final String customAuto = "My Auto";
 	SendableChooser chooser;
 	SmartDashboard dash;
+	final int LEFT_FRONT = 0;
+	final int LEFT_REAR = 1;
+	final int RIGHT_FRONT = 3;
+	final int RIGHT_REAR = 2;
 	
 	CameraServer camera;
 
 	ImageProcessing process;
 
 	public void robotInit() {
+		drive = DriveSystem.getInstance();
+		drive.initializeDrive(LEFT_FRONT, LEFT_REAR, RIGHT_FRONT, RIGHT_REAR);
 		chooser = new SendableChooser();
 		chooser.addDefault("Default Auto", defaultAuto);
 		chooser.addObject("My Auto", customAuto);
+		pad = new LogitechGamingPad(0);
 
 		dash = new SmartDashboard();
 		dash.putData("Auto modes", chooser);
@@ -53,8 +62,6 @@ public class Robot extends SampleRobot {
 		camera = CameraServer.getInstance();
 		camera.startAutomaticCapture("cam0");
 		
-		stickLeft = new Joystick(0);
-		stickLeft = new Joystick(1);
 		process = new ImageProcessing("GRIP/myContoursReport", "GRIP/myLinesReport", "GRIP/myBlobsReport");
 
 	}
@@ -80,52 +87,53 @@ public class Robot extends SampleRobot {
 
 		dash.putString("list", shit[0] + "" + shit[1] + "" + shit[2]);
 		
-		ArrayList<ArrayList<Double>> originPoints = new ArrayList<ArrayList<Double>>();
-	
-		ArrayList<Double> xCoor = new ArrayList<Double>();
-		ArrayList<Double> yCoor = new ArrayList<Double>();
-		/*xCoor.add(0.0);
-		yCoor.add(0.0);	
-		xCoor.add(0.0);
-		yCoor.add(4.0);
-		xCoor.add(4.0);
-		yCoor.add(0.0);
-		xCoor.add(4.0);
-		yCoor.add(4.0);
-		xCoor.add(2.0);
-		yCoor.add(2.0);*/
-		/*xCoor.add(0.0);
-		yCoor.add(0.0);
-		xCoor.add(0.0);
-		yCoor.add(5.0);
-		xCoor.add(1.0);
-		yCoor.add(4.0);
-		xCoor.add(1.0);
-		yCoor.add(2.0);
-		xCoor.add(4.0);
-		yCoor.add(1.0);
-		xCoor.add(4.0);
-		yCoor.add(4.0);
-		xCoor.add(5.0);
-		yCoor.add(3.0);
-		xCoor.add(5.0);
-		yCoor.add(0.0);
-		*/
-		/*originPoints.add(xCoor);
-		originPoints.add(yCoor);*/	
-		//double[][] finalPoints = process.getPolywhirl(originPoints, 4);
+		double [] center;
+		double currSize;
 		
-		int yolo = 0;
+		double cen = 0; //REPLACE
+		double curr;
+		
+		boolean autotarget = false;
+		
+		
 		while (isOperatorControl() && isEnabled()) {
+			if (pad.getBackButton())
+				autotarget = false;
 			
-			originPoints = process.getPoints();
-			double[][] finalPoints = process.getPolywhirl(originPoints, 4);
-			for(int x = 0; x < finalPoints.length; x++){
-				dash.putNumber("WhirlPoint " + (x+1) + "X", finalPoints[x][0]);
-				dash.putNumber("WhirlPoint " + (x+1) + "Y", finalPoints[x][1]);
+			if (pad.getStartButton())
+				autotarget = true;
+			
+			ArrayList <Double> size = process.getAreas();
+			ArrayList<Double> targetX = process.getCenterX();
+			curr = 0;
+			currSize = 0;
+			for(int x = 0; x < size.size() && x < targetX.size(); x++){
+				if (size.get(x) > currSize){
+					curr = targetX.get(x);
+				}
+			}
+			dash.putNumber("size", currSize);
+			dash.putNumber("centerx", curr);
+			
+			if (autotarget){
+				if (curr == 0){
+				}
+				else if (curr < cen)
+					drive.mecanumDrive(0, -0.5, 0, 0);
+				else if (curr > cen)
+					drive.mecanumDrive(0, 0.5, 0, 0);
+			}
+			else{
+				drive.mecanumDrive(0, pad.getLeftAnalogX(), pad.getLeftAnalogY(), 0);
 			}
 			
-			/*double[][] finalPoints = process.getPolygon(originPoints, 4);
+			if (pad.getLeftBumper())
+				drive.mecanumDrive(-1.0, 0, 0, 0);
+			if (pad.getRightBumper())
+				drive.mecanumDrive(1.0, 0, 0, 0);
+			
+			/* DOESN'T WORK
+			double[][] finalPoints = process.getPolywhirl(process.getPoints(), 4);
 			for(int x = 0; x < finalPoints.length; x++){
 				dash.putNumber("GonPoint " + (x+1) + "X", finalPoints[x][0]);
 				dash.putNumber("GonPoint " + (x+1) + "Y", finalPoints[x][1]);
