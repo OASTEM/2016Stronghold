@@ -203,6 +203,7 @@ public class Robot extends SampleRobot {
 		stateOfArm = CALIBRATE_STATE;
 		startTeleopTime = System.currentTimeMillis();
 		boolean stop = false;
+		released = false;
 
 		gyro.resetGyro();
 		int what = 0; // Spring insisted
