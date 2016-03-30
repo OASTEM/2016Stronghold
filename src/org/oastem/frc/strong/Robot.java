@@ -208,8 +208,6 @@ public class Robot extends SampleRobot {
 		int what = 0; // Spring insisted
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
-			dash.putNumber("Left Y", pad.getLeftAnalogY());
-			dash.putNumber("Right Y", pad.getRightAnalogY());
 			dash.putBoolean("Speed Toggle", speedToggle);
 			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
