@@ -99,8 +99,6 @@ public class Robot extends SampleRobot {
 	private boolean speedButtonPressed;
 	private boolean straightPressed1;
 	private boolean straightPressed2;
-	private boolean eStop1Pressed;
-	private boolean eStop2Pressed;
 	private boolean armPressed = false;
 
 	public Robot() {
@@ -243,10 +241,10 @@ public class Robot extends SampleRobot {
 			activateAssistButtonPressed = pad.getXButton();
 			speedButtonPressed = pad.getAButton();
 			manualButtonPressed = pad.getBButton();
-			eStop1Pressed = pad.getBackButton();
-			eStop2Pressed = pad.getStartButton();
 
-			if (eStop1Pressed && eStop2Pressed)
+			// Check for emergency stop controller combination:
+			// tapping both the back and start button.
+			if (pad.getBackButton() && pad.getStartButton())
 				continue;
 
 			// "Arcade" Drive
