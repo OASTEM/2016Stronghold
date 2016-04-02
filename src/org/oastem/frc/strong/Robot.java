@@ -202,13 +202,12 @@ public class Robot extends SampleRobot {
 	public void operatorControl() {
 		stateOfArm = CALIBRATE_STATE;
 		startTeleopTime = System.currentTimeMillis();
-		boolean stop = false;
 		released = false;
 
 		gyro.resetGyro();
-		int what = 0; // Spring insisted
+		int ticks = 0; // Spring insisted
 		while (isOperatorControl() && isEnabled()) {
-			dash.putNumber("Ticks", what++);
+			dash.putNumber("Ticks", ticks++);
 			dash.putBoolean("Speed Toggle", speedToggle);
 			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
 			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
@@ -248,40 +247,38 @@ public class Robot extends SampleRobot {
 			eStop2Pressed = pad.getStartButton();
 
 			if (eStop1Pressed && eStop2Pressed)
-				stop = true;
+				continue;
 
 			// "Arcade" Drive
 
-			if (!stop) {
-				if (pad.checkDPad(0)) {
-					talonDrive.driveStraight(70 * scaleTrigger(slowTrigger));
-				} else if (pad.checkDPad(1)) {
-					talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
-				} else if (pad.checkDPad(2)) {
-					talonDrive.faketankDrive(scaleTrigger(1.0), -scaleTrigger(1.0));
-				} else if (pad.checkDPad(3)) {
-					talonDrive.faketankDrive(scaleTrigger(0), -scaleTrigger(1.0));
-				} else if (pad.checkDPad(4)) {
-					talonDrive.driveStraight(-60 * scaleTrigger(slowTrigger));
-				} else if (pad.checkDPad(5)) {
-					talonDrive.faketankDrive(-scaleTrigger(1.0), scaleTrigger(0));
-				} else if (pad.checkDPad(6)) {
-					talonDrive.faketankDrive(-scaleTrigger(1.0), scaleTrigger(1.0));
-				} else if (pad.checkDPad(7)) {
-					talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(1.0));
-				} else
-					motorDrive();
-				doArm();
-				
-				if (!pad.checkDPad(0) || !pad.checkDPad(4))
-					talonDrive.resetTick();
+			if (pad.checkDPad(0)) {
+				talonDrive.driveStraight(70 * scaleTrigger(slowTrigger));
+			} else if (pad.checkDPad(1)) {
+				talonDrive.faketankDrive(scaleTrigger(1.0), scaleTrigger(0));
+			} else if (pad.checkDPad(2)) {
+				talonDrive.faketankDrive(scaleTrigger(1.0), -scaleTrigger(1.0));
+			} else if (pad.checkDPad(3)) {
+				talonDrive.faketankDrive(scaleTrigger(0), -scaleTrigger(1.0));
+			} else if (pad.checkDPad(4)) {
+				talonDrive.driveStraight(-60 * scaleTrigger(slowTrigger));
+			} else if (pad.checkDPad(5)) {
+				talonDrive.faketankDrive(-scaleTrigger(1.0), scaleTrigger(0));
+			} else if (pad.checkDPad(6)) {
+				talonDrive.faketankDrive(-scaleTrigger(1.0), scaleTrigger(1.0));
+			} else if (pad.checkDPad(7)) {
+				talonDrive.faketankDrive(scaleTrigger(0), scaleTrigger(1.0));
+			} else
+				motorDrive();
+			doArm();
+			
+			if (!pad.checkDPad(0) || !pad.checkDPad(4))
+				talonDrive.resetTick();
 
-				/*
-				 * if (armUpPressed){ armMotor.set(1); } else if
-				 * (armDownPressed){ armMotor.set(-0.65); } else
-				 * armMotor.set(0);
-				 */
-			}
+			/*
+			 * if (armUpPressed){ armMotor.set(1); } else if
+			 * (armDownPressed){ armMotor.set(-0.65); } else
+			 * armMotor.set(0);
+			 */
 		}
 	}
 
