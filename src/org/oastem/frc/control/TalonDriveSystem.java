@@ -61,6 +61,11 @@ public class TalonDriveSystem {// (:
 		backRightDrive = new CANTalon(rightRear);
 		backLeftDrive = new CANTalon(leftRear);
 		
+		frontRightDrive.enableBrakeMode(true);
+		frontLeftDrive.enableBrakeMode(true);
+		backRightDrive.enableBrakeMode(true);
+		backLeftDrive.enableBrakeMode(true);
+		
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
 		this.wheelCircum = wheelSircum;
@@ -77,6 +82,9 @@ public class TalonDriveSystem {// (:
 		frontLeftDrive = null;
 		backRightDrive = new CANTalon(right);
 		backLeftDrive = new CANTalon(left);
+		
+		backRightDrive.enableBrakeMode(true);
+		backLeftDrive.enableBrakeMode(true);
 		
 		encoderCodePerRev = pulsesPerRev;
 		this.wheelDiameter = wheelDiameter;
