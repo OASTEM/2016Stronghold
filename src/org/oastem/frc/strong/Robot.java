@@ -4,12 +4,10 @@ import org.oastem.frc.*;
 import org.oastem.frc.control.*;
 import org.oastem.frc.sensor.*;
 
-import edu.wpi.first.wpilibj.BuiltInAccelerometer;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Talon;
 import edu.wpi.first.wpilibj.CameraServer;
-import edu.wpi.first.wpilibj.PowerDistributionPanel;
 import edu.wpi.first.wpilibj.Timer;
 
 import org.oastem.frc.sensor.FRCGyroAccelerometer;
@@ -39,8 +37,6 @@ public class Robot extends SampleRobot {
 	private final int FRONT_RIGHT_CAN_DRIVE = 2;
 	private final int BACK_LEFT_CAN_DRIVE = 1;
 	private final int BACK_RIGHT_CAN_DRIVE = 3;
-	private final int AUTO_PORT_1 = 8;
-	private final int AUTO_PORT_2 = 9;
 	private final int ASSIST_LIMIT_PORT = 0;
 	private final int ARM_LIMIT_PORT = 1;
 	private final int ARM_PWM_PORT = 2;
@@ -60,24 +56,15 @@ public class Robot extends SampleRobot {
 
 	// Objects
 	private TalonDriveSystem talonDrive = TalonDriveSystem.getInstance();
-	private PowerDistributionPanel pdp;
 	private LogitechGamingPad pad;
 	private LogitechGamingPad padSupport;
 
 	private SmartDashboard dash;
 	private SendableChooser autoSelect;
-	private final String defaultAuto = "Test";
-	private final String customAuto1 = "Low Bar";
-	private final String customAuto2 = "Moat";
-	private final String customAuto3 = "Portcullis";
 
-	private FRCGyroAccelerometer gyro;
-	// private BuiltInAccelerometer accel;
 	private Talon armPWM;
 	private Talon winchMotor;
 	private Talon armAssistMotor;
-	private DigitalInput auto1;
-	private DigitalInput auto2;
 	private DigitalInput armAssistLimit;
 	private DigitalInput armLimit;
 	private CameraServer camera;
@@ -90,15 +77,11 @@ public class Robot extends SampleRobot {
 	private double winchTrigger;
 	private boolean armUpButtonPressed;
 	private boolean armDownButtonPressed;
-	private boolean manualButtonPressed;
 	private boolean releaseWinchButtonPressed;
 	private boolean activateAssistButtonPressed;
 	private boolean speedButtonPressed;
-	private boolean straightPressed1;
-	private boolean straightPressed2;
 	private boolean eStop1Pressed;
 	private boolean eStop2Pressed;
-	private boolean armPressed = false;
 
 	public Robot() {
 		talonDrive.initializeTalonDrive(FRONT_LEFT_CAN_DRIVE, BACK_LEFT_CAN_DRIVE, FRONT_RIGHT_CAN_DRIVE,
@@ -107,7 +90,6 @@ public class Robot extends SampleRobot {
 
 	public void robotInit() {
 		dash = new SmartDashboard();
-		gyro = new FRCGyroAccelerometer();
 		talonDrive.calibrateGyro();
 		armPWM = new Talon(ARM_PWM_PORT);
 		armPWM.setInverted(true);
@@ -135,9 +117,6 @@ public class Robot extends SampleRobot {
 
 		time = new Timer();
 
-		// pdp = new PowerDistributionPanel();
-		// pdp.clearStickyFaults();
-
 		drive = false;
 		speedToggle = false;
 	}
@@ -148,19 +127,12 @@ public class Robot extends SampleRobot {
 	private static final String DO_EVERYTHING = "Drive and arm";
 	private static final String DRIVE_ONLY = "Only Drive";
 	private static final String DO_NOTHING = "Do Nothing";
-	private static final int TEST = 3;
-
-	private static final double DEF_THRESH = 0.1;
-
-	private boolean startCross = false;
-	private boolean onTerrain = false;
 	private boolean crossed = false;
 
 	public void autonomous() {
 		crossed = false;
 		time.start();
 		dash.putNumber("Timer", time.get());
-		gyro.resetGyro();
 		
 		String autoSelected = (String) autoSelect.getSelected();
 		dash.putString("Autonomous Mode", autoSelected);
@@ -179,7 +151,7 @@ public class Robot extends SampleRobot {
 			double encCheckTime = time.get();
 			
 			while (time.get() < 15 && encCheck) {
-				dash.putNumber("Gyro Value:", gyro.getGyroAngle());
+				dash.putNumber("Gyro Value:", talonDrive.getAngle());
 				setArm(30);
 				if (getAngle() < 20 && time.get() - encCheckTime > 2){
 					encCheck = false;
@@ -218,20 +190,19 @@ public class Robot extends SampleRobot {
 	 */
 	public void operatorControl() {
 		stateOfArm = CALIBRATE_STATE;
-		startTeleopTime = System.currentTimeMillis();
 		boolean stop = false;
 		boolean armStop = false;
 		released = false;
-
-		gyro.resetGyro();
+		
+		talonDrive.resetGyro();
 		int what = 0; // Spring insisted
 		while (isOperatorControl() && isEnabled()) {
 			dash.putNumber("Ticks", what++);
 			dash.putBoolean("Speed Toggle", speedToggle);
-			dash.putNumber("Gyro Value:", gyro.getGyroAngle());
-			dash.putNumber("Accelerometer X Value: ", gyro.getAccelX());
-			dash.putNumber("Accelerometer Y Value: ", gyro.getAccelY());
-			dash.putNumber("Accelerometer Z Value: ", gyro.getAccelZ());
+			dash.putNumber("Gyro Value:", talonDrive.getAngle());
+			dash.putNumber("Accelerometer X Value: ", talonDrive.getAccelX());
+			dash.putNumber("Accelerometer Y Value: ", talonDrive.getAccelY());
+			dash.putNumber("Accelerometer Z Value: ", talonDrive.getAccelZ());
 
 			slowTrigger = pad.getLeftTriggerValue();
 			winchTrigger = pad.getRightTriggerValue();
@@ -284,9 +255,6 @@ public class Robot extends SampleRobot {
 	}
 
 	// Arm States
-	private final int TOP_STATE = 0;
-	private final int MIDDLE_STATE = 1;
-	private final int BOTTOM_STATE = 2;
 	private final int PORTCULLIS_STATE = 3;
 	private final int RELEASE_STATE = 5;
 	private final int CALIBRATE_STATE = 6;
@@ -296,10 +264,6 @@ public class Robot extends SampleRobot {
 	private final int MAX_ARM_VALUE = 100; 
 	private final int MIN_ARM_VALUE = 0;
 
-	private final double MOVE_POWER = 0.5;
-	private final double REST_BOT_POWER = 0.3;
-	private final double REST_MID_POWER = 0.4;
-	private final double REST_TOP_POWER = 0.3;
 	private final double ARM_MAN_POWER = 0.5;
 	private final double MAX_ARM_POWER = 1.0;
 	private final double ASSIST_DOWN_POWER = 0.4;
@@ -309,10 +273,8 @@ public class Robot extends SampleRobot {
 	private double CONSTANT_POWER = .0275; // for now
 
 	private int stateOfArm = CALIBRATE_STATE;
-	private boolean isManualState = false; 
 	private boolean isPortcullisState = false;
 	private int prevState;
-	private boolean manToggle = false;
 	private boolean assistToggle = false;
 	private boolean armAssistReset = false;
 	private boolean armDown = false;
@@ -321,12 +283,10 @@ public class Robot extends SampleRobot {
 	private boolean abortRelease = false;
 	private boolean calibrateStarting = true;
 
-	private long startTeleopTime = 0L;
 	private long currTime = 0L;
 	private long checkTime = 0L;
 	private double checkAngle = 0;
 	private double currAngle = 0;
-	private int goalValue;
 
 	private double getAngle() {
 		return armEnc.getDistance();
@@ -427,7 +387,6 @@ public class Robot extends SampleRobot {
 			dash.putString("State: ", "calibrate state");
 			break;
 		case RELEASE_STATE:
-			goalValue = RELEASE_ARM_VALUE;
 			dash.putBoolean("Arm released", released);
 
 			if (!released)

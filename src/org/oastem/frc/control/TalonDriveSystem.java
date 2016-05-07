@@ -134,6 +134,18 @@ public class TalonDriveSystem {// (:
 	public void resetGyro() {
 		gyro.resetGyro();
 	}
+	
+	public double getAccelX(){
+		return gyro.getAccelX();
+	}
+	
+	public double getAccelY(){
+		return gyro.getAccelY();
+	}
+	
+	public double getAccelZ(){
+		return gyro.getAccelZ();
+	}
 
 	private void changeTalonToSpeed() {
 		TalonControlMode mode = TalonControlMode.Speed;
