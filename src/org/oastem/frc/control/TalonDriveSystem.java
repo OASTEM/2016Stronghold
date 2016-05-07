@@ -22,7 +22,6 @@ public class TalonDriveSystem {// (:
 	private Accelerator accRight;
 	private FRCGyroAccelerometer gyro;
 	private int encoderCodePerRev;
-	private int wheelDiameter;
 	private double wheelCircum;
 	private int tick;
 	private double startLeft;
@@ -55,7 +54,7 @@ public class TalonDriveSystem {// (:
 	}
 
 	public void initializeTalonDrive(int leftFront, int leftRear, int rightFront, int rightRear, int pulsesPerRev,
-			int wheelDiameter, double wheelSircum) {
+			int wheelDiameter) {
 		frontRightDrive = new CANTalon(rightFront);
 		frontLeftDrive = new CANTalon(leftFront);
 		backRightDrive = new CANTalon(rightRear);
@@ -67,8 +66,7 @@ public class TalonDriveSystem {// (:
 		backLeftDrive.enableBrakeMode(true);
 		
 		encoderCodePerRev = pulsesPerRev;
-		this.wheelDiameter = wheelDiameter;
-		this.wheelCircum = wheelSircum;
+		wheelCircum = wheelDiameter * Math.PI;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
 		gyro = new FRCGyroAccelerometer();
@@ -77,7 +75,7 @@ public class TalonDriveSystem {// (:
 	}
 
 	// :-)
-	public void initializeTalonDrive(int left, int right, int pulsesPerRev, int wheelDiameter, double wheelSircum) {
+	public void initializeTalonDrive(int left, int right, int pulsesPerRev, int wheelDiameter) {
 		frontRightDrive = null;
 		frontLeftDrive = null;
 		backRightDrive = new CANTalon(right);
@@ -87,8 +85,7 @@ public class TalonDriveSystem {// (:
 		backLeftDrive.enableBrakeMode(true);
 		
 		encoderCodePerRev = pulsesPerRev;
-		this.wheelDiameter = wheelDiameter;
-		this.wheelCircum = wheelSircum;
+		wheelCircum = wheelDiameter * Math.PI;
 		accLeft = new Accelerator();
 		accRight = new Accelerator();
 		gyro = new FRCGyroAccelerometer();
@@ -98,8 +95,10 @@ public class TalonDriveSystem {// (:
 	}
 
 	private void initCan() {
-		frontRightDrive.changeControlMode(TalonControlMode.Follower);
-		frontLeftDrive.changeControlMode(TalonControlMode.Follower);
+		if (frontRightDrive != null)
+			frontRightDrive.changeControlMode(TalonControlMode.Follower);
+		if (frontLeftDrive != null)
+			frontLeftDrive.changeControlMode(TalonControlMode.Follower);
 		TalonControlMode mode = TalonControlMode.Speed;
 		FeedbackDevice encoder = FeedbackDevice.QuadEncoder;
 		
@@ -195,8 +194,8 @@ public class TalonDriveSystem {// (:
 		double rightRPM = rightValuePerMin;
 		
 		if (isInInches) {
-			leftRPM /= wheelDiameter;
-			rightRPM /= wheelDiameter;
+			leftRPM /= wheelCircum;
+			rightRPM /= wheelCircum;
 		}
 		
 		backLeftDrive.set(leftRPM);
@@ -207,30 +206,6 @@ public class TalonDriveSystem {// (:
 		
 		slave();
 	}// c:
-
-	public void fakeSpeedTankDrive(double leftValuePerMin, double rightValuePerMin, boolean isInInches,
-			double scalePower) {
-		changeTalonToSpeed();
-		
-		double leftRPM = leftValuePerMin;
-		double rightRPM = rightValuePerMin;
-		
-		if (isInInches) {
-			leftRPM /= wheelDiameter;
-			rightRPM /= wheelDiameter;
-		}
-
-		double currLeft = (leftRPM - backLeftDrive.getSpeed()) / scalePower;
-		double currRight = (rightRPM - backRightDrive.getSpeed()) / scalePower;
-
-		backLeftDrive.set(currLeft);
-		backRightDrive.set(currRight);
-		
-		SmartDashboard.putNumber("Back Left Speed", backLeftDrive.get());
-		SmartDashboard.putNumber("Back Right Speed", backRightDrive.get());
-		
-		slave();
-	}
 
 	public void accelTankDrive(double left, double right) {
 		changeTalonToPercent();
@@ -244,7 +219,7 @@ public class TalonDriveSystem {// (:
 		slave();
 	}
 
-	public void faketankDrive(double left, double right) {
+	public void tankDrive(double left, double right) {
 		changeTalonToPercent();
 		
 		backLeftDrive.set(left);
@@ -260,7 +235,7 @@ public class TalonDriveSystem {// (:
 		slave();
 	}
 
-	public boolean fakeDriveDistance(double distanceInInches, boolean isFoward) {
+	public boolean driveDistance(double distanceInInches, boolean isFoward) {
 		changeTalonToSpeed();
 		
 		double leftDistance = backLeftDrive.getEncPosition() * wheelCircum;
